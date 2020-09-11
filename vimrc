@@ -237,6 +237,7 @@ augroup misc
 augroup end
 
 augroup ruby
+  autocmd!
   " Make ? part of a keyword
   autocmd FileType ruby,eruby,yaml setlocal iskeyword+=?
 augroup end
