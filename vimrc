@@ -182,6 +182,23 @@ nmap <silent> <leader>l :TestLast<CR>
 let test#strategy = 'dispatch'
 " }}}
 
+" {{{1 vim-rails config
+" This lets me create a test file properly
+let g:rails_projections = {
+      \ "test/models/*_test.rb": {"command": "modeltest",
+      \   "template":
+      \     ["require \"test_helper\"",
+      \      "",
+      \      "class {camelcase|capitalize|colons}Test < ActiveSupport::TestCase",
+      \      "end"]
+      \   }
+      \ }
+" }}}
+
+" {{{1 vim-rhubarb configs
+let g:github_enterprise_urls = ['https://github.iu.edu']
+" }}}
+
 " {{{1 Mappings
 nnoremap Q @q
 nmap 0 ^
@@ -193,20 +210,6 @@ if exists(':tnoremap')
 endif
 
 command! Vimrc vsp ~/.vimrc
-" }}}
-
-let g:rails_projections = {
-      \ "test/models/*_test.rb": {"command": "modeltest",
-      \   "template":
-      \     ["require \"test_helper\"",
-      \      "",
-      \      "class {camelcase|capitalize|colons}Test < ActiveSupport::TestCase",
-      \      "end"]
-      \   }
-      \ }
-
-" {{{1 vim-rhubarb configs
-let g:github_enterprise_urls = ['https://github.iu.edu']
 " }}}
 
 " {{{1 Autogroups
