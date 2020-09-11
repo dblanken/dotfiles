@@ -20,6 +20,8 @@ if !has('nvim')
   unlet! skip_defaults_vim
   source $VIMRUNTIME/defaults.vim
 
+  " My attempt to get as close to a nvim setup for vim as I can
+  " Referenced :h defaults in neovim
   set autoindent
   set autoread
   set background=dark
