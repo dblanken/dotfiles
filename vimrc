@@ -1,6 +1,7 @@
 " vim: nowrap fdm=marker
 scriptencoding utf-8
 
+" {{{1 Short circuits
 if has('nvim')
   if has('unix')
     let g:python_host_prog = expand('~/.asdf/shims/python2')
@@ -10,9 +11,11 @@ if has('nvim')
     let g:perl_host_prog = expand('/usr/local/bin/perl')
   endif
 endif
+" }}}
 
 let mapleader="\<Space>"
 
+" {{{1 Settings
 if !has('nvim')
   unlet! skip_defaults_vim
   source $VIMRUNTIME/defaults.vim
@@ -70,7 +73,9 @@ set formatoptions-=cro
 set nowrap
 set incsearch
 set updatetime=50
+" }}}
 
+" {{{1 Plugins
 call plugpac#begin()
 Pack 'k-takata/minpac', {'type': 'opt'}
 
@@ -152,24 +157,29 @@ call plugpac#end()
 
 set rtp+=/usr/local/opt/fzf
 
+" }}}
+
+" {{{1 FZF config
 let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
 let $FZF_DEFAULT_OPTS='--reverse'
 nnoremap <C-p> :GFiles<CR>
+" }}}
 
-if executable('rg')
-    let g:rg_derive_root='true'
-endif
-
+" {{{1 Netrw config
 let g:netrw_browse_split = 2
 let g:netrw_banner = 0
 let g:netrw_winsize = 25
+" }}}
 
+" {{{1 vim-test config
 nmap <silent> <leader>t :TestNearest<CR>
 nmap <silent> <leader>T :TestFile<CR>
 nmap <silent> <leader>a :TestSuite<CR>
 nmap <silent> <leader>l :TestLast<CR>
 let test#strategy = 'dispatch'
+" }}}
 
+" {{{1 Mappings
 nnoremap Q @q
 nmap 0 ^
 nnoremap <Leader>= migg=G`i
@@ -179,7 +189,8 @@ if exists(':tnoremap')
   tnoremap <Esc> <C-\><C-n>
 endif
 
-command! Vimrc vsp ~/.config/nvim/init.vim
+command! Vimrc vsp ~/.vimrc
+" }}}
 
 let g:rails_projections = {
       \ "test/models/*_test.rb": {"command": "modeltest",
@@ -191,8 +202,11 @@ let g:rails_projections = {
       \   }
       \ }
 
+" {{{1 vim-rhubarb configs
 let g:github_enterprise_urls = ['https://github.iu.edu']
+" }}}
 
+" {{{1 Autogroups
 function! TrimWhitespace()
     let l:save = winsaveview()
     keeppatterns %s/\s\+$//e
@@ -202,11 +216,14 @@ endfunction
 augroup misc
   autocmd!
 
-  " On opening a file, jump to the last known cursor position (see :h line())
-  autocmd BufReadPost *
-        \ if line("'\"") > 1 && line("'\"") <= line("$") && &ft !~# 'commit' |
-        \   exe "normal! g`\"" |
-        \ endif
+  " This is already in the default.vim, so only for nvim here
+  if has('nvim')
+    " On opening a file, jump to the last known cursor position (see :h line())
+    autocmd BufReadPost *
+          \ if line("'\"") > 1 && line("'\"") <= line("$") && &ft !~# 'commit' |
+          \   exe "normal! g`\"" |
+          \ endif
+  endif
 
   " When resized, resize the windows inside
   autocmd VimResized * execute "normal! \<c-w>="
@@ -220,6 +237,7 @@ augroup misc
 augroup end
 
 augroup ruby
+  " Make ? part of a keyword
   autocmd FileType ruby,eruby,yaml setlocal iskeyword+=?
 augroup end
 
@@ -231,11 +249,15 @@ if has('nvim')
     endif
   augroup END
 endif
+" }}}
 
+" {{{1 rg/grep
 if executable('rg')
   set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case
 endif
+" }}}
 
+" {{{1 Colorscheme
 let g:gruvbox_contrast_dark = 'hard'
 if exists('+termguicolors')
     let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
@@ -244,10 +266,4 @@ if exists('+termguicolors')
 endif
 let g:gruvbox_invert_selection='0'
 colorscheme gruvbox
-
-" Syncronize clipboard register across ssh with tmux
-function! Osc52Yank() abort
-  let buffer=system('base64 -w0', @0)
-  let buffer='\ePtmux;\e\e]52;c;'.buffer.'\x07\e\\'
-  silent exe "!echo -ne ".shellescape(buffer)." > ".shellescape(g:tty)
-endfunction
+" }}}

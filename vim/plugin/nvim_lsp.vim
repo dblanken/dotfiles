@@ -16,5 +16,5 @@ function! LspStatus() abort
   return ''
 endfunction
 
+" Using vim-flagship
 autocmd User Flags call Hoist("buffer", "LspStatus")
-

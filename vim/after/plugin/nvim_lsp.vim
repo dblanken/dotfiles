@@ -8,6 +8,7 @@ set signcolumn=yes
 " Avoid showing message extra message when using completion
 set shortmess+=c
 
+" Fix up diagnostic and completion to use fuzzy finding and Ultisnips
 let g:diagnostic_enable_virtual_text = 1
 let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
 let g:completion_matching_ignore_case = 1
@@ -41,7 +42,6 @@ nvim_lsp.solargraph.setup{
 nvim_lsp.tsserver.setup{on_attach=on_attach_vim}
 nvim_lsp.vimls.setup{on_attach=on_attach_vim}
 nvim_lsp.yamlls.setup{on_attach=on_attach_vim}
-nvim_lsp.yamlls.setup{on_attach=on_attach_vim}
 EOF
 
 nnoremap <silent> gd    <cmd>lua vim.lsp.buf.declaration()<CR>
@@ -54,6 +54,7 @@ nnoremap <silent> gr    <cmd>lua vim.lsp.buf.references()<CR>
 nnoremap <silent> g0    <cmd>lua vim.lsp.buf.document_symbol()<CR>
 nnoremap <silent> gW    <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
 
+" In the style of vim-unimpaired
 nnoremap ]w :PrevDiagnosticCycle<CR>
 nnoremap [w :NextDiagnosticCycle<CR>
 
