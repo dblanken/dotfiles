@@ -102,7 +102,10 @@ Pack 'tpope/vim-rails'
 Pack 'tpope/vim-rake'
 Pack 'tpope/vim-repeat'
 Pack 'tpope/vim-rhubarb'
-Pack 'tpope/vim-sensible', {'type': 'opt'}
+if !has('nvim')
+  Pack 'tpope/vim-sensible', {'type': 'opt'}
+  packadd! vim-sensible
+endif
 Pack 'tpope/vim-sleuth'
 Pack 'tpope/vim-speeddating'
 Pack 'tpope/vim-surround'
