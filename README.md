@@ -62,7 +62,7 @@ sh ./install.sh
 ```
 
 ## License
-Unless otherwise noted, the contents of this repo are in the public domain.  See the [LICENSE](https://github.com/dblanken/dotfiles/blob/master/LICENSE) for details.
+Unless otherwise noted, the contents of this repo are in the public domain.  See the [LICENSE](https://github.com/dblanken/dotfiles/blob/master/LICENSE.md) for details.
 
 ## Authors
 This repo was written and maintained by David Blankenship <dtblankenship@gmail.com>.
