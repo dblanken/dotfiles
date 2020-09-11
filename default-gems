@@ -1,0 +1,6 @@
+bundler
+gem-ctags
+pry
+neovim
+solargraph
+solargraph-standardrb
