@@ -42,7 +42,7 @@ Visible above are:
   - Red dot indicates unstaged changes.
   - Blue dot indicates untracked files.
 - Right hand prompt displays the execution time of the last command.
-  
+
 ## Requirements
 
 - MacOS
@@ -66,3 +66,5 @@ Unless otherwise noted, the contents of this repo are in the public domain.  See
 
 ## Authors
 This repo was written and maintained by David Blankenship <dtblankenship@gmail.com>.
+
+I want to give a lot of thanks to [Greg Hurrell](https://www.youtube.com/c/GregHurrell) for sharing his experiences with Vim and allowing the sharing of his configurations.
