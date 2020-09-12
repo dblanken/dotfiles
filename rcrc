@@ -1,2 +1,2 @@
-EXCLUDES="README*.md LICENSE Brewfile terminfo *.old *.bak dry"
+EXCLUDES="README*.md LICENSE Brewfile terminfo *.old *.bak dry LICENSE*.md install.sh"
 DOTFILES_DIRS="$HOME/code/dotfiles"
