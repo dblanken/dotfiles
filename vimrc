@@ -130,10 +130,10 @@ if has('nvim')
   " Pack 'nvim-lua/popup.nvim'
   " Pack 'nvim-lua/plenary.nvim'
   " Pack 'nvim-lua/telescope.nvim'
-  packadd nvim-lspconfig
-  packadd completion-nvim
-  packadd diagnostic-nvim
-  packadd lsp-status.nvim
+  packadd! nvim-lspconfig
+  packadd! completion-nvim
+  packadd! diagnostic-nvim
+  packadd! lsp-status.nvim
 endif
 
 Pack 'christoomey/vim-tmux-navigator'
