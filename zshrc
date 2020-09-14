@@ -15,6 +15,7 @@ bindkey -v
 # Auto cd if I give a directory name
 setopt autocd
 
+# {{{1 MacOS keyboard hack
 if [ "$(uname)" = "Darwin" ]; then
   # Set 60 fps key repeat rate
   #
@@ -49,6 +50,7 @@ if [ "$(uname)" = "Darwin" ]; then
     dry 0.0166666666667 > /dev/null
   fi
 fi
+# }}}
 
 # {{{1 Completion
 autoload -Uz compinit
@@ -113,7 +115,7 @@ setopt prompt_subst
 # related to editing configuration
 alias zshrc='$EDITOR ~/.zshrc'
 alias vimrc='$EDITOR ~/.vimrc'
-alias tmuxconf='$EDITOR ~/.tmuxconf'
+alias tmuxconf='$EDITOR ~/.tmux.conf'
 
 # common commands
 alias u='cd ..'
