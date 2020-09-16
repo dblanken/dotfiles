@@ -1,5 +1,4 @@
 " vim: nowrap fdm=marker
-scriptencoding utf-8
 
 " {{{1 Short circuits
 if has('nvim')
@@ -77,92 +76,50 @@ set incsearch
 set updatetime=50
 " }}}
 
-" {{{1 Plugins
-call plugpac#begin()
-Pack 'k-takata/minpac', {'type': 'opt'}
+" " {{{1 Plugins
+function! PackInit() abort
+  packadd minpac
 
-Pack 'tpope/vim-abolish'
-Pack 'tpope/vim-apathy'
-Pack 'tpope/vim-bundler'
-Pack 'tpope/vim-characterize'
-Pack 'tpope/vim-commentary'
-Pack 'tpope/vim-dadbod'
-Pack 'tpope/vim-dispatch'
-Pack 'tpope/vim-dotenv'
-Pack 'tpope/vim-endwise'
-Pack 'tpope/vim-eunuch'
-Pack 'tpope/vim-flagship'
-Pack 'tpope/vim-fugitive'
-Pack 'tpope/vim-git'
-Pack 'tpope/vim-haml'
-Pack 'tpope/vim-jdaddy'
-Pack 'tpope/vim-markdown'
-Pack 'tpope/vim-obsession'
-Pack 'tpope/vim-projectionist'
-Pack 'tpope/vim-ragtag'
-Pack 'tpope/vim-rails'
-Pack 'tpope/vim-rake'
-Pack 'tpope/vim-repeat'
-Pack 'tpope/vim-rhubarb'
-if !has('nvim')
-  Pack 'tpope/vim-sensible', {'type': 'opt'}
-  packadd! vim-sensible
-endif
-Pack 'tpope/vim-sleuth'
-Pack 'tpope/vim-speeddating'
-Pack 'tpope/vim-surround'
-Pack 'tpope/vim-tbone'
-Pack 'tpope/vim-unimpaired'
-Pack 'tpope/vim-vinegar'
-Pack 'tpope/vim-vividchalk', {'type': 'opt'}
+  call minpac#init()
+  call minpac#add('k-takata/minpac', {'type': 'opt'})
 
-Pack 'vim-ruby/vim-ruby'
+  call minpac#add('tpope/vim-bundler')
+  call minpac#add('tpope/vim-commentary')
+  call minpac#add('tpope/vim-dispatch')
+  call minpac#add('tpope/vim-endwise')
+  call minpac#add('tpope/vim-fugitive')
+  call minpac#add('tpope/vim-projectionist')
+  call minpac#add('tpope/vim-markdown')
+  call minpac#add('tpope/vim-obsession')
+  call minpac#add('tpope/vim-ragtag')
+  call minpac#add('tpope/vim-rails')
+  call minpac#add('tpope/vim-rake')
+  call minpac#add('tpope/vim-repeat')
+  call minpac#add('tpope/vim-surround')
+  call minpac#add('dblanken/vim-unimpaired')
+  call minpac#add('tpope/vim-vinegar')
+  call minpac#add('vim-ruby/vim-ruby')
+  call minpac#add('christoomey/vim-tmux-navigator')
+  call minpac#add('AndrewRadev/splitjoin.vim')
+  call minpac#add('vim-test/vim-test')
+  call minpac#add('junegunn/fzf.vim')
+  call minpac#add('gruvbox-community/gruvbox', {'type': 'opt'})
+  call minpac#add('wincent/loupe')
+  call minpac#add('wincent/terminus')
+  call minpac#add('jiangmiao/auto-pairs')
+  call minpac#add('mattn/emmet-vim')
+  call minpac#add('dpelle/vim-LanguageTool', {'type': 'opt'})
+  call minpac#add('vim-pandoc/vim-pandoc', {'type': 'opt'})
+  call minpac#add('vim-pandoc/vim-pandoc-syntax', {'type': 'opt'})
+endfunction
 
-Pack 'tpope/vim-fireplace'
-Pack 'tpope/vim-sexp-mappings-for-regular-people'
-Pack 'guns/vim-sexp'
-
-if has('nvim')
-  Pack 'neovim/nvim-lspconfig', {'type': 'opt'}
-  Pack 'nvim-lua/completion-nvim', {'type': 'opt'}
-  Pack 'nvim-lua/diagnostic-nvim', {'type': 'opt'}
-  Pack 'nvim-lua/lsp-status.nvim', {'type': 'opt'}
-  " Pack 'nvim-lua/popup.nvim'
-  " Pack 'nvim-lua/plenary.nvim'
-  " Pack 'nvim-lua/telescope.nvim'
-  packadd! nvim-lspconfig
-  packadd! completion-nvim
-  packadd! diagnostic-nvim
-  packadd! lsp-status.nvim
-endif
-
-Pack 'christoomey/vim-tmux-navigator'
-
-Pack 'AndrewRadev/splitjoin.vim'
-
-Pack 'vim-test/vim-test'
-
-Pack 'honza/vim-snippets'
-Pack 'Sirver/ultisnips'
-
-Pack 'junegunn/fzf.vim'
-
-Pack 'gruvbox-community/gruvbox', {'type': 'opt'}
-
-Pack 'tweekmonster/startuptime.vim', {'on': 'StartupTime'}
-
-Pack 'wincent/loupe'
-Pack 'wincent/terminus'
-
-Pack 'mattn/emmet-vim'
-
-Pack 'jiangmiao/auto-pairs'
-
-call plugpac#end()
+command! PackUpdate source $MYVIMRC | call PackInit() | call minpac#update()
+command! PackClean  source $MYVIMRC | call PackInit() | call minpac#clean()
+command! PackStatus packadd minpac | call minpac#status()
+command! PackInstall PackUpdate
 
 set rtp+=/usr/local/opt/fzf
-
-" }}}
+" " }}}
 
 " {{{1 FZF config
 let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
@@ -195,10 +152,6 @@ let g:rails_projections = {
       \      "end"]
       \   }
       \ }
-" }}}
-
-" {{{1 vim-rhubarb configs
-let g:github_enterprise_urls = ['https://github.iu.edu']
 " }}}
 
 " {{{1 Mappings
@@ -275,4 +228,39 @@ if exists('+termguicolors')
 endif
 let g:gruvbox_invert_selection='0'
 colorscheme gruvbox
+" }}}
+
+" {{{1 Writing
+function! Writer() abort
+  setlocal spell spelllang=en_us
+  setlocal formatoptions=t1
+  setlocal textwidth=80
+  setlocal noautoindent
+  setlocal tabstop=5
+  setlocal shiftwidth=5
+  setlocal expandtab
+  setlocal thesaurus=~/.thesaurus/thesaurus.txt
+  packadd vim-LanguageTool
+  packadd vim-pandoc-syntax
+  packadd vim-pandoc
+  runtime ftplugin/pandoc.vim
+endfunction
+command! WR call Writer()
+" Since I use other java versions, point it to the adoptopenjdk8 java binary
+let g:languagetool_jar='/usr/local/Cellar/languagetool/5.0/libexec/languagetool-commandline.jar'
+let g:languagetool_cmd='/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/bin/java -jar ' . g:languagetool_jar
+
+" let g:pandoc#command#latex_engine="mactex"
+let g:pandoc#modules#enabled = [
+                \'yaml',
+                \'completion',
+                \'command',
+                \'formatting',
+                \'indent',
+                \'menu',
+                \'metadata',
+                \'keyboard' ,
+                \'toc',
+                \'spell',
+                \'hypertext']
 " }}}

@@ -1,7 +1,7 @@
 # vim: nowrap fdm=marker
 #
 # Exports
-export EDITOR='nvim'
+export EDITOR='vim'
 export CLICOLOR=1
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
 export PATH=$HOME/bin:$PATH
@@ -138,6 +138,7 @@ alias gma='git merge --abort'
 alias gmtvim='git mergetool --no-prompt --tool=vimdiff'
 alias gp='git push'
 alias gpf!='git push --force'
+alias gpristine='git reset --hard && git clean -dffx'
 alias gr='git remote'
 alias grb='git rebase'
 alias grm='git rm'
@@ -154,7 +155,7 @@ alias cat='bat'
 alias irb='irb --readline -r irb/completion'
 alias mkdir='mkdir -p'
 alias vi='vim'
-alias vim='nvim'
+# alias vim='nvim'
 # }}}
 
 # {{{1 Codebase shortcut
