@@ -41,6 +41,7 @@ if !has('nvim')
   set shortmess+=F
   set shortmess-=S
   set sidescroll=1
+  set signcolumn=yes
   set smarttab
   set tabpagemax=50
   set ttimeoutlen=50
@@ -87,6 +88,7 @@ function! PackInit() abort
   call minpac#add('tpope/vim-commentary')
   call minpac#add('tpope/vim-dispatch')
   call minpac#add('tpope/vim-endwise')
+  call minpac#add('tpope/vim-eunuch')
   call minpac#add('tpope/vim-fugitive')
   call minpac#add('tpope/vim-projectionist')
   call minpac#add('tpope/vim-markdown')
@@ -111,6 +113,10 @@ function! PackInit() abort
   call minpac#add('dpelle/vim-LanguageTool', {'type': 'opt'})
   call minpac#add('vim-pandoc/vim-pandoc', {'type': 'opt'})
   call minpac#add('vim-pandoc/vim-pandoc-syntax', {'type': 'opt'})
+  call minpac#add('joshdick/onedark.vim', {'type': 'opt'})
+  call minpac#add('itchyny/lightline.vim')
+  call minpac#add('dense-analysis/ale')
+  call minpac#add('oguzbilgic/sexy-railscasts-theme', {'type': 'opt'})
 endfunction
 
 command! PackUpdate source $MYVIMRC | call PackInit() | call minpac#update()
@@ -154,9 +160,63 @@ let g:rails_projections = {
       \ }
 " }}}
 
+" {{{1 vim-fugitive
+nnoremap <Leader>gd :Gvdiffsplit!<CR>
+nnoremap gdh :diffget //2<CR>
+nnoremap gdl :diffget //3<CR>
+" }}}
+
+" {{{1 ALE
+nmap <silent> [W <Plug>(ale_first)
+nmap <silent> [w <Plug>(ale_previous)
+nmap <silent> ]w <Plug>(ale_next)
+nmap <silent> ]W <Plug>(ale_last)
+
+let g:ale_linters = {
+            \ 'ruby': ['standardrb', 'reek', 'brakeman', 'solargraph'],
+            \ 'javascript': ['tsserver', 'eslint'],
+            \ 'vim': ['vimls']
+            \ }
+
+let g:ale_fixers = {
+            \ '*': [ 'trim_whitespace', 'remove_trailing_lines'],
+            \ 'ruby': [ 'standardrb', 'trim_whitespace', 'remove_trailing_lines'],
+            \ 'javascript': [ 'eslint', 'trim_whitespace', 'remove_trailing_lines' ],
+            \ 'vim': ['remove_trailing_lines', 'trim_whitespace']
+            \ }
+
+" Always show sign column
+let g:ale_sign_column_always = 1
+" Fix on save
+let g:ale_fix_on_save = 1
+" Set to show which linter says there is an issue
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+
+" Allow go to definition
+nmap <silent> gd <Plug>(ale_go_to_definition)
+nmap <silent> gr <Plug>(ale_find_references)
+
+" Allow hovering in balloons
+let g:ale_set_balloons = 1
+
+let g:ale_javascript_tsserver_use_global = 1
+let g:ale_vim_vimls_use_global = 1
+
+let g:ale_sign_error='✖'
+let g:ale_sign_warning='⚠'
+let g:ale_sign_info='ℹ'
+let g:ale_sign_hint='➤'
+
+" Becuase we're using ALE with StandardRb, we need vim-ruby to change its
+" indentation style.
+" https://github.com/testdouble/standard/wiki/IDE:-vim
+let g:ruby_indent_assignment_style = 'variable'
+" Same for hanging elements
+let g:ruby_indent_hanging_elements = 0
+" }}}
+
 " {{{1 Mappings
 nnoremap Q @q
-nmap 0 ^
 nnoremap <Leader>= migg=G`i
 nnoremap Y y$
 nnoremap <Leader>g :grep!<Space>
@@ -164,14 +224,16 @@ if exists(':tnoremap')
   tnoremap <Esc> <C-\><C-n>
 endif
 
+nnoremap <Leader>s :s/\(<C-r>=expand("<cword>")<CR>\)/
+
 command! Vimrc vsp ~/.vimrc
 " }}}
 
 " {{{1 Autogroups
 function! TrimWhitespace()
-    let l:save = winsaveview()
-    keeppatterns %s/\s\+$//e
-    call winrestview(l:save)
+  let l:save = winsaveview()
+  keeppatterns %s/\s\+$//e
+  call winrestview(l:save)
 endfunction
 
 augroup misc
@@ -221,13 +283,37 @@ endif
 
 " {{{1 Colorscheme
 let g:gruvbox_contrast_dark = 'hard'
-if exists('+termguicolors')
-    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-    set termguicolors
-endif
 let g:gruvbox_invert_selection='0'
-colorscheme gruvbox
+if exists('+termguicolors')
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  set termguicolors
+endif
+packadd! onedark.vim
+let g:onedark_terminal_italics=1
+colorscheme onedark
+" {{{2 Lighline
+function! LightlineFugitive() abort
+  if exists('*FugitiveHead')
+    let branch = FugitiveHead()
+    return branch !=# '' ? ''.branch : ''
+  endif
+  return ''
+endfunction
+
+let g:lightline = {
+      \ 'colorscheme': 'onedark',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'fugitive', 'gitbranch', 'readonly', 'filename', 'modified' ] ]
+      \ },
+      \ 'component_function': {
+      \   'fugitive': 'LightlineFugitive',
+      \ },
+      \ 'separator': { 'left': '', 'right': '' },
+      \ 'subseparator': { 'left': '', 'right': '' }
+      \ }
+" }}}
 " }}}
 
 " {{{1 Writing
@@ -252,15 +338,15 @@ let g:languagetool_cmd='/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Con
 
 " let g:pandoc#command#latex_engine="mactex"
 let g:pandoc#modules#enabled = [
-                \'yaml',
-                \'completion',
-                \'command',
-                \'formatting',
-                \'indent',
-                \'menu',
-                \'metadata',
-                \'keyboard' ,
-                \'toc',
-                \'spell',
-                \'hypertext']
+      \'yaml',
+      \'completion',
+      \'command',
+      \'formatting',
+      \'indent',
+      \'menu',
+      \'metadata',
+      \'keyboard' ,
+      \'toc',
+      \'spell',
+      \'hypertext']
 " }}}

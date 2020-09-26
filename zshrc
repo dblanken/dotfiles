@@ -4,7 +4,7 @@
 export EDITOR='vim'
 export CLICOLOR=1
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
-export PATH=$HOME/bin:$PATH
+export PATH=$HOME/bin:$HOME/.local/bin:$PATH
 
 # ls colors
 autoload -U colors && colors
@@ -53,6 +53,10 @@ fi
 # }}}
 
 # {{{1 Completion
+# Add zsh-completions if it exists
+if type brew &>/dev/null; then
+    FPATH=/usr/local/share/zsh-completions:$FPATH
+fi
 autoload -Uz compinit
 compinit
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}'
@@ -149,12 +153,14 @@ alias bi='bundle install -j 8'
 alias howamidoing="history | awk '{a[\$2]++}END{for(i in a){print a[i] \" \" i}}' | sort -rn | head -20"
 alias killruby='pkill -f ruby'
 alias rubykill='killruby'
+alias be='bundle exec'
 
 # overrides
 alias cat='bat'
 alias irb='irb --readline -r irb/completion'
 alias mkdir='mkdir -p'
 alias vi='vim'
+alias ls='ls -GFh'
 # alias vim='nvim'
 # }}}
 
@@ -294,4 +300,19 @@ add-zsh-hook precmd -report-start-time
 
 # {{{1 Prompt
 PROMPT='${VIMODE} %(?..%F{red}!%f)%F{yellow}%n%f@%F{blue}%m%f %F{magenta}%1~%f ${vcs_info_msg_0_}%# '
+# }}}
+
+# {{{1 There be cows here
+COWPATH="$COWPATH:$HOME/.cowsay"
+# Cow-spoken fortunes every time you open a terminal
+function cowsayfortune {
+    NUMOFCOWS=`cowsay -l | tail -n +2 | wc -w`
+    WHICHCOW=$((RANDOM%$NUMOFCOWS+1))
+    THISCOW=`cowsay -l | tail -n +2 | sed -e 's/\ /\'$'\n/g' | sed $WHICHCOW'q;d'`
+
+    #echo "Selected cow: ${THISCOW}, from ${WHICHCOW}"
+    fortune | cowsay -f $THISCOW -W 100
+}
+
+cowsayfortune
 # }}}
