@@ -1,10 +1,10 @@
 # vim: nowrap fdm=marker
 #
 # Exports
-export EDITOR='vim'
+export EDITOR='nvim'
 export CLICOLOR=1
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
-export PATH=$HOME/bin:$HOME/.local/bin:$PATH
+export PATH=$HOME/bin:$HOME/.local/bin:$PATH:$HOME/.cargo/bin
 
 # ls colors
 autoload -U colors && colors
@@ -55,7 +55,7 @@ fi
 # {{{1 Completion
 # Add zsh-completions if it exists
 if type brew &>/dev/null; then
-    FPATH=/usr/local/share/zsh-completions:$FPATH
+  FPATH=/usr/local/share/zsh-completions:$FPATH
 fi
 autoload -Uz compinit
 compinit
@@ -71,16 +71,16 @@ VIMODE_INSERT_MODE_COLOR='%F{green}'
 VIMODE_NORMAL_MODE_COLOR='%F{blue}'
 VIMODE='%F{blue}[i]%f'
 function zle-keymap-select {
- VIMODE="${${KEYMAP/vicmd/[n]}/(main|viins)/[i]}"
+  VIMODE="${${KEYMAP/vicmd/[n]}/(main|viins)/[i]}"
 
- if [[ VIMODE == "[n]" ]]; then
-   VIMODE="${VIMODE_NORMAL_MODE_COLOR}${VIMODE}"
- else
-   VIMODE="${VIMODE_INSERT_MODE_COLOR}${VIMODE}"
- fi
- VIMODE="${VIMODE}%f"
+  if [[ VIMODE == "[n]" ]]; then
+    VIMODE="${VIMODE_NORMAL_MODE_COLOR}${VIMODE}"
+  else
+    VIMODE="${VIMODE_INSERT_MODE_COLOR}${VIMODE}"
+  fi
+  VIMODE="${VIMODE}%f"
 
- zle reset-prompt
+  zle reset-prompt
 }
 
 zle -N zle-keymap-select
@@ -102,10 +102,10 @@ zstyle ':vcs_info:git*:*' actionformats '[%F{cyan}%b|%a%f%m%c%u] ' # default ' (
 # check untracked files also
 zstyle ':vcs_info:git+set-message:*' hooks git-untracked
 function +vi-git-untracked() {
-  emulate -L zsh
-  if [[ -n $(git ls-files --exclude-standard --others 2> /dev/null) ]]; then
-    hook_com[unstaged]+="%F{blue}●%f"
-  fi
+emulate -L zsh
+if [[ -n $(git ls-files --exclude-standard --others 2> /dev/null) ]]; then
+  hook_com[unstaged]+="%F{blue}●%f"
+fi
 }
 
 precmd() {
@@ -120,6 +120,7 @@ setopt prompt_subst
 alias zshrc='$EDITOR ~/.zshrc'
 alias vimrc='$EDITOR ~/.vimrc'
 alias tmuxconf='$EDITOR ~/.tmux.conf'
+alias nvimrc='$EDITOR ~/.config/nvim/init.vim'
 
 # common commands
 alias u='cd ..'
@@ -161,7 +162,7 @@ alias irb='irb --readline -r irb/completion'
 alias mkdir='mkdir -p'
 alias vi='vim'
 alias ls='ls -GFh'
-# alias vim='nvim'
+alias vim='nvim'
 # }}}
 
 # {{{1 Codebase shortcut
@@ -195,7 +196,9 @@ function _zsh_tmux_wrapper_run() {
   $tmux_cmd attach
 
   if [[ $? -ne 0 ]]; then
-    $tmux_cmd new-session
+    if [[ -z "$TMUX" && "$ZSH_TMUX_AUTOSTART" == "true" ]]; then
+      $tmux_cmd new-session
+    fi
   fi
 
   if [[ "$ZSH_TMUX_AUTOQUIT" == "true" ]]; then
@@ -264,36 +267,36 @@ autoload -U add-zsh-hook
 
 typeset -F SECONDS
 function -record-start-time() {
-  emulate -L zsh
-  ZSH_START_TIME=${ZSH_START_TIME:-$SECONDS}
+emulate -L zsh
+ZSH_START_TIME=${ZSH_START_TIME:-$SECONDS}
 }
 add-zsh-hook preexec -record-start-time
 
 function -report-start-time() {
-  emulate -L zsh
-  if [ $ZSH_START_TIME ]; then
-    local DELTA=$(($SECONDS - $ZSH_START_TIME))
-    local DAYS=$((~~($DELTA / 86400)))
-    local HOURS=$((~~(($DELTA - $DAYS * 86400) / 3600)))
-    local MINUTES=$((~~(($DELTA - $DAYS * 86400 - $HOURS * 3600) / 60)))
-    local SECS=$(($DELTA - $DAYS * 86400 - $HOURS * 3600 - $MINUTES * 60))
-    local ELAPSED=''
-    test "$DAYS" != '0' && ELAPSED="${DAYS}d"
-    test "$HOURS" != '0' && ELAPSED="${ELAPSED}${HOURS}h"
-    test "$MINUTES" != '0' && ELAPSED="${ELAPSED}${MINUTES}m"
-    if [ "$ELAPSED" = '' ]; then
-      SECS="$(print -f "%.2f" $SECS)s"
-    elif [ "$DAYS" != '0' ]; then
-      SECS=''
-    else
-      SECS="$((~~$SECS))s"
-    fi
-    ELAPSED="${ELAPSED}${SECS}"
-    export RPROMPT="%F{cyan}${ELAPSED}%f"
-    unset ZSH_START_TIME
+emulate -L zsh
+if [ $ZSH_START_TIME ]; then
+  local DELTA=$(($SECONDS - $ZSH_START_TIME))
+  local DAYS=$((~~($DELTA / 86400)))
+  local HOURS=$((~~(($DELTA - $DAYS * 86400) / 3600)))
+  local MINUTES=$((~~(($DELTA - $DAYS * 86400 - $HOURS * 3600) / 60)))
+  local SECS=$(($DELTA - $DAYS * 86400 - $HOURS * 3600 - $MINUTES * 60))
+  local ELAPSED=''
+  test "$DAYS" != '0' && ELAPSED="${DAYS}d"
+  test "$HOURS" != '0' && ELAPSED="${ELAPSED}${HOURS}h"
+  test "$MINUTES" != '0' && ELAPSED="${ELAPSED}${MINUTES}m"
+  if [ "$ELAPSED" = '' ]; then
+    SECS="$(print -f "%.2f" $SECS)s"
+  elif [ "$DAYS" != '0' ]; then
+    SECS=''
   else
-    export RPROMPT="$RPROMPT_BASE"
+    SECS="$((~~$SECS))s"
   fi
+  ELAPSED="${ELAPSED}${SECS}"
+  export RPROMPT="%F{cyan}${ELAPSED}%f"
+  unset ZSH_START_TIME
+else
+  export RPROMPT="$RPROMPT_BASE"
+fi
 }
 add-zsh-hook precmd -report-start-time
 # }}}
@@ -306,13 +309,13 @@ PROMPT='${VIMODE} %(?..%F{red}!%f)%F{yellow}%n%f@%F{blue}%m%f %F{magenta}%1~%f $
 COWPATH="$COWPATH:$HOME/.cowsay"
 # Cow-spoken fortunes every time you open a terminal
 function cowsayfortune {
-    NUMOFCOWS=`cowsay -l | tail -n +2 | wc -w`
-    WHICHCOW=$((RANDOM%$NUMOFCOWS+1))
-    THISCOW=`cowsay -l | tail -n +2 | sed -e 's/\ /\'$'\n/g' | sed $WHICHCOW'q;d'`
+  NUMOFCOWS=`cowsay -l | tail -n +2 | wc -w`
+  WHICHCOW=$((RANDOM%$NUMOFCOWS+1))
+  THISCOW=`cowsay -l | tail -n +2 | sed -e 's/\ /\'$'\n/g' | sed $WHICHCOW'q;d'`
 
-    #echo "Selected cow: ${THISCOW}, from ${WHICHCOW}"
-    fortune | cowsay -f $THISCOW -W 100
+  echo "Selected cow: ${THISCOW}, from ${WHICHCOW}"
+  fortune | cowsay -f $THISCOW -W 100
 }
 
-cowsayfortune
+fortune | cowsay -f tux -W 100
 # }}}

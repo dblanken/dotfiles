@@ -115,8 +115,12 @@ function! PackInit() abort
   call minpac#add('vim-pandoc/vim-pandoc-syntax', {'type': 'opt'})
   call minpac#add('joshdick/onedark.vim', {'type': 'opt'})
   call minpac#add('itchyny/lightline.vim')
-  call minpac#add('dense-analysis/ale')
+  " call minpac#add('dense-analysis/ale')
   call minpac#add('oguzbilgic/sexy-railscasts-theme', {'type': 'opt'})
+
+  call minpac#add('neovim/nvim-lspconfig', {'type': 'opt'})
+  call minpac#add('nvim-lua/completion-nvim', {'type': 'opt'})
+  call minpac#add('nvim-lua/diagnostic-nvim', {'type': 'opt'})
 endfunction
 
 command! PackUpdate source $MYVIMRC | call PackInit() | call minpac#update()
@@ -125,6 +129,7 @@ command! PackStatus packadd minpac | call minpac#status()
 command! PackInstall PackUpdate
 
 set rtp+=/usr/local/opt/fzf
+set rtp+=$HOME/code/ale
 " " }}}
 
 " {{{1 FZF config
@@ -213,6 +218,56 @@ let g:ale_sign_hint='➤'
 let g:ruby_indent_assignment_style = 'variable'
 " Same for hanging elements
 let g:ruby_indent_hanging_elements = 0
+" Disable lsp server on ALE only
+" let g:ale_disable_lsp = 1
+
+" Try ALE's completion from the LSP
+let g:ale_completion_enabled = 1
+
+if has('nvim')
+  " Allow floating windows in ale
+  let g:ale_floating_window = 1
+end
+" }}}
+
+" {{{1 nvim-lsp
+" if has('nvim')
+"   let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
+"   let g:diagnostic_enable_virtual_text = 1
+
+"   set completeopt=menuone,noinsert,noselect
+"   set shortmess+=c
+
+" lua <<EOF
+" vim.cmd('packadd nvim-lspconfig')
+" vim.cmd('packadd completion-nvim')
+" -- Do not use yet since I have ale
+" -- vim.cmd('packadd diagnostic-nvim')
+
+" local on_attach_vim = function(client)
+"   require'completion'.on_attach(client)
+"   -- require'diagnostic'.on_attach(cllient)
+" end
+
+" require'nvim_lsp'.vimls.setup{on_attach=on_attach_vim}
+" require'nvim_lsp'.yamlls.setup{on_attach=on_attach_vim}
+" require'nvim_lsp'.solargraph.setup{on_attach=on_attach_vim}
+" require'nvim_lsp'.jsonls.setup{on_attach=on_attach_vim}
+" require'nvim_lsp'.html.setup{on_attach=on_attach_vim}
+" require'nvim_lsp'.cssls.setup{on_attach=on_attach_vim}
+" require'nvim_lsp'.bashls.setup{on_attach=on_attach_vim}
+" EOF
+" endif
+
+" nnoremap <silent> gd    <cmd>lua vim.lsp.buf.declaration()<CR>
+" nnoremap <silent> <c-]> <cmd>lua vim.lsp.buf.definition()<CR>
+" nnoremap <silent> K     <cmd>lua vim.lsp.buf.hover()<CR>
+" nnoremap <silent> gD    <cmd>lua vim.lsp.buf.implementation()<CR>
+" nnoremap <silent> <c-k> <cmd>lua vim.lsp.buf.signature_help()<CR>
+" nnoremap <silent> 1gD   <cmd>lua vim.lsp.buf.type_definition()<CR>
+" nnoremap <silent> gr    <cmd>lua vim.lsp.buf.references()<CR>
+" nnoremap <silent> g0    <cmd>lua vim.lsp.buf.document_symbol()<CR>
+" nnoremap <silent> gW    <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
 " }}}
 
 " {{{1 Mappings
@@ -227,6 +282,9 @@ endif
 nnoremap <Leader>s :s/\(<C-r>=expand("<cword>")<CR>\)/
 
 command! Vimrc vsp ~/.vimrc
+
+nnoremap <Leader>\ :vsplit<CR>
+nnoremap <Leader>- :split<CR>
 " }}}
 
 " {{{1 Autogroups
@@ -309,10 +367,14 @@ let g:lightline = {
       \ },
       \ 'component_function': {
       \   'fugitive': 'LightlineFugitive',
+      \   'filename': 'FilenameForLightLine'
       \ },
       \ 'separator': { 'left': '', 'right': '' },
       \ 'subseparator': { 'left': '', 'right': '' }
       \ }
+function! FilenameForLightLine()
+  return expand('%')
+endfunction
 " }}}
 " }}}
 
