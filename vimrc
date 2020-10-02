@@ -136,6 +136,12 @@ set rtp+=$HOME/code/ale
 let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
 let $FZF_DEFAULT_OPTS='--reverse'
 nnoremap <C-p> :GFiles<CR>
+
+augroup fzf_overrides
+  autocmd!
+  " Allow Esc to exit fzf
+  autocmd FileType fzf tnoremap <buffer> <Esc> <Esc><Esc>
+augroup END
 " }}}
 
 " {{{1 Netrw config
