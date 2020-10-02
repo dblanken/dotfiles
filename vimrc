@@ -121,6 +121,8 @@ function! PackInit() abort
   call minpac#add('neovim/nvim-lspconfig', {'type': 'opt'})
   call minpac#add('nvim-lua/completion-nvim', {'type': 'opt'})
   call minpac#add('nvim-lua/diagnostic-nvim', {'type': 'opt'})
+
+  call minpac#add('unblevable/quick-scope')
 endfunction
 
 command! PackUpdate source $MYVIMRC | call PackInit() | call minpac#update()
