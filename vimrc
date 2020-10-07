@@ -137,7 +137,7 @@ set rtp+=$HOME/code/ale
 " {{{1 FZF config
 let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
 let $FZF_DEFAULT_OPTS='--reverse'
-nnoremap <C-p> :GFiles<CR>
+nnoremap <C-p> :Files<CR>
 
 augroup fzf_overrides
   autocmd!
