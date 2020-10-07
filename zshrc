@@ -1,10 +1,29 @@
 # vim: nowrap fdm=marker
 #
 # Exports
-export EDITOR='nvim'
 export CLICOLOR=1
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
 export PATH=$HOME/bin:$HOME/.local/bin:$PATH:$HOME/.cargo/bin
+
+# Check if we are nesting nvims
+# If we have nvim, make it the default
+if [ -x "$(command -v nvim)" ]; then
+  export EDITOR=nvim
+  alias vim="nvim"
+
+  # If we're in an nvim instance and nvr is installed, use it.
+  if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
+    if [ -x "$(command -v nvr)"  ]; then
+      alias nvim="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+      alias vim="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+
+      export EDITOR="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+      export VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+    fi
+  fi
+else
+  export EDITOR='vim'
+fi
 
 # ls colors
 autoload -U colors && colors
@@ -117,8 +136,8 @@ setopt prompt_subst
 
 # {{{1 Aliases
 # related to editing configuration
-alias zshrc='$EDITOR ~/.zshrc'
 alias vimrc='$EDITOR ~/.vimrc'
+alias zshrc='$EDITOR ~/.zshrc'
 alias tmuxconf='$EDITOR ~/.tmux.conf'
 alias nvimrc='$EDITOR ~/.config/nvim/init.vim'
 
@@ -162,7 +181,6 @@ alias irb='irb --readline -r irb/completion'
 alias mkdir='mkdir -p'
 alias vi='vim'
 alias ls='ls -GFh'
-alias vim='nvim'
 # }}}
 
 # {{{1 Codebase shortcut
@@ -319,3 +337,7 @@ function cowsayfortune {
 
 fortune | cowsay -f tux -W 100
 # }}}
+
+  # Set Spaceship ZSH as a prompt
+  autoload -U promptinit; promptinit
+  prompt spaceship
