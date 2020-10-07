@@ -337,7 +337,3 @@ function cowsayfortune {
 
 fortune | cowsay -f tux -W 100
 # }}}
-
-  # Set Spaceship ZSH as a prompt
-  autoload -U promptinit; promptinit
-  prompt spaceship
