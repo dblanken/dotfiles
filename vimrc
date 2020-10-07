@@ -147,9 +147,9 @@ vim.cmd('packadd lsp-status.nvim')
 
 local nvim_lsp = require('nvim_lsp')
 local on_attach_vim = function(client)
-  require'completion'.on_attach(client)
-  require'diagnostic'.on_attach(client)
-  require'lsp-status'.on_attach(client)
+require'completion'.on_attach(client)
+require'diagnostic'.on_attach(client)
+require'lsp-status'.on_attach(client)
 end
 
 nvim_lsp.vimls.setup{on_attach=on_attach_vim}
@@ -158,12 +158,12 @@ nvim_lsp.html.setup{on_attach=on_attach_vim}
 nvim_lsp.jsonls.setup{on_attach=on_attach_vim}
 nvim_lsp.rls.setup{on_attach=on_attach_vim}
 nvim_lsp.solargraph.setup{
-  on_attach = on_attach_vim,
-    settings = {
-      solargraph = {
-        diagnostics = true
-    }
-  }
+on_attach = on_attach_vim,
+settings = {
+solargraph = {
+diagnostics = true
+}
+}
 }
 nvim_lsp.sqlls.setup{on_attach=on_attach_vim}
 nvim_lsp.yamlls.setup{on_attach=on_attach_vim}
@@ -185,9 +185,13 @@ let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
 let g:diagnostic_enable_virtual_text = 1
 
 function! LspStatus() abort
-  if luaeval('#vim.lsp.buf_get_clients() > 0')
-    return luaeval("require('lsp-status').status()")
+  if has('nvim')
+    if luaeval('#vim.lsp.buf_get_clients() > 0')
+      return luaeval("require('statusline').status()")
+    endif
   endif
+
+  return ''
 endfunction
 " }}}
 
@@ -432,8 +436,7 @@ let g:lightline = {
       \   'right': [
       \              [ 'lineinfo' ],
       \              [ 'percent'  ],
-      \              [ 'fileformat', 'fileencoding', 'filetype' ],
-      \              [ 'lsp' ]
+      \              [ 'lsp', 'fileformat', 'fileencoding', 'filetype' ]
       \   ]
       \ },
       \ 'component_function': {
