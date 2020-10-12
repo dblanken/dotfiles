@@ -416,9 +416,7 @@ if exists('+termguicolors')
   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
   set termguicolors
 endif
-packadd! onedark.vim
-let g:onedark_terminal_italics=1
-colorscheme onedark
+colorscheme gruvbox
 " {{{2 Lighline
 function! LightlineFugitive() abort
   if exists('*FugitiveHead')
@@ -429,7 +427,6 @@ function! LightlineFugitive() abort
 endfunction
 
 let g:lightline = {
-      \ 'colorscheme': 'onedark',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
       \             [ 'fugitive', 'gitbranch', 'readonly', 'filename', 'modified' ] ],
