@@ -79,7 +79,7 @@ set incsearch
 set updatetime=50
 " }}}
 
-" " {{{1 Plugins
+" {{{1 Plugins
 function! PackInit() abort
   packadd minpac
 
@@ -118,14 +118,17 @@ function! PackInit() abort
   call minpac#add('joshdick/onedark.vim', {'type': 'opt'})
   call minpac#add('itchyny/lightline.vim')
   " call minpac#add('dense-analysis/ale')
-  call minpac#add('oguzbilgic/sexy-railscasts-theme', {'type': 'opt'})
-
-  call minpac#add('neovim/nvim-lspconfig', {'type': 'opt'})
-  call minpac#add('nvim-lua/completion-nvim', {'type': 'opt'})
-  call minpac#add('nvim-lua/diagnostic-nvim', {'type': 'opt'})
-  call minpac#add('nvim-lua/lsp-status.nvim', {'type': 'opt'})
 
   call minpac#add('unblevable/quick-scope')
+  if has('nvim')
+    call minpac#add('Shougo/deoplete.nvim', { 'do': 'UpdateRemotePlugins' })
+  else
+    call minpac#add('Shougo/deoplete.nvim')
+  endif
+  call minpac#add('roxma/nvim-yarp', {'type': 'opt'})
+  call minpac#add('roxma/vim-hug-neovim-rpc', {'type': 'opt'})
+  call minpac#add('SirVer/ultisnips')
+  call minpac#add('honza/vim-snippets')
 endfunction
 
 command! PackUpdate source $MYVIMRC | call PackInit() | call minpac#update()
@@ -134,65 +137,40 @@ command! PackStatus packadd minpac | call minpac#status()
 command! PackInstall PackUpdate
 
 set rtp+=/usr/local/opt/fzf
-" set rtp+=$HOME/code/ale
-" " }}}
+set rtp+=$HOME/code/ale
 
-" {{{1 nvim-lspconfig
-if has('nvim')
-lua <<EOF
-vim.cmd('packadd nvim-lspconfig')
-vim.cmd('packadd completion-nvim')
-vim.cmd('packadd diagnostic-nvim')
-vim.cmd('packadd lsp-status.nvim')
-
-local nvim_lsp = require('nvim_lsp')
-local on_attach_vim = function(client)
-require'completion'.on_attach(client)
-require'diagnostic'.on_attach(client)
-require'lsp-status'.on_attach(client)
-end
-
-nvim_lsp.vimls.setup{on_attach=on_attach_vim}
-nvim_lsp.bashls.setup{on_attach=on_attach_vim}
-nvim_lsp.html.setup{on_attach=on_attach_vim}
-nvim_lsp.jsonls.setup{on_attach=on_attach_vim}
-nvim_lsp.rls.setup{on_attach=on_attach_vim}
-nvim_lsp.solargraph.setup{
-on_attach = on_attach_vim,
-settings = {
-solargraph = {
-diagnostics = true
-}
-}
-}
-nvim_lsp.sqlls.setup{on_attach=on_attach_vim}
-nvim_lsp.yamlls.setup{on_attach=on_attach_vim}
-EOF
+if !has('nvim')
+  packadd! nvim-yarp
+  packadd! vim-hug-neovim-rpc
 endif
+" }}}
 
-" Use <Tab> and <S-Tab> to navigate through popup menu
-inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+" {{{1 Deoplete/Neosnippet
+let g:deoplete#enable_at_startup = 0
+autocmd InsertEnter * call deoplete#enable()
 
-" Set completeopt to have a better completion experience
-set completeopt=menuone,noinsert,noselect
-
-" Avoid showing message extra message when using completion
-set shortmess+=c
-
-let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
-
-let g:diagnostic_enable_virtual_text = 1
-
-function! LspStatus() abort
-  if has('nvim')
-    if luaeval('#vim.lsp.buf_get_clients() > 0')
-      return luaeval("require('statusline').status()")
+let g:UltiSnipsExpandTrigger = "<nop>"
+let g:UltiSnipsJumpForwardTrigger = "<Tab>"
+let g:UltiSnipsJumpBackwardTrigger = "<S-Tab>"
+let g:ulti_expand_or_jump_res = 0
+function ExpandSnippetOrCarriageReturn()
+    let snippet = UltiSnips#ExpandSnippetOrJump()
+    if g:ulti_expand_or_jump_res > 0
+        return snippet
+    else
+        return "\<CR>"
     endif
-  endif
-
-  return ''
 endfunction
+let g:endwise_no_mappings = 1
+
+function! s:check_last_char_was_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~ '\s'
+endfunction
+
+inoremap <silent><expr> <TAB> pumvisible() ? "\<C-n>" : <SID>check_last_char_was_space() ? "\<TAB>" : deoplete#mappings#manual_complete()
+inoremap <expr>   <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <expr> <CR> pumvisible() ? "\<C-R>=ExpandSnippetOrCarriageReturn()\<CR>" : "\<CR>\<C-R>=EndwiseDiscretionary()\<CR><C-R>=AutoPairsReturn()\<CR>"
 " }}}
 
 " {{{1 FZF config
@@ -240,103 +218,63 @@ nnoremap gdh :diffget //2<CR>
 nnoremap gdl :diffget //3<CR>
 " }}}
 
-" " {{{1 ALE
-" nmap <silent> [W <Plug>(ale_first)
-" nmap <silent> [w <Plug>(ale_previous)
-" nmap <silent> ]w <Plug>(ale_next)
-" nmap <silent> ]W <Plug>(ale_last)
+" {{{1 ALE
+nmap <silent> [W <Plug>(ale_first)
+nmap <silent> [w <Plug>(ale_previous)
+nmap <silent> ]w <Plug>(ale_next)
+nmap <silent> ]W <Plug>(ale_last)
 
-" let g:ale_linters = {
-"       \ 'ruby': ['standardrb', 'reek', 'brakeman', 'solargraph'],
-"       \ 'javascript': ['tsserver', 'eslint'],
-"       \ 'vim': ['vimls']
-"       \ }
+let g:ale_linters = {
+      \ 'ruby': ['standardrb', 'reek', 'brakeman', 'solargraph'],
+      \ 'javascript': ['tsserver', 'eslint'],
+      \ 'vim': ['vimls']
+      \ }
 
-" let g:ale_fixers = {
-"       \ '*': [ 'trim_whitespace', 'remove_trailing_lines'],
-"       \ 'ruby': [ 'standardrb', 'trim_whitespace', 'remove_trailing_lines'],
-"       \ 'javascript': [ 'eslint', 'trim_whitespace', 'remove_trailing_lines' ],
-"       \ 'vim': ['remove_trailing_lines', 'trim_whitespace']
-"       \ }
+let g:ale_fixers = {
+      \ '*': [ 'trim_whitespace', 'remove_trailing_lines'],
+      \ 'ruby': [ 'standardrb', 'trim_whitespace', 'remove_trailing_lines'],
+      \ 'javascript': [ 'eslint', 'trim_whitespace', 'remove_trailing_lines' ],
+      \ 'vim': ['remove_trailing_lines', 'trim_whitespace']
+      \ }
 
-" " Always show sign column
-" let g:ale_sign_column_always = 1
-" " Fix on save
-" let g:ale_fix_on_save = 1
-" " Set to show which linter says there is an issue
-" let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+" Always show sign column
+let g:ale_sign_column_always = 1
+" Fix on save
+let g:ale_fix_on_save = 1
+" Set to show which linter says there is an issue
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
 
-" " Allow go to definition
-" nmap <silent> gd <Plug>(ale_go_to_definition)
-" nmap <silent> gr <Plug>(ale_find_references)
+" Allow go to definition
+nmap <silent> gd <Plug>(ale_go_to_definition)
+nmap <silent> gr <Plug>(ale_find_references)
 
-" " Allow hovering in balloons
-" let g:ale_set_balloons = 1
+" Allow hovering in balloons
+let g:ale_set_balloons = 1
 
-" let g:ale_javascript_tsserver_use_global = 1
-" let g:ale_vim_vimls_use_global = 1
+let g:ale_javascript_tsserver_use_global = 1
+let g:ale_vim_vimls_use_global = 1
 
-" let g:ale_sign_error='✖'
-" let g:ale_sign_warning='⚠'
-" let g:ale_sign_info='ℹ'
-" let g:ale_sign_hint='➤'
+let g:ale_sign_error='✖'
+let g:ale_sign_warning='⚠'
+let g:ale_sign_info='ℹ'
+let g:ale_sign_hint='➤'
 
-" " Becuase we're using ALE with StandardRb, we need vim-ruby to change its
-" " indentation style.
-" " https://github.com/testdouble/standard/wiki/IDE:-vim
-" let g:ruby_indent_assignment_style = 'variable'
-" " Same for hanging elements
-" let g:ruby_indent_hanging_elements = 0
-" " Disable lsp server on ALE only
+" Becuase we're using ALE with StandardRb, we need vim-ruby to change its
+" indentation style.
+" https://github.com/testdouble/standard/wiki/IDE:-vim
+let g:ruby_indent_assignment_style = 'variable'
+" Same for hanging elements
+let g:ruby_indent_hanging_elements = 0
+" Disable lsp server on ALE only
 " let g:ale_disable_lsp = 1
 
-" " Try ALE's completion from the LSP
+" Try ALE's completion from the LSP
 " let g:ale_completion_enabled = 1
 
-" if has('nvim')
-"   " Allow floating windows in ale
-"   let g:ale_floating_window = 1
-" end
-" " }}}
-
-" {{{1 nvim-lsp
-" if has('nvim')
-"   let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
-"   let g:diagnostic_enable_virtual_text = 1
-
-"   set completeopt=menuone,noinsert,noselect
-"   set shortmess+=c
-
-" lua <<EOF
-" vim.cmd('packadd nvim-lspconfig')
-" vim.cmd('packadd completion-nvim')
-" -- Do not use yet since I have ale
-" -- vim.cmd('packadd diagnostic-nvim')
-
-" local on_attach_vim = function(client)
-"   require'completion'.on_attach(client)
-"   -- require'diagnostic'.on_attach(cllient)
-" end
-
-" require'nvim_lsp'.vimls.setup{on_attach=on_attach_vim}
-" require'nvim_lsp'.yamlls.setup{on_attach=on_attach_vim}
-" require'nvim_lsp'.solargraph.setup{on_attach=on_attach_vim}
-" require'nvim_lsp'.jsonls.setup{on_attach=on_attach_vim}
-" require'nvim_lsp'.html.setup{on_attach=on_attach_vim}
-" require'nvim_lsp'.cssls.setup{on_attach=on_attach_vim}
-" require'nvim_lsp'.bashls.setup{on_attach=on_attach_vim}
-" EOF
-" endif
-
-" nnoremap <silent> gd    <cmd>lua vim.lsp.buf.declaration()<CR>
-" nnoremap <silent> <c-]> <cmd>lua vim.lsp.buf.definition()<CR>
-" nnoremap <silent> K     <cmd>lua vim.lsp.buf.hover()<CR>
-" nnoremap <silent> gD    <cmd>lua vim.lsp.buf.implementation()<CR>
-" nnoremap <silent> <c-k> <cmd>lua vim.lsp.buf.signature_help()<CR>
-" nnoremap <silent> 1gD   <cmd>lua vim.lsp.buf.type_definition()<CR>
-" nnoremap <silent> gr    <cmd>lua vim.lsp.buf.references()<CR>
-" nnoremap <silent> g0    <cmd>lua vim.lsp.buf.document_symbol()<CR>
-" nnoremap <silent> gW    <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
+if has('nvim')
+  " Allow floating windows in ale
+  let g:ale_floating_window = 1
+end
 " }}}
 
 " {{{1 Mappings
