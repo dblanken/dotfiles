@@ -245,6 +245,53 @@ source /usr/local/opt/asdf
 export PATH=$HOME/.asdf/shims:$PATH
 # }}}
 
+# {{{1 git overload
+#
+# `git` wrapper:
+#
+#     - `git` with no arguments = `git status`; run `git help` to show what
+#       vanilla `git` without arguments would normally show.
+#     - `git root` = `cd` to repo root.
+#     - `git root ARG...` = evals `ARG...` from the root (eg. `git root ls`).
+#     - `git ARG...` = behaves just like normal `git` command.
+#
+function git() {
+  if [ $# -eq 0 ]; then
+    command git status
+  elif [ "$1" = root ]; then
+    shift
+    local ROOT
+    if [ "$(command git rev-parse --is-inside-git-dir 2> /dev/null)" = true ]; then
+      if [ "$(command git rev-parse --is-bare-repository)" = true ]; then
+        ROOT="$(command git rev-parse --absolute-git-dir)"
+      else
+        # Note: This is a good-enough, rough heuristic, which ignores
+       # the possibility that GIT_DIR might be outside of the worktree;
+        # see:
+        # https://stackoverflow.com/a/38852055/2103996
+        ROOT="$(command git rev-parse --git-dir)/.."
+      fi
+    else
+      # Git 2.13.0 and above:
+      ROOT="$(command git rev-parse --show-superproject-working-tree 2> /dev/null)"
+      if [ -z "$ROOT" ]; then
+        ROOT="$(command git rev-parse --show-toplevel 2> /dev/null)"
+      fi
+    fi
+    if [ -z "$ROOT" ]; then
+      ROOT=.
+    fi
+    if [ $# -eq 0 ]; then
+      cd "$ROOT"
+    else
+      (cd "$ROOT" && eval "$@")
+    fi
+  else
+    command git "$@"
+  fi
+}
+# }}}
+
 # {{{1 Things I don't use but want to
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
@@ -336,4 +383,11 @@ function cowsayfortune {
 }
 
 fortune | cowsay -f tux -W 100
+# }}}
+
+# {{{1 Base16
+BASE16_SHELL="$HOME/.config/base16-shell/"
+[ -n "$PS1" ] && \
+  [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
+  eval "$("$BASE16_SHELL/profile_helper.sh")"
 # }}}
