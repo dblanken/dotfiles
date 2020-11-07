@@ -182,6 +182,11 @@ alias mkdir='mkdir -p'
 alias vi='vim'
 alias ls='ls -GFh'
 # }}}
+#
+# Get Battery Capacity
+function battery() {
+  ioreg -n AppleSmartBattery -r | awk '$1~/Capacity/{c[$1]=$3} END{OFMT="%.2f%%"; max=c["\"MaxCapacity\""]; print (max>0? 100*c["\"CurrentCapacity\""]/max: "?")}'
+}
 
 # {{{1 Codebase shortcut
 c() { cd ~/code/$1; }
