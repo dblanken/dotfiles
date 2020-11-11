@@ -206,7 +206,7 @@ chpwd() {
 #
 # Taken from ohmyzsh's tmux.plugin.zsh
 export ZSH_TMUX_AUTOQUIT=true
-export ZSH_TMUX_AUTOSTART=true
+export ZSH_TMUX_AUTOSTART=false
 function _zsh_tmux_wrapper_run() {
   if [[ -n "$@" ]]; then
     command tmux "$@"
@@ -232,7 +232,7 @@ function _zsh_tmux_wrapper_run() {
 compdef _tmux _zsh_tmux_wrapper_run
 alias tmux=_zsh_tmux_wrapper_run
 
-if [[ -z "$TMUX" && -z "$VIM" ]]; then
+if [[ -z "$TMUX" && -z "$VIM" && "$ZSH_TMUX_AUTOSTART" = true ]]; then
   _zsh_tmux_wrapper_run
 fi
 # }}}
@@ -396,3 +396,4 @@ BASE16_SHELL="$HOME/.config/base16-shell/"
   [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
   eval "$("$BASE16_SHELL/profile_helper.sh")"
 # }}}
+export PATH="/usr/local/sbin:$PATH"

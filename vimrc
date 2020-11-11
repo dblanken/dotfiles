@@ -121,6 +121,7 @@ function! PackInit() abort
   call minpac#add('unblevable/quick-scope')
   call minpac#add('honza/vim-snippets')
   call minpac#add('neoclide/coc.nvim', {'branch': 'release'})
+  call minpac#add('glacambre/firenvim', { 'type': 'opt', 'do': 'packadd firenvim | call firenvim#install(0)'})
 endfunction
 
 command! PackUpdate source $MYVIMRC | call PackInit() | call minpac#update()
@@ -129,6 +130,22 @@ command! PackStatus packadd minpac | call minpac#status()
 command! PackInstall PackUpdate
 
 set rtp+=/usr/local/opt/fzf
+if exists('g:started_by_firenvim')
+  packadd firenvim
+  let g:firenvim_config = {
+        \ 'globalSettings': {
+        \ 'alt': 'all',
+        \  },
+        \ 'localSettings': {
+        \ '.*': {
+        \ 'cmdline': 'neovim',
+        \ 'priority': 0,
+        \ 'selector': 'textarea',
+        \ 'takeover': 'always',
+        \ },
+        \ }
+        \ }
+endif
 " }}}
 
 " {{{1 Coc.Nvim
@@ -523,12 +540,17 @@ if exists('+termguicolors')
   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
   set termguicolors
 endif
-" colorscheme gruvbox
+colorscheme gruvbox
 if filereadable(expand("~/.vimrc_background"))
   let base16colorspace=256
   source ~/.vimrc_background
   let g:current_theme = 'base16_'.trim(system("$HOME/bin/get_theme.sh"))
 endif
+
+augroup MyColorSchemeOverrides
+  au!
+  au ColorScheme * highlight Comment cterm=italic gui=italic
+augroup END
 
 " {{{2 Lighline
 function! LightlineFugitive() abort
@@ -561,7 +583,9 @@ let g:lightline = {
 
 autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 
-let g:lightline.colorscheme = g:current_theme
+if g:current_theme != "base16_default"
+  let g:lightline.colorscheme = g:current_theme
+endif
 
 function! FilenameForLightLine()
   return expand('%')

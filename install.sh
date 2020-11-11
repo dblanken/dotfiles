@@ -4,7 +4,7 @@
 
 brew bundle
 
-env RCRC=<location_of_dotfiles>/rcrc rcup
+env RCRC=$HOME/code/dotfiles/rcrc rcup
 
 source ~/.zshrc
 
