@@ -106,7 +106,6 @@ function! PackInit() abort
   call minpac#add('AndrewRadev/splitjoin.vim')
   call minpac#add('vim-test/vim-test')
   call minpac#add('junegunn/fzf.vim')
-  call minpac#add('gruvbox-community/gruvbox', {'type': 'opt'})
   call minpac#add('wincent/loupe')
   call minpac#add('wincent/terminus')
   call minpac#add('mattn/emmet-vim')
@@ -535,16 +534,15 @@ endif
 " {{{1 Colorscheme
 let g:gruvbox_contrast_dark = 'hard'
 let g:gruvbox_invert_selection='0'
-if exists('+termguicolors')
-  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-  set termguicolors
-endif
-colorscheme gruvbox
+" if exists('+termguicolors')
+"   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+"   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+"   set termguicolors
+" endif
 if filereadable(expand("~/.vimrc_background"))
   let base16colorspace=256
   source ~/.vimrc_background
-  let g:current_theme = 'base16_'.trim(system("$HOME/bin/get_theme.sh"))
+  let g:current_theme = 'base16_'.trim(system("$HOME/.bin/get_theme.sh"))
 endif
 
 augroup MyColorSchemeOverrides
@@ -581,6 +579,7 @@ let g:lightline = {
       \ 'subseparator': { 'left': '', 'right': '' }
       \ }
 
+" Sync CoC with Lightline
 autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 
 if g:current_theme != "base16_default"
@@ -610,7 +609,7 @@ function! Writer() abort
 endfunction
 command! WR call Writer()
 " Since I use other java versions, point it to the adoptopenjdk8 java binary
-let g:languagetool_jar='/usr/local/Cellar/languagetool/5.0/libexec/languagetool-commandline.jar'
+let g:languagetool_jar='/usr/local/Cellar/languagetool/5.1.3_2/libexec/languagetool-commandline.jar'
 let g:languagetool_cmd='/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/bin/java -jar ' . g:languagetool_jar
 
 " let g:pandoc#command#latex_engine="mactex"
