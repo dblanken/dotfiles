@@ -3,7 +3,7 @@
 # Exports
 export CLICOLOR=1
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
-export PATH=$HOME/bin:$HOME/.local/bin:$PATH:$HOME/.cargo/bin
+export PATH=$HOME/.bin:$HOME/.local/bin:$PATH:$HOME/.cargo/bin
 
 # Check if we are nesting nvims
 # If we have nvim, make it the default
@@ -397,3 +397,7 @@ BASE16_SHELL="$HOME/.config/base16-shell/"
   eval "$("$BASE16_SHELL/profile_helper.sh")"
 # }}}
 export PATH="/usr/local/sbin:$PATH"
+
+if [ -z "$TMUX" ]; then
+  $HOME/.bin/tat
+fi
