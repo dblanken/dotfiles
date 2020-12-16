@@ -121,6 +121,8 @@ function! PackInit() abort
   call minpac#add('honza/vim-snippets')
   call minpac#add('neoclide/coc.nvim', {'branch': 'release'})
   call minpac#add('glacambre/firenvim', { 'type': 'opt', 'do': 'packadd firenvim | call firenvim#install(0)'})
+  call minpac#add('ryanoasis/vim-devicons')
+  call minpac#add('sheerun/vim-polyglot')
 endfunction
 
 command! PackUpdate source $MYVIMRC | call PackInit() | call minpac#update()
@@ -145,6 +147,10 @@ if exists('g:started_by_firenvim')
         \ }
         \ }
 endif
+" }}}
+
+" {{{1 vim-polyglot
+let g:polyglot_disabled = ['ruby']
 " }}}
 
 " {{{1 Coc.Nvim
@@ -182,6 +188,9 @@ function! s:check_back_space() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
+
+let g:coc_snippet_next = '<tab>'
+let g:coc_snippet_prev = '<s-tab>'
 
 " Use <c-space> to trigger completion.
 if has('nvim')
@@ -534,11 +543,11 @@ endif
 " {{{1 Colorscheme
 let g:gruvbox_contrast_dark = 'hard'
 let g:gruvbox_invert_selection='0'
-" if exists('+termguicolors')
-"   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-"   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-"   set termguicolors
-" endif
+if exists('+termguicolors')
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  set termguicolors
+endif
 if filereadable(expand("~/.vimrc_background"))
   let base16colorspace=256
   source ~/.vimrc_background
@@ -548,6 +557,7 @@ endif
 augroup MyColorSchemeOverrides
   au!
   au ColorScheme * highlight Comment cterm=italic gui=italic
+  au ColorScheme * hi Normal ctermbg=none guibg=none
 augroup END
 
 " {{{2 Lighline
@@ -557,6 +567,18 @@ function! LightlineFugitive() abort
     return branch !=# '' ? ''.branch : ''
   endif
   return ''
+endfunction
+
+function! LightlineFileTypeWithDevIcons() abort
+  return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype . ' ' . WebDevIconsGetFileTypeSymbol() : 'no ft') : ''
+endfunction
+
+function! LightlineFileFormatWithDevIcons() abort
+  return winwidth(0) > 70 ? (&fileformat . ' ' . WebDevIconsGetFileFormatSymbol()) : ''
+endfunction
+
+function! LightlineDevIcons() abort
+  return winwidth(0) > 70 ? WebDevIconsGetFileTypeSymbol() : ''
 endfunction
 
 let g:lightline = {
@@ -570,6 +592,9 @@ let g:lightline = {
       \   ]
       \ },
       \ 'component_function': {
+      \   'filetype': 'LightlineFileTypeWithDevIcons',
+      \   'fileformat': 'LightlineFileFormatWithDevIcons',
+      \   'devicon': 'LightlineDevIcons',
       \   'fugitive': 'LightlineFugitive',
       \   'filename': 'FilenameForLightLine',
       \   'lsp': 'LspStatus',
