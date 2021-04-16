@@ -1,10 +1,12 @@
 # vim: nowrap fdm=marker
-#
-# Exports
+
+# {{{ Exports
 export CLICOLOR=1
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
 export PATH=$HOME/.bin:$HOME/.local/bin:$PATH:$HOME/.cargo/bin
+# }}}
 
+# {{{ Neovim
 # Check if we are nesting nvims
 # If we have nvim, make it the default
 if [ -x "$(command -v nvim)" ]; then
@@ -24,15 +26,20 @@ if [ -x "$(command -v nvim)" ]; then
 else
   export EDITOR='vim'
 fi
+# }}}
 
-# ls colors
+# {{{ ls colors
 autoload -U colors && colors
+# }}}
 
-# Vi-mode
+# {{{ Vi-mode
 bindkey -v
+# }}}
 
+# {{{ Autocd
 # Auto cd if I give a directory name
 setopt autocd
+# }}}
 
 # {{{1 MacOS keyboard hack
 if [ "$(uname)" = "Darwin" ]; then
@@ -182,11 +189,13 @@ alias mkdir='mkdir -p'
 alias vi='vim'
 alias ls='ls -GFh'
 # }}}
-#
+
+# {{{ Battery
 # Get Battery Capacity
 function battery() {
   ioreg -n AppleSmartBattery -r | awk '$1~/Capacity/{c[$1]=$3} END{OFMT="%.2f%%"; max=c["\"MaxCapacity\""]; print (max>0? 100*c["\"CurrentCapacity\""]/max: "?")}'
 }
+# }}}
 
 # {{{1 Codebase shortcut
 c() { cd ~/code/$1; }
@@ -206,7 +215,7 @@ chpwd() {
 #
 # Taken from ohmyzsh's tmux.plugin.zsh
 export ZSH_TMUX_AUTOQUIT=true
-export ZSH_TMUX_AUTOSTART=false
+export ZSH_TMUX_AUTOSTART=true
 function _zsh_tmux_wrapper_run() {
   if [[ -n "$@" ]]; then
     command tmux "$@"
@@ -246,8 +255,7 @@ setopt share_history          # share command history data
 # }}}
 
 # {{{1 asdf
-source /usr/local/opt/asdf
-export PATH=$HOME/.asdf/shims:$PATH
+source /usr/local/opt/asdf/asdf.sh
 # }}}
 
 # {{{1 git overload
@@ -310,28 +318,6 @@ alias -g ......="../../../../.."
 alias music='open /Applications/Amazon\ Music.app'
 # }}}
 
-# {{{1 Spectrum coloring
-# A script to make using 256 colors in zsh less painful.
-# P.C. Shyamshankar <sykora@lucentbeing.com>
-# Copied from https://github.com/sykora/etc/blob/master/zsh/functions/spectrum/
-
-typeset -AHg FX FG BG
-
-FX=(
-  reset     "%{[00m%}"
-  bold      "%{[01m%}" no-bold      "%{[22m%}"
-  italic    "%{[03m%}" no-italic    "%{[23m%}"
-  underline "%{[04m%}" no-underline "%{[24m%}"
-  blink     "%{[05m%}" no-blink     "%{[25m%}"
-  reverse   "%{[07m%}" no-reverse   "%{[27m%}"
-)
-
-for color in {000..255}; do
-  FG[$color]="%{[38;5;${color}m%}"
-  BG[$color]="%{[48;5;${color}m%}"
-done
-# }}}
-
 # {{{1 Execution time
 autoload -U add-zsh-hook
 
@@ -389,15 +375,3 @@ function cowsayfortune {
 
 fortune | cowsay -f tux -W 100
 # }}}
-
-# {{{1 Base16
-BASE16_SHELL="$HOME/.config/base16-shell/"
-[ -n "$PS1" ] && \
-  [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
-  eval "$("$BASE16_SHELL/profile_helper.sh")"
-# }}}
-export PATH="/usr/local/sbin:$PATH"
-
-if [ -z "$TMUX" ]; then
-  $HOME/.bin/tat
-fi
