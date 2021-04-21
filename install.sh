@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 
@@ -12,11 +12,13 @@ asdf plugin-add ruby
 asdf plugin-add nodejs
 asdf plugin-add python
 asdf plugin-add yarn
+asdf plugin-add perl
 
 asdf install ruby latest
 asdf install nodejs latest
 asdf install python latest
 asdf install yarn latest
+asdf install perl latest
 
 asdf reshim
 
@@ -27,4 +29,6 @@ git clone https://github.com/k-takata/minpac.git \
 curl -fLo ~/.vim/autoload/plugpac.vim --create-dirs \
     https://raw.githubusercontent.com/bennyyip/plugpac.vim/master/plugpac.vim
 
-nvim -c "PackUpdate" -c "qa!"
+nvim -c "PackUpdate" -c "echom 'Please exit :qa when updates are complete.'"
+
+echo "Do not forget to set up asdf globals.g
