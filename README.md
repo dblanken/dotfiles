@@ -33,8 +33,7 @@ Visible above are:
 - Indicator of vi-mode in the terminal
   - [i] - Insert mode
   - [n] - Normal mode
-- ! is an indicator only shown when the last command returned an error code
-- username
+- username (red if last command returned an error code)
 - hostname
 - current directory
 - Git version control worktree status using colors that atch those used in git status:

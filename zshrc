@@ -358,7 +358,7 @@ add-zsh-hook precmd -report-start-time
 # }}}
 
 # {{{1 Prompt
-PROMPT='${VIMODE} %(?..%F{red}!%f)%F{yellow}%n%f@%F{blue}%m%f %F{magenta}%1~%f ${vcs_info_msg_0_}%# '
+PROMPT='${VIMODE} %(?.%F{yellow}%n%f.%F{red}%n%f)@%F{blue}%m%f %F{magenta}%1~%f ${vcs_info_msg_0_}%# '
 # }}}
 
 # {{{1 There be cows here
