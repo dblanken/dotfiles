@@ -80,33 +80,25 @@ set updatetime=50
 " }}}
 
 " {{{1 Plugins
-function! PackInit() abort
-  packadd minpac
-
-  call minpac#init()
-  call minpac#add('k-takata/minpac', {'type': 'opt'})
-
-  call minpac#add('tpope/vim-commentary')
-  call minpac#add('tpope/vim-dispatch')
-  call minpac#add('tpope/vim-fugitive')
-  call minpac#add('tpope/vim-projectionist')
-  call minpac#add('tpope/vim-ragtag')
-  call minpac#add('tpope/vim-rails')
-  call minpac#add('tpope/vim-repeat')
-  call minpac#add('tpope/vim-surround')
-  call minpac#add('dblanken/vim-unimpaired')
-  call minpac#add('tpope/vim-vinegar')
-  call minpac#add('christoomey/vim-tmux-navigator')
-  call minpac#add('vim-test/vim-test')
-  call minpac#add('junegunn/fzf.vim')
-  call minpac#add('wincent/loupe')
-  call minpac#add('wincent/terminus')
-endfunction
-
-command! PackUpdate source $MYVIMRC | call PackInit() | call minpac#update()
-command! PackClean  source $MYVIMRC | call PackInit() | call minpac#clean()
-command! PackStatus packadd minpac | call minpac#status()
-command! PackInstall PackUpdate
+call plugpac#begin()
+Pack 'k-takata/minpac', {'type': 'opt'}
+Pack 'tpope/vim-commentary'
+Pack 'tpope/vim-dispatch'
+Pack 'tpope/vim-fugitive'
+Pack 'tpope/vim-projectionist'
+Pack 'tpope/vim-ragtag'
+Pack 'tpope/vim-rails'
+Pack 'tpope/vim-repeat'
+Pack 'tpope/vim-surround'
+Pack 'tpope/vim-unimpaired'
+Pack 'tpope/vim-vinegar'
+Pack 'christoomey/vim-tmux-navigator'
+Pack 'vim-test/vim-test'
+Pack 'junegunn/fzf.vim'
+Pack 'wincent/loupe'
+Pack 'wincent/terminus'
+Pack 'morhetz/gruvbox', {'type': 'opt'}
+call plugpac#end()
 
 set rtp+=/usr/local/opt/fzf
 " }}}
@@ -228,3 +220,5 @@ if executable('rg')
   set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case
 endif
 " }}}
+
+colorscheme gruvbox
