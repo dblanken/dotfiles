@@ -24,11 +24,7 @@ asdf reshim
 
 yarn global add neovim
 
-git clone https://github.com/k-takata/minpac.git \
-    ~/.vim/pack/minpac/opt/minpac
-curl -fLo ~/.vim/autoload/plugpac.vim --create-dirs \
-    https://raw.githubusercontent.com/bennyyip/plugpac.vim/master/plugpac.vim
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
-nvim -c "PackUpdate" -c "echom 'Please exit :qa when updates are complete.'"
-
-echo "Do not forget to set up asdf globals.g
+nvim -c "PlugUpdate" -c "qa"
