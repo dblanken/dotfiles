@@ -247,15 +247,19 @@ fi
 # }}}
 
 # {{{1 history substring searching
-source /usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh
-bindkey '^[[A' history-substring-search-up
-bindkey '^[[B' history-substring-search-down
+if [[ -a /usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh ]]; then
+  source /usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh
+  bindkey '^[[A' history-substring-search-up
+  bindkey '^[[B' history-substring-search-down
+fi
 
 setopt share_history          # share command history data
 # }}}
 
 # {{{1 asdf
-source /usr/local/opt/asdf/asdf.sh
+if [[ -a /usr/local/opt/asdf/asdf.sh ]]; then
+  source /usr/local/opt/asdf/asdf.sh
+fi
 # }}}
 
 # {{{1 git overload
@@ -303,6 +307,10 @@ function git() {
     command git "$@"
   fi
 }
+# }}}
+
+# {{{1 Go
+export PATH=$PATH:~/go/bin
 # }}}
 
 # {{{1 Things I don't use but want to
@@ -376,8 +384,9 @@ function cowsayfortune {
 fortune | cowsay -f tux -W 100
 # }}}
 
-# Base16 Shell
+# {{{1 Base16 Shell
 BASE16_SHELL="$HOME/.config/base16-shell/"
 [ -n "$PS1" ] && \
     [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
         eval "$("$BASE16_SHELL/profile_helper.sh")"
+# }}}
