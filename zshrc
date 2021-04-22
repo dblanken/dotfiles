@@ -215,7 +215,7 @@ chpwd() {
 #
 # Taken from ohmyzsh's tmux.plugin.zsh
 export ZSH_TMUX_AUTOQUIT=true
-export ZSH_TMUX_AUTOSTART=true
+export ZSH_TMUX_AUTOSTART=false
 function _zsh_tmux_wrapper_run() {
   if [[ -n "$@" ]]; then
     command tmux "$@"
@@ -375,3 +375,9 @@ function cowsayfortune {
 
 fortune | cowsay -f tux -W 100
 # }}}
+
+# Base16 Shell
+BASE16_SHELL="$HOME/.config/base16-shell/"
+[ -n "$PS1" ] && \
+    [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
+        eval "$("$BASE16_SHELL/profile_helper.sh")"
