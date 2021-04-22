@@ -388,5 +388,5 @@ let g:ale_hover_to_floating_preview = 1
 
 if filereadable(expand("~/.vimrc_background"))
   let base16colorspace=256
-  source ~/.vimrc_background
+  silent! source ~/.vimrc_background
 endif
