@@ -143,13 +143,17 @@ setopt prompt_subst
 
 # {{{1 Aliases
 # related to editing configuration
+alias nvimrc='$EDITOR ~/.config/nvim/init.vim'
+alias tmuxconf='$EDITOR ~/.tmux.conf'
 alias vimrc='$EDITOR ~/.vimrc'
 alias zshrc='$EDITOR ~/.zshrc'
-alias tmuxconf='$EDITOR ~/.tmux.conf'
-alias nvimrc='$EDITOR ~/.config/nvim/init.vim'
 
 # common commands
-alias u='cd ..'
+alias '?'='duck'
+alias '??'='google'
+alias '???'='bing'
+alias be='bundle exec'
+alias bi='bundle install -j 8'
 alias g='git'
 alias ga='git add'
 alias gb='git branch'
@@ -175,19 +179,19 @@ alias grb='git rebase'
 alias grm='git rm'
 alias gst='git status'
 alias gwip='git add -A; git rm $(git ls-files --deleted) 2> /dev/null; git commit --no-verify --no-gpg-sign -m "--wip-- [skip ci]"'
-alias v='vim'
-alias bi='bundle install -j 8'
 alias howamidoing="history | awk '{a[\$2]++}END{for(i in a){print a[i] \" \" i}}' | sort -rn | head -20"
 alias killruby='pkill -f ruby'
 alias rubykill='killruby'
-alias be='bundle exec'
+alias u='cd ..'
+alias v='vim'
+alias x='exit'
 
 # overrides
 alias cat='bat'
 alias irb='irb --readline -r irb/completion'
+alias ls='ls -GFh'
 alias mkdir='mkdir -p'
 alias vi='vim'
-alias ls='ls -GFh'
 # }}}
 
 # {{{ Battery
