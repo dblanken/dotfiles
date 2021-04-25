@@ -130,6 +130,7 @@ Plug 'vuciv/vim-bujo'
 Plug 'wincent/loupe'
 Plug 'wincent/terminus'
 Plug 'wincent/corpus'
+Plug 'jiangmiao/auto-pairs'
 
 call plug#end()
 
