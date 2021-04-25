@@ -84,6 +84,8 @@ set updatetime=50
 
 " {{{1 Plugins
 call plug#begin()
+
+Plug 'chriskempson/base16-vim'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'dense-analysis/ale'
 Plug 'godlygeek/tabular'
@@ -113,6 +115,7 @@ Plug 'tpope/vim-rake'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-rhubarb'
 Plug 'tpope/vim-salve'
+Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-speeddating'
 Plug 'tpope/vim-surround'
@@ -120,11 +123,11 @@ Plug 'tpope/vim-tbone'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-vividchalk'
+Plug 'vim-pandoc/vim-pandoc'
 Plug 'vim-test/vim-test'
 Plug 'vuciv/vim-bujo'
 Plug 'wincent/loupe'
 Plug 'wincent/terminus'
-Plug 'chriskempson/base16-vim'
 
 call plug#end()
 
