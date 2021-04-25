@@ -1,6 +1,7 @@
 " vim: nowrap fdm=marker
 
 let mapleader="\<Space>"
+let g:transparency = 1
 
 " {{{1 Short circuits
 if has('nvim')
@@ -128,6 +129,7 @@ Plug 'vim-test/vim-test'
 Plug 'vuciv/vim-bujo'
 Plug 'wincent/loupe'
 Plug 'wincent/terminus'
+Plug 'wincent/corpus'
 
 call plug#end()
 
@@ -260,6 +262,14 @@ augroup dblanken_filetypes
   autocmd FileType liquid,markdown,text,txt setlocal tw=78 linebreak keywordprg=dict
   autocmd FileType markdown call SetBujoMappings()
 augroup END
+
+" Only if I have set it to be transparent
+if exists("g:transparency")
+  augroup dblanken_transparency
+    autocmd!
+    autocmd ColorScheme * hi Normal guibg=NONE ctermbg=NONE
+  augroup END
+endif
 " }}}
 
 " {{{1 rg/grep
@@ -288,6 +298,29 @@ let g:surround_indent = 1
 
 " {{{1 vim-markdown
 let g:markdown_fenced_languages = ['ruby', 'html', 'javascript', 'css', 'bash=sh', 'sh']
+" }}}
+
+" {{{1 corpus
+if has('nvim')
+  lua <<
+    CorpusDirectories = {
+      ['~/Documents/Corpus'] = {
+        autocommit = true,
+        autoreference = 1,
+        autotitle = 1,
+        base = './',
+        transform = 'local',
+      },
+      ['~/OneDrive - Indiana University/wiki'] = {
+        autocommit = true,
+        autoreference = 1,
+        autotitle = 1,
+        base = './',
+        transform = 'local',
+      }
+    }
+.
+endif
 " }}}
 
 " {{{1 Spelling
