@@ -145,7 +145,7 @@ setopt prompt_subst
 # related to editing configuration
 alias nvimrc='$EDITOR ~/.config/nvim/init.vim'
 alias tmuxconf='$EDITOR ~/.tmux.conf'
-alias vimrc='$EDITOR ~/.vimrc'
+alias vimrc='$EDITOR ~/.vim/vimrc'
 alias zshrc='$EDITOR ~/.zshrc'
 
 # common commands
