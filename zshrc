@@ -145,7 +145,7 @@ setopt prompt_subst
 # related to editing configuration
 alias nvimrc='$EDITOR ~/.config/nvim/init.vim'
 alias tmuxconf='$EDITOR ~/.tmux.conf'
-alias vimrc='$EDITOR ~/.vim/vimrc'
+alias vimrc='$EDITOR ~/.vimrc'
 alias zshrc='$EDITOR ~/.zshrc'
 
 # common commands
@@ -185,6 +185,11 @@ alias rubykill='killruby'
 alias u='cd ..'
 alias v='vim'
 alias x='exit'
+
+# Docker
+alias images='docker images'
+alias drun='docker run -it'
+alias dex='docker exec -it'
 
 # overrides
 alias cat='bat'
