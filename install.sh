@@ -30,7 +30,6 @@ brew "hub"
 # Programming language prerequisites and package managers
 brew "libyaml" # should come after openssl
 brew "coreutils"
-brew "yarn"
 brew "asdf"
 brew "gnupg"
 brew "mas"
@@ -81,8 +80,13 @@ install_asdf_plugin() {
 
 install_asdf_language() {
     local language="$1"
+    local subversion="$2"
     local version
-    version="$(asdf list-all "$language" | grep -v "[a-z]" | tail -1)"
+    if [ -z "$subversion" ]; then
+        echo "I am changing the language from $2 to $1"
+        subversion="$language"
+    fi
+    version="$(asdf list-all "$language" | grep "^${subversion}" | grep -v "[a-z]" | tail -1)"
 
     if ! asdf list "$language" | grep -Fq "$version"; then
         echo "I am not installed yet"
@@ -93,14 +97,25 @@ install_asdf_language() {
 
 install_asdf_plugin "ruby"
 install_asdf_plugin "nodejs"
+install_asdf_plugin "python"
+install_asdf_plugin "yarn"
+install_asdf_plugin "perl"
 
 install_asdf_language "ruby"
+install_asdf_language "python"
+install_asdf_language "python" "2.7.18"
 bash "$HOME/.asdf/plugins/nodejs/bin/import-release-team-keyring"
 install_asdf_language "nodejs"
+install_asdf_language "yarn"
+install_asdf_language "perl"
+
+asdf global python `asdf list-all python | grep -v "[a-z]" | tail -1` 2.7.18
 
 asdf reshim
 
 yarn global add neovim
+cpanm Neovim::Ext
+cpanm App::cpanminus
 gem update --system
 number_of_cores=$(sysctl -n hw.ncpu)
 bundle config --global jobs $((number_of_cores - 1))
