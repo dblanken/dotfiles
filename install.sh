@@ -126,3 +126,8 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 nvim -c "PlugUpdate" -c "qa"
+
+tic -o ~/.terminfo ~/code/dotfiles/terminfo/tmux-256color.terminfo
+tic -o ~/.terminfo ~/code/dotfiles/terminfo/xterm-256color.terminfo
+tic -o ~/.terminfo ~/code/dotfiles/terminfo/tmux.terminfo
+tic -o ~/.terminfo ~/code/dotfiles/terminfo/alacritty.terminfo
