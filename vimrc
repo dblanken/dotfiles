@@ -1,7 +1,6 @@
 " vim: nowrap fdm=marker
 
 let mapleader="\<Space>"
-let g:transparency = 1
 
 " {{{1 Short circuits
 if has('nvim')
@@ -423,7 +422,9 @@ let g:ale_completion_symbols = {
 let g:ale_hover_to_floating_preview = 1
 " }}}
 
+" {{{1 base16-vim
 if filereadable(expand("~/.vimrc_background"))
   let base16colorspace=256
   silent! source ~/.vimrc_background
 endif
+" }}}
