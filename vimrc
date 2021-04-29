@@ -90,6 +90,7 @@ Plug 'christoomey/vim-tmux-navigator'
 Plug 'dense-analysis/ale'
 Plug 'godlygeek/tabular'
 Plug 'junegunn/fzf.vim', { 'do': { -> fzf#install()  } }
+Plug 'junegunn/fzf'
 Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-afterimage'
 Plug 'tpope/vim-apathy'
@@ -138,8 +139,10 @@ call plug#end()
 
 " {{{1 FZF config
 let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
-let $FZF_DEFAULT_OPTS='--reverse'
+
+let $FZF_DEFAULT_OPTS='--reverse --preview "bat --style=numbers --color=always --line-range :500 {}"'
 nnoremap <C-p> :Files<CR>
+nnoremap <Leader>ez :Files $HOME/code/dotfiles<CR>
 
 augroup fzf_overrides
   autocmd!
