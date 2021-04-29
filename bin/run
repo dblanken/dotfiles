@@ -1,0 +1,5 @@
+#!/bin/sh
+
+name=$1
+shift
+exec docker run -it --rom -h "$name" --name "$name" "$name" "$@"
