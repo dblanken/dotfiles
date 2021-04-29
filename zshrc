@@ -378,21 +378,6 @@ add-zsh-hook precmd -report-start-time
 PROMPT='${VIMODE} %(?.%F{yellow}%n%f.%F{red}%n%f)@%F{blue}%m%f %F{magenta}%1~%f ${vcs_info_msg_0_}%# '
 # }}}
 
-# {{{1 There be cows here
-COWPATH="$COWPATH:$HOME/.cowsay"
-# Cow-spoken fortunes every time you open a terminal
-function cowsayfortune {
-  NUMOFCOWS=`cowsay -l | tail -n +2 | wc -w`
-  WHICHCOW=$((RANDOM%$NUMOFCOWS+1))
-  THISCOW=`cowsay -l | tail -n +2 | sed -e 's/\ /\'$'\n/g' | sed $WHICHCOW'q;d'`
-
-  echo "Selected cow: ${THISCOW}, from ${WHICHCOW}"
-  fortune | cowsay -f $THISCOW -W 100
-}
-
-fortune | cowsay -f tux -W 100
-# }}}
-
 # {{{1 Base16 Shell
 BASE16_SHELL="$HOME/.config/base16-shell/"
 [ -n "$PS1" ] && \
