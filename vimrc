@@ -89,7 +89,7 @@ Plug 'chriskempson/base16-vim'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'dense-analysis/ale'
 Plug 'godlygeek/tabular'
-Plug 'junegunn/fzf.vim'
+Plug 'junegunn/fzf.vim', { 'do': { -> fzf#install()  } }
 Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-afterimage'
 Plug 'tpope/vim-apathy'
@@ -128,12 +128,12 @@ Plug 'vim-test/vim-test'
 Plug 'vuciv/vim-bujo'
 Plug 'wincent/loupe'
 Plug 'wincent/terminus'
-Plug 'wincent/corpus'
+if has('nvim')
+  Plug 'wincent/corpus'
+endif
 Plug 'jiangmiao/auto-pairs'
 
 call plug#end()
-
-set rtp+=/usr/local/opt/fzf
 " }}}
 
 " {{{1 FZF config
