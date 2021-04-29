@@ -23,6 +23,7 @@ brew "bat"
 brew "cowsay"
 brew "fortune"
 brew "zsh-history-substring-search"
+brew "lynx"
 
 # GitHub
 brew "hub"
