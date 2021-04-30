@@ -15,7 +15,6 @@ if has('nvim')
   endif
 endif
 " }}}
-
 " {{{1 Settings
 if !has('nvim')
   unlet! skip_defaults_vim
@@ -81,16 +80,15 @@ set smartcase
 set undofile
 set updatetime=50
 " }}}
-
 " {{{1 Plugins
 call plug#begin()
 
 Plug 'chriskempson/base16-vim'
 Plug 'christoomey/vim-tmux-navigator'
-Plug 'dense-analysis/ale'
 Plug 'godlygeek/tabular'
-Plug 'junegunn/fzf.vim', { 'do': { -> fzf#install()  } }
+Plug 'jiangmiao/auto-pairs'
 Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim', { 'do': { -> fzf#install()  } }
 Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-afterimage'
 Plug 'tpope/vim-apathy'
@@ -129,83 +127,96 @@ Plug 'vim-test/vim-test'
 Plug 'vuciv/vim-bujo'
 Plug 'wincent/loupe'
 Plug 'wincent/terminus'
+
 if has('nvim')
   Plug 'wincent/corpus'
+  Plug 'neovim/nvim-lspconfig'
+else
+  Plug 'dense-analysis/ale'
 endif
-Plug 'jiangmiao/auto-pairs'
 
 call plug#end()
 " }}}
+" {{{1 ale
+if !has('nvim')
+  nmap <silent> [W <Plug>(ale_first)
+  nmap <silent> [w <Plug>(ale_previous)
+  nmap <silent> ]W <Plug>(ale_last)
+  nmap <silent> ]w <Plug>(ale_next)
 
-" {{{1 FZF config
-let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
+  " Always show sign column
+  let g:ale_sign_column_always = 1
 
-let $FZF_DEFAULT_OPTS='--reverse --preview "bat --style=numbers --color=always --line-range :500 {}"'
-nnoremap <C-p> :Files<CR>
-nnoremap <Leader>ez :Files $HOME/code/dotfiles<CR>
+  " Set to show which linter says there is an issue
+  let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+  let g:ale_sign_error = '✖'
+  let g:ale_sign_info = 'ℹ'
+  let g:ale_sign_warning = '⚠'
 
-augroup fzf_overrides
-  autocmd!
-  " Allow Esc to exit fzf
-  autocmd FileType fzf tnoremap <buffer> <Esc> <Esc><Esc>
-augroup END
-" }}}
+  let g:ale_set_balloons = 1
+  let g:ale_hover_to_preview = 1
+  let g:ale_hover_cursor = 1
 
-" {{{1 Netrw config
-let g:netrw_browse_split = 2
-let g:netrw_banner = 0
-let g:netrw_winsize = 25
-" }}}
+  let g:ale_linters = {
+        \ "ruby": [ "brakeman", "rails_best_practices", "reek", "solargraph" ]
+        \ }
+  let g:ale_fixers = {
+        \ "*": [ "remove_trailing_lines" ],
+        \ "ruby": [ "rubocop" ]
+        \ }
+  let g:ale_fix_on_save = 1
 
-" {{{1 vim-test config
-nmap <silent> <leader>t :TestNearest<CR>
-nmap <silent> <leader>T :TestFile<CR>
-nmap <silent> <leader>a :TestSuite<CR>
-nmap <silent> <leader>l :TestLast<CR>
-let test#strategy = 'dispatch'
-" }}}
+  function! LinterStatus() abort
+    let l:counts = ale#statusline#Count(bufnr(''))
 
-" {{{1 vim-rails config
-" This lets me create a test file properly
-let g:rails_projections = {
-      \ "test/models/*_test.rb": {"command": "modeltest",
-      \   "template":
-      \     ["require \"test_helper\"",
-      \      "",
-      \      "class {camelcase|capitalize|colons}Test < ActiveSupport::TestCase",
-      \      "end"]
-      \   }
-      \ }
-" }}}
+    let l:all_errors = l:counts.error + l:counts.style_error
+    let l:all_non_errors = l:counts.total - l:all_errors
 
-" {{{1 vim-fugitive
-nnoremap <Leader>gd :Gvdiffsplit!<CR>
-nnoremap gdh :diffget //2<CR>
-nnoremap gdl :diffget //3<CR>
-" }}}
+    return l:counts.total == 0 ? 'OK' : printf(
+          \   '%dW %dE',
+          \   all_non_errors,
+          \   all_errors
+          \)
+  endfunction
 
-" {{{1 Mappings
-nnoremap Q @q
-nnoremap <Leader>= migg=G`i
-nnoremap Y y$
-nnoremap <Leader>g :grep!<Space>
-if exists(':tnoremap')
-  tnoremap <Esc> <C-\><C-n>
+  augroup ale_flagship
+    autocmd!
+    autocmd User Flags call Hoist("buffer", "LinterStatus")
+  augroup END
+
+  let g:ale_completion_symbols = {
+        \ 'text': '',
+        \ 'method': '',
+        \ 'function': '',
+        \ 'constructor': '',
+        \ 'field': '',
+        \ 'variable': '',
+        \ 'class': '',
+        \ 'interface': '',
+        \ 'module': '',
+        \ 'property': '',
+        \ 'unit': 'unit',
+        \ 'value': 'val',
+        \ 'enum': '',
+        \ 'keyword': 'keyword',
+        \ 'snippet': '',
+        \ 'color': 'color',
+        \ 'file': '',
+        \ 'reference': 'ref',
+        \ 'folder': '',
+        \ 'enum member': '',
+        \ 'constant': '',
+        \ 'struct': '',
+        \ 'event': 'event',
+        \ 'operator': '',
+        \ 'type_parameter': 'type param',
+        \ '<default>': 'v'
+        \ }
+  " let g:ale_completion_enabled = 1
+  let g:ale_hover_to_floating_preview = 1
 endif
-
-nnoremap <Leader>s :s/\(<C-r>=expand("<cword>")<CR>\)/
-
-command! Vimrc vsp ~/.vimrc
-
-nnoremap <Leader>\ :vsplit<CR>
-nnoremap <Leader>- :split<CR>
-
-" Delete what you have highlighted to the void register and paste what you
-" wanted.  It does not replace what you've copied previously.  Actual delete.
-vnoremap <Leader>p "_dP
 " }}}
-
-" {{{1 Autogroups
+" {{{1 autogroups
 function! TrimWhitespace()
   let l:save = winsaveview()
   keeppatterns %s/\s\+$//e
@@ -274,35 +285,12 @@ if exists("g:transparency")
   augroup END
 endif
 " }}}
-
-" {{{1 rg/grep
-if executable('rg')
-  set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case
+" {{{1 base16-vim
+if filereadable(expand("~/.vimrc_background"))
+  let base16colorspace=256
+  silent! source ~/.vimrc_background
 endif
 " }}}
-
-" {{{1 vim-rhubarb
-let g:github_enterprise_urls = ['https://github.iu.edu']
-" }}}
-
-" {{{1 vim-ragtag
-let g:ragtag_global_maps = 1
-" }}}
-
-" {{{1 vim-surround
-let b:surround_{char2nr('e')} = "\r\n}"
-let g:surround_{char2nr('-')} = "<% \r %>"
-let g:surround_{char2nr('=')} = "<%= \r %>"
-let g:surround_{char2nr('8')} = "/* \r */"
-let g:surround_{char2nr('s')} = " \r"
-let g:surround_{char2nr('^')} = "/^\r$/"
-let g:surround_indent = 1
-" }}}
-
-" {{{1 vim-markdown
-let g:markdown_fenced_languages = ['ruby', 'html', 'javascript', 'css', 'bash=sh', 'sh']
-" }}}
-
 " {{{1 corpus
 if has('nvim')
   lua <<
@@ -325,8 +313,157 @@ if has('nvim')
 .
 endif
 " }}}
+" {{{1 fzf config
+let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
 
-" {{{1 Spelling
+let $FZF_DEFAULT_OPTS='--reverse --preview "bat --style=numbers --color=always --line-range :500 {}"'
+nnoremap <C-p> :Files<CR>
+nnoremap <Leader>ez :Files $HOME/code/dotfiles<CR>
+
+augroup fzf_overrides
+  autocmd!
+  " Allow Esc to exit fzf
+  autocmd FileType fzf tnoremap <buffer> <Esc> <Esc><Esc>
+augroup END
+" }}}
+" {{{1 Mappings
+nnoremap Q @q
+nnoremap <Leader>= migg=G`i
+nnoremap Y y$
+nnoremap <Leader>g :grep!<Space>
+if exists(':tnoremap')
+  tnoremap <Esc> <C-\><C-n>
+endif
+
+nnoremap <Leader>s :s/\(<C-r>=expand("<cword>")<CR>\)/
+
+command! Vimrc vsp ~/.vimrc
+
+nnoremap <Leader>\ :vsplit<CR>
+nnoremap <Leader>- :split<CR>
+
+" Delete what you have highlighted to the void register and paste what you
+" wanted.  It does not replace what you've copied previously.  Actual delete.
+vnoremap <Leader>p "_dP
+" }}}
+" {{{1 netrw config
+let g:netrw_browse_split = 2
+let g:netrw_banner = 0
+let g:netrw_winsize = 25
+" }}}
+" {{{1 nvim-lsp
+if has('nvim')
+lua << EOF
+local nvim_lsp = require('lspconfig')
+local on_attach = function(client, bufnr)
+  local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+  local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+  buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+  -- Mappings.
+  local opts = { noremap=true, silent=true }
+  buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+  buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
+  buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
+  buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+  buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+  --buf_set_keymap('n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
+  --buf_set_keymap('n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
+  --buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
+  buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+  buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+  buf_set_keymap('n', '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+  buf_set_keymap('n', '<space>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+  buf_set_keymap('n', '[w', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+  buf_set_keymap('n', ']w', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+  buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
+
+  -- Set some keybinds conditional on server capabilities
+  if client.resolved_capabilities.document_formatting then
+    buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+  end
+  if client.resolved_capabilities.document_range_formatting then
+    buf_set_keymap("v", "<space>f", "<cmd>lua vim.lsp.buf.range_formatting()<CR>", opts)
+  end
+
+  -- Set autocommands conditional on server_capabilities
+  if client.resolved_capabilities.document_highlight then
+    vim.api.nvim_exec([[
+      hi LspReferenceRead cterm=bold ctermbg=red guibg=LightYellow
+      hi LspReferenceText cterm=bold ctermbg=red guibg=LightYellow
+      hi LspReferenceWrite cterm=bold ctermbg=red guibg=LightYellow
+      augroup lsp_document_highlight
+        autocmd! * <buffer>
+        autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
+        autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+      augroup END
+    ]], false)
+  end
+end
+
+-- Use a loop to conveniently both setup defined servers
+-- and map buffer local keybindings when the language server attaches
+local servers = { "solargraph", "tsserver", "vimls", "bashls", "cssls", "dockerls", "html", "jsonls", "yamlls" }
+for _, lsp in ipairs(servers) do
+  nvim_lsp[lsp].setup { on_attach = on_attach }
+end
+
+local system_name
+if vim.fn.has("mac") == 1 then
+  system_name = "macOS"
+elseif vim.fn.has("unix") == 1 then
+  system_name = "Linux"
+elseif vim.fn.has('win32') == 1 then
+  system_name = "Windows"
+else
+  print("Unsupported system for sumneko")
+end
+
+-- set the path to the sumneko installation; if you previously installed via the now deprecated :LspInstall, use
+-- local sumneko_root_path = vim.fn.stdpath('cache')..'/lspconfig/sumneko_lua/lua-language-server'
+local sumneko_root_path = '~/code/lua-language-server'
+local sumneko_binary = sumneko_root_path.."/bin/"..system_name.."/lua-language-server"
+
+require'lspconfig'.sumneko_lua.setup {
+  on_attach = on_attach,
+  cmd = {sumneko_binary, "-E", sumneko_root_path .. "/main.lua"};
+  settings = {
+    Lua = {
+      runtime = {
+        -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
+        version = 'LuaJIT',
+        -- Setup your lua path
+        path = vim.split(package.path, ';'),
+      },
+      diagnostics = {
+        -- Get the language server to recognize the `vim` global
+        globals = {'vim'},
+      },
+      workspace = {
+        -- Make the server aware of Neovim runtime files
+        library = {
+          [vim.fn.expand('$VIMRUNTIME/lua')] = true,
+          [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true,
+        },
+      },
+      -- Do not send telemetry data containing a randomized but unique identifier
+      telemetry = {
+        enable = false,
+      },
+    },
+  },
+}
+EOF
+endif
+" }}}
+" {{{1 rg/grep
+if executable('rg')
+  set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case
+endif
+" }}}
+" {{{1 spelling
 if has('spell')
   setglobal spelllang=en_us
   setglobal spellfile=~/.vim/spell/en.utf-8.add
@@ -336,7 +473,6 @@ if has('spell')
 endif
 
 " }}}
-
 " {{{ vim-bujo
 " Remap these since surround attempts to take over experimental stuff
 function! SetBujoMappings() abort
@@ -346,88 +482,45 @@ function! SetBujoMappings() abort
   imap <buffer> <C-Q> <Plug>BujoCheckinsert
 endfunction
 " }}}
-
-" {{{1 ale
-nmap <silent> [W <Plug>(ale_first)
-nmap <silent> [w <Plug>(ale_previous)
-nmap <silent> ]W <Plug>(ale_last)
-nmap <silent> ]w <Plug>(ale_next)
-
-" Always show sign column
-let g:ale_sign_column_always = 1
-
-" Set to show which linter says there is an issue
-let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-let g:ale_sign_error = '✖'
-let g:ale_sign_info = 'ℹ'
-let g:ale_sign_warning = '⚠'
-
-let g:ale_set_balloons = 1
-let g:ale_hover_to_preview = 1
-let g:ale_hover_cursor = 1
-
-let g:ale_linters = {
-      \ "ruby": [ "brakeman", "rails_best_practices", "reek", "solargraph" ]
-      \ }
-let g:ale_fixers = {
-      \ "*": [ "remove_trailing_lines" ],
-      \ "ruby": [ "rubocop" ]
-      \ }
-let g:ale_fix_on_save = 1
-
-function! LinterStatus() abort
-  let l:counts = ale#statusline#Count(bufnr(''))
-
-  let l:all_errors = l:counts.error + l:counts.style_error
-  let l:all_non_errors = l:counts.total - l:all_errors
-
-  return l:counts.total == 0 ? 'OK' : printf(
-        \   '%dW %dE',
-        \   all_non_errors,
-        \   all_errors
-        \)
-endfunction
-
-augroup ale_flagship
-  autocmd!
-  autocmd User Flags call Hoist("buffer", "LinterStatus")
-augroup END
-
-let g:ale_completion_symbols = {
-      \ 'text': '',
-      \ 'method': '',
-      \ 'function': '',
-      \ 'constructor': '',
-      \ 'field': '',
-      \ 'variable': '',
-      \ 'class': '',
-      \ 'interface': '',
-      \ 'module': '',
-      \ 'property': '',
-      \ 'unit': 'unit',
-      \ 'value': 'val',
-      \ 'enum': '',
-      \ 'keyword': 'keyword',
-      \ 'snippet': '',
-      \ 'color': 'color',
-      \ 'file': '',
-      \ 'reference': 'ref',
-      \ 'folder': '',
-      \ 'enum member': '',
-      \ 'constant': '',
-      \ 'struct': '',
-      \ 'event': 'event',
-      \ 'operator': '',
-      \ 'type_parameter': 'type param',
-      \ '<default>': 'v'
-      \ }
-" let g:ale_completion_enabled = 1
-let g:ale_hover_to_floating_preview = 1
+" {{{1 vim-fugitive
+nnoremap <Leader>gd :Gvdiffsplit!<CR>
+nnoremap gdh :diffget //2<CR>
+nnoremap gdl :diffget //3<CR>
 " }}}
-
-" {{{1 base16-vim
-if filereadable(expand("~/.vimrc_background"))
-  let base16colorspace=256
-  silent! source ~/.vimrc_background
-endif
+" {{{1 vim-markdown
+let g:markdown_fenced_languages = ['ruby', 'html', 'javascript', 'css', 'bash=sh', 'sh']
+" }}}
+" {{{1 vim-ragtag
+let g:ragtag_global_maps = 1
+" }}}
+" {{{1 vim-rails config
+" This lets me create a test file properly
+let g:rails_projections = {
+      \ "test/models/*_test.rb": {"command": "modeltest",
+      \   "template":
+      \     ["require \"test_helper\"",
+      \      "",
+      \      "class {camelcase|capitalize|colons}Test < ActiveSupport::TestCase",
+      \      "end"]
+      \   }
+      \ }
+" }}}
+" {{{1 vim-rhubarb
+let g:github_enterprise_urls = ['https://github.iu.edu']
+" }}}
+" {{{1 vim-surround
+let b:surround_{char2nr('e')} = "\r\n}"
+let g:surround_{char2nr('-')} = "<% \r %>"
+let g:surround_{char2nr('=')} = "<%= \r %>"
+let g:surround_{char2nr('8')} = "/* \r */"
+let g:surround_{char2nr('s')} = " \r"
+let g:surround_{char2nr('^')} = "/^\r$/"
+let g:surround_indent = 1
+" }}}
+" {{{1 vim-test config
+nmap <silent> <leader>t :TestNearest<CR>
+nmap <silent> <leader>T :TestFile<CR>
+nmap <silent> <leader>a :TestSuite<CR>
+nmap <silent> <leader>l :TestLast<CR>
+let test#strategy = 'dispatch'
 " }}}
