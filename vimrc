@@ -87,8 +87,6 @@ Plug 'chriskempson/base16-vim'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'godlygeek/tabular'
 Plug 'jiangmiao/auto-pairs'
-Plug 'junegunn/fzf'
-Plug 'junegunn/fzf.vim', { 'do': { -> fzf#install()  } }
 Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-afterimage'
 Plug 'tpope/vim-apathy'
@@ -131,12 +129,21 @@ Plug 'wincent/terminus'
 if has('nvim')
   Plug 'wincent/corpus'
   Plug 'neovim/nvim-lspconfig'
+  Plug 'nvim-lua/popup.nvim'
+  Plug 'nvim-lua/plenary.nvim'
+  Plug 'nvim-telescope/telescope.nvim'
+  Plug 'nvim-telescope/telescope-fzy-native.nvim'
+  Plug 'kyazdani42/nvim-web-devicons'
+  Plug 'nvim-lua/lsp-status.nvim'
 else
   Plug 'dense-analysis/ale'
+  Plug 'junegunn/fzf'
+  Plug 'junegunn/fzf.vim', { 'do': { -> fzf#install()  } }
 endif
 
 call plug#end()
 " }}}
+
 " {{{1 ale
 if !has('nvim')
   nmap <silent> [W <Plug>(ale_first)
@@ -239,7 +246,7 @@ augroup misc
   autocmd VimResized * execute "normal! \<c-w>="
 
   " Nest source on changes to vimrc
-  autocmd BufWritePost .vimrc,init.vim,vimrc nested source %
+  " autocmd BufWritePost .vimrc,init.vim,vimrc nested source %
 
   autocmd BufEnter,BufNewFile .zshrc,zshrc setlocal filetype=zsh
 
@@ -314,17 +321,34 @@ if has('nvim')
 endif
 " }}}
 " {{{1 fzf config
-let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
+if !has('nvim')
+  let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
 
-let $FZF_DEFAULT_OPTS='--reverse --preview "bat --style=numbers --color=always --line-range :500 {}"'
-nnoremap <C-p> :Files<CR>
-nnoremap <Leader>ez :Files $HOME/code/dotfiles<CR>
+  let $FZF_DEFAULT_OPTS='--reverse --preview "bat --style=numbers --color=always --line-range :500 {}"'
+  nnoremap <C-p> :Files<CR>
+  nnoremap <Leader>ez :Files $HOME/code/dotfiles<CR>
 
-augroup fzf_overrides
-  autocmd!
-  " Allow Esc to exit fzf
-  autocmd FileType fzf tnoremap <buffer> <Esc> <Esc><Esc>
-augroup END
+  augroup fzf_overrides
+    autocmd!
+    " Allow Esc to exit fzf
+    autocmd FileType fzf tnoremap <buffer> <Esc> <Esc><Esc>
+  augroup END
+endif
+" }}}
+" {{{1 lsp_status
+if has('nvim')
+lua <<EOF
+  require('lsp-status').register_progress()
+EOF
+  function! LspStatus() abort
+    if luaeval('#vim.lsp.buf_get_clients() > 0')
+      return luaeval("require('lsp-status').status()")
+    endif
+
+    return ''
+  endfunction
+  autocmd User Flags call Hoist("buffer", "LspStatus")
+endif
 " }}}
 " {{{1 Mappings
 nnoremap Q @q
@@ -356,6 +380,10 @@ if has('nvim')
 lua << EOF
 local nvim_lsp = require('lspconfig')
 local on_attach = function(client, bufnr)
+  local has_lspstatus, _ = pcall(require, 'lsp-status')
+  if has_lspstatus then
+    require('lsp-status').on_attach(client)
+  end
   local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
   local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
 
@@ -472,6 +500,40 @@ if has('spell')
   autocmd FileType help if &buftype ==# 'help' | setlocal nospell | endif
 endif
 
+" }}}
+" {{{1 telescope.nvim
+if has('nvim')
+lua <<EOF
+  function find_dotfiles()
+    require('telescope.builtin').find_files {
+      prompt_title = '~ dotfiles ~',
+      shorten_path = false,
+      cwd = '~/code/dotfiles',
+      layout_strategy = 'flex',
+      layout_config = {
+        horizontal = {
+          preview_width = 120,
+        },
+        vertical = {
+          preview_height = 0.75,
+        },
+      },
+    }
+  end
+  require('telescope').setup {
+    extensions = {
+      fzy_native = {
+        override_generic_sorter = false,
+        override_file_sorter = true,
+      }
+    }
+  }
+  require('telescope').load_extension('fzy_native')
+EOF
+
+  nnoremap <C-p> <cmd>Telescope find_files<CR>
+  nnoremap <Leader>ez <cmd>lua find_dotfiles()<CR>
+endif
 " }}}
 " {{{ vim-bujo
 " Remap these since surround attempts to take over experimental stuff
