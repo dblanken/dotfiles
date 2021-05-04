@@ -349,12 +349,14 @@ if has('nvim')
 endif
 " }}}
 " {{{1 deoplete
-let g:deoplete#enable_at_startup = 0
-let g:deoplete#lsp#use_icons_for_candidates = v:true
-augroup deoplete_lazy_load
-  autocmd!
-  autocmd InsertEnter * call deoplete#enable()
-augroup END
+if has('nvim')
+  let g:deoplete#enable_at_startup = 0
+  let g:deoplete#lsp#use_icons_for_candidates = v:true
+  augroup deoplete_lazy_load
+    autocmd!
+    autocmd InsertEnter * call deoplete#enable()
+  augroup END
+endif
 " }}}
 " {{{1 fzf config
 if !has('nvim')
