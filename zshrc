@@ -7,7 +7,7 @@ export PATH=$HOME/.bin:$HOME/.local/bin:$PATH:$HOME/.cargo/bin
 export HISTSIZE=20000
 export SAVEHIST=20000
 export HOMEBREW_AUTO_UPDATE_SECS=86400
-export USE_NEOVIM=1
+export USE_NEOVIM=0
 export KN="$HOME/code"
 export GITUSER="dblanken"
 # }}}
