@@ -4,12 +4,24 @@
 export CLICOLOR=1
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
 export PATH=$HOME/.bin:$HOME/.local/bin:$PATH:$HOME/.cargo/bin
+export HISTSIZE=20000
+export SAVEHIST=20000
+export HOMEBREW_AUTO_UPDATE_SECS=86400
+export USE_NEOVIM=1
+export KN="$HOME/code"
+export GITUSER="dblanken"
+# }}}
+
+# {{{ Flow control
+# Disable flow control commands (keeps C-s from freezing everything)
+stty start undef
+stty stop undef
 # }}}
 
 # {{{ Neovim
 # Check if we are nesting nvims
 # If we have nvim, make it the default
-if [ -x "$(command -v nvim)" ]; then
+if [ -x "$(command -v nvim)" ] && [ $USE_NEOVIM -eq 1 ]; then
   export EDITOR=nvim
   alias vim="nvim"
 
@@ -89,6 +101,9 @@ zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}'
 
 # Complete . and .. special directories
 zstyle ':completion:*' special-dirs true
+
+# Allow completing of the remainder of a command
+bindkey "^N" insert-last-word
 # }}}
 
 # {{{1 VIMODE Display

@@ -4,8 +4,8 @@ let mapleader="\<Space>"
 
 " {{{1 Short circuits
 if has('nvim')
-  if has('unix')
-    if glob('~/.asdf')
+  if has('mac')
+    if isdirectory(glob('~/.asdf'))
       let g:python_host_prog = expand('~/.asdf/shims/python2')
       let g:python3_host_prog = expand('~/.asdf/shims/python3')
       let g:ruby_host_prog = expand('~/.asdf/shims/neovim-ruby-host')
@@ -83,31 +83,39 @@ set updatetime=50
 " {{{1 Plugins
 call plug#begin()
 
-Plug 'chriskempson/base16-vim'
+" Essentials
 Plug 'christoomey/vim-tmux-navigator'
-Plug 'godlygeek/tabular'
-Plug 'jiangmiao/auto-pairs'
-Plug 'tpope/vim-abolish'
-Plug 'tpope/vim-afterimage'
-Plug 'tpope/vim-apathy'
 Plug 'tpope/vim-bundler'
-Plug 'tpope/vim-characterize'
 Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-cucumber'
-Plug 'tpope/vim-dadbod'
 Plug 'tpope/vim-dispatch'
-Plug 'tpope/vim-dotenv'
 Plug 'tpope/vim-endwise'
-Plug 'tpope/vim-eunuch'
-Plug 'tpope/vim-fireplace'
-Plug 'tpope/vim-flagship'
 Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-git'
-Plug 'tpope/vim-jdaddy'
-Plug 'tpope/vim-markdown'
 Plug 'tpope/vim-projectionist'
 Plug 'tpope/vim-ragtag'
 Plug 'tpope/vim-rails'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-unimpaired'
+Plug 'vim-test/vim-test'
+Plug 'jiangmiao/auto-pairs'
+Plug 'chriskempson/base16-vim'
+
+" Niceties
+Plug 'AndrewRadev/sideways.vim'
+Plug 'AndrewRadev/splitjoin.vim'
+Plug 'godlygeek/tabular'
+Plug 'tpope/vim-abolish'
+Plug 'tpope/vim-afterimage'
+Plug 'tpope/vim-apathy'
+Plug 'tpope/vim-characterize'
+Plug 'tpope/vim-cucumber'
+Plug 'tpope/vim-dadbod'
+Plug 'tpope/vim-dotenv'
+Plug 'tpope/vim-eunuch'
+Plug 'tpope/vim-fireplace'
+Plug 'tpope/vim-flagship'
+Plug 'tpope/vim-git'
+Plug 'tpope/vim-jdaddy'
+Plug 'tpope/vim-markdown'
 Plug 'tpope/vim-rake'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-rhubarb'
@@ -115,19 +123,15 @@ Plug 'tpope/vim-salve'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-speeddating'
-Plug 'tpope/vim-surround'
 Plug 'tpope/vim-tbone'
-Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-vividchalk'
 Plug 'vim-pandoc/vim-pandoc'
-Plug 'vim-test/vim-test'
 Plug 'vuciv/vim-bujo'
 Plug 'wincent/loupe'
 Plug 'wincent/terminus'
 
 if has('nvim')
-  Plug 'wincent/corpus'
   Plug 'neovim/nvim-lspconfig'
   Plug 'nvim-lua/popup.nvim'
   Plug 'nvim-lua/plenary.nvim'
@@ -135,6 +139,9 @@ if has('nvim')
   Plug 'nvim-telescope/telescope-fzy-native.nvim'
   Plug 'kyazdani42/nvim-web-devicons'
   Plug 'nvim-lua/lsp-status.nvim'
+  Plug 'wincent/corpus'
+  Plug 'Shougo/deoplete.nvim', {'do': ':UpdateRemotePlugins'}
+  Plug 'deoplete-plugins/deoplete-lsp'
 else
   Plug 'dense-analysis/ale'
   Plug 'junegunn/fzf'
@@ -169,7 +176,7 @@ if !has('nvim')
         \ }
   let g:ale_fixers = {
         \ "*": [ "remove_trailing_lines" ],
-        \ "ruby": [ "rubocop" ]
+        \ "ruby": [ "standardrb" ]
         \ }
   let g:ale_fix_on_save = 1
 
@@ -293,6 +300,27 @@ if exists("g:transparency")
 endif
 " }}}
 " {{{1 base16-vim
+function! TransparentColorscheme() abort
+  highlight Normal ctermbg=NONE guibg=NONE
+  highlight LineNr ctermbg=NONE guibg=NONE
+  highlight Folded ctermbg=NONE guibg=NONE
+  highlight NonText ctermbg=NONE guibg=NONE
+  highlight SpecialKey ctermbg=NONE guibg=NONE
+  highlight VertSplit ctermbg=NONE guibg=NONE
+  highlight SignColumn ctermbg=NONE guibg=NONE
+  highlight Statusline ctermbg=NONE guibg=NONE
+  highlight SpellBad ctermbg=NONE guibg=NONE
+  highlight error ctermbg=NONE guibg=NONE
+  highlight CursorLineNr ctermbg=NONE guibg=NONE
+  highlight clear ALEErrorSign
+  highlight clear ALEWarningSign
+endfunction
+
+augroup transparent_background
+  autocmd!
+  autocmd ColorScheme * :call TransparentColorscheme()<CR>
+augroup END
+
 if filereadable(expand("~/.vimrc_background"))
   let base16colorspace=256
   silent! source ~/.vimrc_background
@@ -302,23 +330,31 @@ endif
 if has('nvim')
   lua <<
     CorpusDirectories = {
-      ['~/Documents/Corpus'] = {
-        autocommit = true,
-        autoreference = 1,
-        autotitle = 1,
-        base = './',
-        transform = 'local',
+      ['~/Documents/wiki'] = {
+          autocommit = true,
+          autoreference = 1,
+          autotitle = 1,
+          base = './',
+          transform = 'local',
       },
       ['~/OneDrive - Indiana University/wiki'] = {
-        autocommit = true,
-        autoreference = 1,
-        autotitle = 1,
-        base = './',
-        transform = 'local',
-      }
+          autocommit = true,
+          autoreference = 1,
+          autotitle = 1,
+          base = './',
+          transform = 'local',
+      },
     }
 .
 endif
+" }}}
+" {{{1 deoplete
+let g:deoplete#enable_at_startup = 0
+let g:deoplete#lsp#use_icons_for_candidates = v:true
+augroup deoplete_lazy_load
+  autocmd!
+  autocmd InsertEnter * call deoplete#enable()
+augroup END
 " }}}
 " {{{1 fzf config
 if !has('nvim')
@@ -351,6 +387,7 @@ EOF
 endif
 " }}}
 " {{{1 Mappings
+imap jj <esc>
 nnoremap Q @q
 nnoremap <Leader>= migg=G`i
 nnoremap Y y$
@@ -358,6 +395,7 @@ nnoremap <Leader>g :grep!<Space>
 if exists(':tnoremap')
   tnoremap <Esc> <C-\><C-n>
 endif
+nnoremap <Leader>z [s1z=
 
 nnoremap <Leader>s :s/\(<C-r>=expand("<cword>")<CR>\)/
 
@@ -451,10 +489,10 @@ end
 
 -- set the path to the sumneko installation; if you previously installed via the now deprecated :LspInstall, use
 -- local sumneko_root_path = vim.fn.stdpath('cache')..'/lspconfig/sumneko_lua/lua-language-server'
-local sumneko_root_path = '~/code/lua-language-server'
+local sumneko_root_path = '/Users/dblanken/code/lua-language-server'
 local sumneko_binary = sumneko_root_path.."/bin/"..system_name.."/lua-language-server"
 
-require'lspconfig'.sumneko_lua.setup {
+nvim_lsp.sumneko_lua.setup {
   on_attach = on_attach,
   cmd = {sumneko_binary, "-E", sumneko_root_path .. "/main.lua"};
   settings = {
@@ -486,6 +524,20 @@ require'lspconfig'.sumneko_lua.setup {
 EOF
 endif
 " }}}
+" {{{1 sideways.vim
+nnoremap <Left> :SidewaysLeft<CR>
+nnoremap <Right> :SidewaysRight<CR>
+
+omap aa <Plug>SidewaysArgumentTextobjA
+xmap aa <Plug>SidewaysArgumentTextobjA
+omap ia <Plug>SidewaysArgumentTextobjI
+xmap ia <Plug>SidewaysArgumentTextobjI
+
+nmap <leader>si <Plug>SidewaysArgumentInsertBefore
+nmap <leader>sa <Plug>SidewaysArgumentAppendAfter
+nmap <leader>sI <Plug>SidewaysArgumentInsertFirst
+nmap <leader>sA <Plug>SidewaysArgumentAppendLast
+" }}}
 " {{{1 rg/grep
 if executable('rg')
   set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case
@@ -496,8 +548,10 @@ if has('spell')
   setglobal spelllang=en_us
   setglobal spellfile=~/.vim/spell/en.utf-8.add
   let g:spellfile_URL = 'http://ftp.vim.org/vim/runtime/spell'
-  autocmd FileType gitcommit setlocal spell
+  autocmd FileType gitcommit,vimwiki,markdown setlocal spell
   autocmd FileType help if &buftype ==# 'help' | setlocal nospell | endif
+
+  inoremap <silent> <C-s> <C-x><C-k>
 endif
 
 " }}}
@@ -543,6 +597,9 @@ function! SetBujoMappings() abort
   nmap <buffer> <C-Q> <Plug>BujoChecknormal
   imap <buffer> <C-Q> <Plug>BujoCheckinsert
 endfunction
+" }}}
+" {{{1 vim-dispatch
+  let g:dispatch_no_maps = 1
 " }}}
 " {{{1 vim-fugitive
 nnoremap <Leader>gd :Gvdiffsplit!<CR>
