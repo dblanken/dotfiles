@@ -1,48 +1,81 @@
 let skip_defaults_vim=1
 set nocompatible
 
+let mapleader="\<Space>"
+let localmapleader="\\"
+
+" Vi compatible (~/.exrc)
+
+" automatically indent new lines
 set autoindent
+
+" automatically write files when changing when multiple files open
 set autowrite
-set number relativenumber
+
+" activate line numbers
+set nonumber
+
+" turn col and row position on in bottom right
 set ruler
+
+" show command and insert mode
 set showmode
+
+" Cause 2 spaces is king ;)
 set tabstop=2
 set softtabstop=2
 set shiftwidth=2
 set smartindent
 set smarttab
+
+" replace tabs with spaces automatically
 set expandtab
 
 if v:version >= 800
+  " stop vim from silently messing with files that it shouldn't
   set nofixendofline
 
   " better ascii friendly listchars
   set listchars=space:*,trail:*,nbsp:*,extends:>,precedes:<,tab:\|>
 
+  " i hate automatic folding
   set foldmethod=manual
 endif
 
+" mark trailing spaces as errors
 match ErrorMsg '\s\+$'
 
+" enough for line numbers + gutter within 80 standard
 set textwidth=72
+
+" disable relative line numbers, remove no to sample it
+set norelativenumber
 
 highlight NonText guifg=bg
 
+" turn on default spell checking
+"set spell
+
+" more risky, but cleaner
 set nobackup
 set noswapfile
 set nowritebackup
 
 set icon
 
+" highlight search hits, \+<cr> to clear
 set hlsearch
 set incsearch
 set linebreak
 map <silent> <leader><cr> :noh<cr>:redraw!<cr>
 
+" avoid most of the 'Hit Enter ...' messages
 set shortmess=aoOtI
 
+" prevents truncated yanks, deletes, etc.
 set viminfo='20,<1000,s1000
 
+" not a fan of bracket matching or folding
 let g:loaded_matchparen=1
 set noshowmatch
 
@@ -102,6 +135,7 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
   call plug#begin('~/.vimplugins')
   Plug 'tpope/vim-commentary'
   Plug 'tpope/vim-rails'
+  Plug 'tpope/vim-eunuch'
   Plug 'tpope/vim-dispatch'
   Plug 'tpope/vim-fugitive'
   Plug 'tpope/vim-unimpaired'
@@ -170,7 +204,7 @@ function! <SID>SynStack()
     return
   endif
     echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-endfunc  
+endfunc
 
 " start at last place you were editing
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
@@ -196,13 +230,19 @@ inoremap <down> <NOP>
 inoremap <left> <NOP>
 inoremap <right> <NOP>
 
-" Map alternatives the <ESC> key (<C-[> already is) 
+" Better window switching
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+" Map alternatives the <ESC> key (<C-[> already is)
 inoremap jj <Esc>
 cnoremap jj <Esc>
-inoremap kk <Esc> 
+inoremap kk <Esc>
 cnoremap kk <Esc>
 inoremap kj <Esc>
-cnoremap kj <Esc> 
+cnoremap kj <Esc>
 
 " Better page down and page up
 noremap <C-n> <C-d>
@@ -210,3 +250,7 @@ noremap <C-p> <C-b>
 
 hi StatusLineNC term=bold cterm=bold gui=bold
 hi StatusLine term=bold cterm=bold gui=bold
+
+let g:rails_projections = {
+      \ "test/models/*_test.rb": {"command": "modeltest"}
+      \ }

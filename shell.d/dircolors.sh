@@ -4,4 +4,10 @@ if which dircolors &>/dev/null; then
   else
     eval "$(dircolors -b)"
   fi
+elif which gdircolors &>/dev/null; then
+  if [ -r ~/.dircolors ]; then
+    eval "$(gdircolors -b ~/.dircolors)"
+  else
+    eval "$(gdircolors -b)"
+  fi
 fi

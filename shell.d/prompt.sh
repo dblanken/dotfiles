@@ -41,12 +41,10 @@ __ps1 () {
     p=$u
   fi
 
+  # Need to look more into this; don't think I need it
   local dir="$(basename $PWD)"
-  if test "${dir}" = _ ;then
-    dir=${PWD#*${PWD%/*/_}}
-    dir=${dir#/}
-  elif test "${dir}" = work ;then
-    dir=${PWD#*${PWD%/*/work}}
+  if test "${dir}" = code ;then
+    dir=${PWD#*${PWD%/*/code}}
     dir=${dir#/}
   fi
 
@@ -78,5 +76,5 @@ __ps1 () {
   fi
 }
 
-PROMPT_COMMAND="${PROMPT_COMMAND:+PROMPT_COMMAND;}__ps1;"
+PROMPT_COMMAND="__ps1;"
 
