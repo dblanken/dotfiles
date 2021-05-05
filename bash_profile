@@ -3,8 +3,9 @@ if [ -e /etc/bashrc ]; then
 fi
 
 source "$HOME/.shell.d/detection.sh"
-source "$HOME/.shell.d/path.sh"
+source "$HOME/.shell.d/asdf.sh"
 source "$HOME/.shell.d/aliases.bash"
+source "$HOME/.shell.d/path.sh"
 source "$HOME/.shell.d/completion.bash"
 source "$HOME/.shell.d/colors.bash"
 source "$HOME/.shell.d/dircolors.sh"
@@ -17,4 +18,3 @@ source "$HOME/.shell.d/settings.bash"
 source "$HOME/.shell.d/termcap-colors.sh"
 source "$HOME/.shell.d/code.bash"
 source "$HOME/.shell.d/bindings.sh"
-source "$HOME/.shell.d/asdf.sh"
