@@ -1,5 +1,3 @@
-export BASH_SILENCE_DEPRECATION_WARNING=1
-
 if [ -e /etc/bashrc ]; then
   source /etc/bashrc
 fi

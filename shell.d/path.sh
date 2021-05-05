@@ -60,4 +60,5 @@ cdpathprepend "./"
 if test -n "${HOME}/code"; then
   cdpathappend "${HOME}/code"
   cdpathappend "$HOME"
+  cdpathappend "${HOME}/.config"
 fi
