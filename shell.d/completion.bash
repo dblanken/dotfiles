@@ -11,6 +11,11 @@ if type brew &>/dev/null; then
   fi
 fi
 
+LOCAL_COMPLETION="${HOME}/.completion"
+for COMPLETION in "${LOCAL_COMPLETION}/"*; do
+  [[ -r "$COMPLETION" ]] && source "$COMPLETION"
+done
+
 # Temporary fix for hub completion being borked
 alias __git=hub
 alias git=hub
@@ -22,3 +27,11 @@ __git_complete g __git_main
 __git_complete glog git_log
 __git_complete gb git_branch
 __git_complete gca git_commit
+
+if type pandoc &>/dev/null; then
+  eval "$(pandoc --bash-completion)"
+fi
+
+if type docker &>/dev/null; then
+  complete -F _docker d
+fi

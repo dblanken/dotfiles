@@ -96,7 +96,13 @@ if type brew &>/dev/null; then
   FPATH=/usr/local/share/zsh-completions:$FPATH
 fi
 autoload -Uz compinit
-compinit
+
+for dump in ~/.zcompdump(N.mh+24); do
+  compinit
+done
+
+compinit -C
+
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}'
 
 # Complete . and .. special directories
@@ -281,9 +287,9 @@ setopt share_history          # share command history data
 # }}}
 
 # {{{1 asdf
-if [[ -a /usr/local/opt/asdf/asdf.sh ]]; then
-  source /usr/local/opt/asdf/asdf.sh
-fi
+# if [[ -a /usr/local/opt/asdf/asdf.sh ]]; then
+#   source /usr/local/opt/asdf/asdf.sh
+# fi
 # }}}
 
 # {{{1 git overload
