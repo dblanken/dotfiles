@@ -138,8 +138,15 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
   Plug 'tpope/vim-eunuch'
   Plug 'tpope/vim-dispatch'
   Plug 'tpope/vim-fugitive'
+  Plug 'tpope/vim-surround'
+  Plug 'tpope/vim-repeat'
+  Plug 'tpope/vim-endwise'
+  Plug 'tpope/vim-bundler'
+  Plug 'tpope/vim-rake'
   Plug 'tpope/vim-unimpaired'
   Plug 'vim-test/vim-test'
+  Plug 'vim-pandoc/vim-pandoc'
+  Plug 'roxma/vim-tmux-clipboard'
   call plug#end()
 endif
 
@@ -157,9 +164,6 @@ hi Normal ctermbg=NONE " for transparent background
 hi SpellBad ctermbg=red " for transparent background
 hi SpellRare ctermbg=red
 hi Special ctermfg=cyan
-au FileType pandoc hi pandocAtxHeader ctermfg=yellow cterm=bold
-au FileType pandoc hi pandocAtxHeaderMark ctermfg=yellow cterm=bold
-au FileType pandoc hi pandocAtxStart ctermfg=yellow cterm=bold
 
 set noruler
 set laststatus=2
@@ -188,14 +192,11 @@ set omnifunc=syntaxcomplete#Complete
 
 " force some file names to be specific file type
 au bufnewfile,bufRead *.bash* set ft=sh
-au bufnewfile,bufRead *.pegn set ft=config
 au bufnewfile,bufRead *.profile set filetype=sh
 au bufnewfile,bufRead *.crontab set filetype=crontab
 au bufnewfile,bufRead *ssh/config set filetype=sshconfig
 au bufnewfile,bufRead .dockerignore set filetype=gitignore
 au bufnewfile,bufRead *gitconfig set filetype=gitconfig
-au bufnewfile,bufRead /tmp/psql.edit.* set syntax=sql
-au bufnewfile,bufRead doc.go set spell
 
 " displays all the syntax rules for current position, useful
 " when writing vimscript syntax plugins
@@ -220,29 +221,11 @@ map <F12> :set fdm=indent<CR>
 
 nmap <leader>2 :set paste<CR>i
 
-" disable arrow keys (vi muscle memory)
-noremap <up> :echoerr "Umm, use k instead"<CR>
-noremap <down> :echoerr "Umm, use j instead"<CR>
-noremap <left> :echoerr "Umm, use h instead"<CR>
-noremap <right> :echoerr "Umm, use l instead"<CR>
-inoremap <up> <NOP>
-inoremap <down> <NOP>
-inoremap <left> <NOP>
-inoremap <right> <NOP>
-
 " Better window switching
 nnoremap <C-h> <C-w>h
 nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
-
-" Map alternatives the <ESC> key (<C-[> already is)
-inoremap jj <Esc>
-cnoremap jj <Esc>
-inoremap kk <Esc>
-cnoremap kk <Esc>
-inoremap kj <Esc>
-cnoremap kj <Esc>
 
 " Better page down and page up
 noremap <C-n> <C-d>

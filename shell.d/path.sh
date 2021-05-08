@@ -45,6 +45,7 @@ pathprepend \
 	"${HOME}/.local/bin" \
 	"${HOME}/.cargo/bin" \
 	"${HOME}/.node/bin" \
+  "${HOME}/go/bin" \
 	"${HOME}/bin"
 
 pathappend \
