@@ -1,0 +1,7 @@
+#!/bin/sh
+
+mkdir ~/.config/ 2>/dev/null
+rm -rf ~/.config/rubocop 2>/dev/null
+ln -s "$PWD" "$HOME/.config/rubocop"
+ls -l $HOME/.config/rubocop
+

@@ -22,17 +22,16 @@ onmac () {
 }
 
 onwin () {
-  [ "$PLATFORM" == windows ]  && return 0
+  [ "$PLATFORM" = windows ]  && return 0
   return 1
 }
 
 onlinux () {
-  [ "$PLATFORM" == linux ]  && return 0
+  [ "$PLATFORM" = linux ]  && return 0
   return 1
 }
 
 onunknown () {
-  [ "$PLATFORM" == unknown ]  && return 0
+  [ "$PLATFORM" = unknown ]  && return 0
   return 1
 }
-

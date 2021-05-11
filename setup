@@ -1,0 +1,45 @@
+#!/bin/sh
+
+if [ "$1" = "-h" ]; then
+  echo "Usage: $0 <-i>"
+  echo " -i - Install more mac related stuff"
+  exit 0
+fi
+
+# unlink the current linking if it exists to avoid nesting
+relink_dir() {
+  local source dest
+  source=$1
+  dest=$2
+
+  unlink "$dest" 2>/dev/null
+  ln -s "$source" "$dest" 
+}
+
+ln -sf "$PWD/asdfrc" "$HOME/.asdfrc"
+ln -sf "$PWD/bash_profile" "$HOME/.bash_profile"
+relink_dir "$PWD/bin" "$HOME/.bin"
+relink_dir "$PWD/completion" "$HOME/.completion"
+ln -sf "$PWD/default-gems" "$HOME/.default-gems"
+ln -sf "$PWD/default-python-packages" "$HOME/.default-python-packages"
+ln -sf "$PWD/gitconfig" "$HOME/.gitconfig"
+ln -sf "$PWD/gitignore" "$HOME/.gitignore"
+ln -sf "$PWD/inputrc" "$HOME/.inputrc"
+relink_dir "$PWD/shell.rc" "$HOME/.shell.rc"
+
+for i in vim lynx tmux bat rubocop; do
+  cd $i && ./setup
+  cd -
+done
+
+[ -z "$OS" ] && export OS=`uname`
+if [ "$OS" = Darwin ]; then
+  for i in hammerspoon karabiner; do
+    cd $i && ./setup
+    cd -
+  done
+  echo "If you wanted to install more stuff (brew, brewfile, etc.) use -i next"
+  if [ "$1" = "-i" ]; then
+    ./mac.sh
+  fi
+fi

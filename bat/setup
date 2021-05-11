@@ -1,0 +1,6 @@
+#!/bin/sh
+
+mkdir ~/.config/ 2>/dev/null
+rm -rf ~/.config/bat 2>/dev/null
+ln -s "$PWD" "$HOME/.config/bat"
+ls -l $HOME/.config/bat

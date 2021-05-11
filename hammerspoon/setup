@@ -1,0 +1,4 @@
+#!/bin/sh
+
+rm -rf "$HOME/.hammerspoon"
+ln -sf "$PWD" "$HOME/.hammerspoon"

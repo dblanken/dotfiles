@@ -147,6 +147,7 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
   Plug 'vim-test/vim-test'
   Plug 'vim-pandoc/vim-pandoc'
   Plug 'roxma/vim-tmux-clipboard'
+  Plug 'morhetz/gruvbox'
   call plug#end()
 endif
 
@@ -237,3 +238,5 @@ hi StatusLine term=bold cterm=bold gui=bold
 let g:rails_projections = {
       \ "test/models/*_test.rb": {"command": "modeltest"}
       \ }
+
+colorscheme gruvbox

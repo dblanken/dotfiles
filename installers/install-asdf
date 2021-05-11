@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -e
+
+linux_installer() {
+  sudo apt install curl git
+  git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.0
+  echo "Please add the following to your .bashrc:"
+  echo "  . \$HOME/.asdf/asdf.sh"
+  echo "  . \$HOME/.asdf/completions/asdf.bash"
+}
+
+case "$PLATFORM" in
+  mac)       brew install asdf ;;
+  linux)     linux_installer ;;
+  *)         echo "Installer not configured for $PLATFORM" ;;
+esac
