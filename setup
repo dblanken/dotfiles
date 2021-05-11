@@ -17,8 +17,8 @@ relink_dir() {
 }
 
 ln -sf "$PWD/asdfrc" "$HOME/.asdfrc"
+ln -sf "$PWD/bashrc" "$HOME/.bashrc"
 ln -sf "$PWD/bash_profile" "$HOME/.bash_profile"
-relink_dir "$PWD/scripts" "$HOME/.local/scripts"
 relink_dir "$PWD/completion" "$HOME/.completion"
 ln -sf "$PWD/default-gems" "$HOME/.default-gems"
 ln -sf "$PWD/default-python-packages" "$HOME/.default-python-packages"
@@ -26,6 +26,9 @@ ln -sf "$PWD/gitconfig" "$HOME/.gitconfig"
 ln -sf "$PWD/gitignore" "$HOME/.gitignore"
 ln -sf "$PWD/inputrc" "$HOME/.inputrc"
 relink_dir "$PWD/shell.rc" "$HOME/.shell.rc"
+
+mkdir "$HOME/.local" 2>/dev/null
+relink_dir "$PWD/scripts" "$HOME/.local/scripts"
 
 for i in vim lynx tmux bat rubocop; do
   cd $i && ./setup
