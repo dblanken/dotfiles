@@ -18,7 +18,7 @@ relink_dir() {
 
 ln -sf "$PWD/asdfrc" "$HOME/.asdfrc"
 ln -sf "$PWD/bash_profile" "$HOME/.bash_profile"
-relink_dir "$PWD/bin" "$HOME/.bin"
+relink_dir "$PWD/scripts" "$HOME/.local/scripts"
 relink_dir "$PWD/completion" "$HOME/.completion"
 ln -sf "$PWD/default-gems" "$HOME/.default-gems"
 ln -sf "$PWD/default-python-packages" "$HOME/.default-python-packages"

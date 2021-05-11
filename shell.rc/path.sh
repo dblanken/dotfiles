@@ -1,4 +1,4 @@
-export SCRIPTS="${HOME}/.bin"
+export SCRIPTS="${HOME}/.local/scripts"
 
 pathappend() {
 	for ARG in "$@"; do

@@ -1,7 +1,0 @@
-#!/bin/sh
-
-if which bat &>/dev/null; then
-  exec bat "$@"
-else
-  exec builtin cat "$@"
-fi
