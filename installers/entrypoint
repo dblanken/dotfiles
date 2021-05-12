@@ -73,6 +73,8 @@ for i in vim tmux lynx docker asdf \
   "$_HOME/code/dotfiles/installers/install-$i"
 done
 
+echo "${_USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
 been_built
 
 chown -R "$_NAME:$_GID" $_HOME
