@@ -14,6 +14,6 @@ linux_installer() {
 
 case "$PLATFORM" in
   mac)       brew install asdf ;;
-  linux)     linux_installer ;;
+  linux)     linux_installer $1 $2 ;;
   *)         echo "Installer not configured for $PLATFORM" ;;
 esac

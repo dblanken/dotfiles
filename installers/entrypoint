@@ -9,7 +9,7 @@ if test -e /var/run/been_built; then
   exec sh -c "su - $(head -1 /var/run/defuser)"
 fi
 
-PLATFORM=linux
+export PLATFORM=linux
 _NAME="you"
 _ID="1000"
 _GID="1000"
