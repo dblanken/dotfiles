@@ -70,7 +70,7 @@ setup_dotfiles
 
 for i in vim tmux lynx docker asdf \
   nodejs ruby yarn; do
-  "$_HOME/code/dotfiles/install/install-$i"
+  "$_HOME/code/dotfiles/installers/install-$i"
 done
 
 been_built
