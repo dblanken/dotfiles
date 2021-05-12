@@ -48,6 +48,7 @@ cdpathprepend() {
 pathprepend \
 	"${SCRIPTS}" \
 	"${HOME}/.local/bin" \
+  "${HOME}/code/dotfiles/installers" \
 	"${HOME}/.cargo/bin" \
 	"${HOME}/.node/bin" \
   "${HOME}/go/bin" \
