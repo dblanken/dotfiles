@@ -1,11 +1,26 @@
 version: '3'
 services:
   app:
-    build:
-      context: .
+    build: .
+    tty: true
+    stdin_open: true
+    command: /bin/sh /entrypoint
     environment:
-      SELENIUM_REMOTE_URL: http://webdriver_chrome:4444/wd/hub
+      - SELENIUM_REMOTE_URL=http://webdriver_chrome:4444/wd/hub
+      - MYSQL_HOST=db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=lemmein
+      - BUNDLE_PATH=/bundle
     depends_on:
       - webdriver_chrome
+      - db
   webdriver_chrome:
     image: selenium/standalone-chrome
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: lemmein
