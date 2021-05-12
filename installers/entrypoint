@@ -93,7 +93,7 @@ create_new_user
 setup_dotfiles
 create_ssh_keys
 
-for i in vim tmux lynx hub; do
+for i in vim tmux lynx hub bash-completion; do
   "$_HOME/code/dotfiles/installers/install-$i"
 done
 
