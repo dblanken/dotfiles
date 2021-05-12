@@ -1,3 +1,14 @@
 #!/bin/sh
 
-echo "Will install nodejs soon"
+if [ ! -f "${HOME}/.asdf/asdf.sh" ]; then
+	echo "Install asdf first"
+	return 1
+fi
+
+_VERSION=${1:-lts}
+
+sudo apt install gpg
+asdf plugin-add nodejs
+asdf install nodejs $_VERSION
+
+asdf global nodejs $_VERSION

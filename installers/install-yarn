@@ -1,3 +1,13 @@
 #!/bin/sh
 
-echo "Installing yarn soon"
+if [ ! -f "${HOME}/.asdf/asdf.sh" ]; then
+	echo "Install asdf first"
+	return 1
+fi
+
+_VERSION=${1:-1.22.10}
+
+asdf plugin-add yarn
+asdf install yarn $_VERSION
+
+asdf global yarn $_VERSION

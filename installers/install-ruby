@@ -1,3 +1,15 @@
 #!/bin/sh
 
-echo "Installing ruby soon"
+if [ ! -f "${HOME}/.asdf/asdf.sh" ]; then
+	echo "Install asdf first"
+	return 1
+fi
+
+_VERSION=${1:-2.7.3}
+
+sudo apt install -y autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm6 libgdbm-dev libdb-dev
+
+asdf plugin-add ruby
+asdf install ruby $_VERSION
+
+asdf global ruby $_VERSION
