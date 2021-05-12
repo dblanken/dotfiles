@@ -1,12 +1,12 @@
 #!/bin/sh
 
+_NAME=${1:-$USER}
+_HOME=${2:-$HOME}
 if [ ! -f "${_HOME}/.asdf/asdf.sh" ]; then
 	echo "Install asdf first"
 	return 1
 fi
 
-_NAME=${1:-$USER}
-_HOME=${2:-$HOME}
 _VERSION=${1:-1.22.10}
 
 runuser -l "$_NAME" -c "source $_HOME/.asdf/asdf.sh && asdf plugin-add yarn"
