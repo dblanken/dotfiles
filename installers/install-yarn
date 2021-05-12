@@ -7,7 +7,7 @@ if [ ! -f "${_HOME}/.asdf/asdf.sh" ]; then
 	return 1
 fi
 
-_VERSION=${1:-1.22.10}
+_VERSION=${3:-1.22.10}
 
 runuser -l "$_NAME" -c "source $_HOME/.asdf/asdf.sh && asdf plugin-add yarn"
 runuser -l "$_NAME" -c "source $_HOME/.asdf/asdf.sh && asdf install yarn $_VERSION"
