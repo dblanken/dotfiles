@@ -70,7 +70,7 @@ create_new_user
 setup_dotfiles
 
 for i in vim tmux lynx hub bash-completion asdf ruby nodejs yarn; do
-  "$_HOME/code/dotfiles/installers/install-$i"
+  "$_HOME/code/dotfiles/installers/install-$i" "$_NAME" "$_HOME"
 done
 
 been_built

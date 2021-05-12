@@ -5,9 +5,11 @@ if [ ! -f "${_HOME}/.asdf/asdf.sh" ]; then
 	return 1
 fi
 
+_NAME=${1:-$USER}
+_HOME=${2:-$HOME}
 _VERSION=${1:-1.22.10}
 
-runuser -l "$_NAME" -c "source $HOME/.asdf/asdf.sh && asdf plugin-add yarn"
-runuser -l "$_NAME" -c "source $HOME/.asdf/asdf.sh && asdf install yarn $_VERSION"
+runuser -l "$_NAME" -c "source $_HOME/.asdf/asdf.sh && asdf plugin-add yarn"
+runuser -l "$_NAME" -c "source $_HOME/.asdf/asdf.sh && asdf install yarn $_VERSION"
 
-runuser -l "$_NAME" -c "source $HOME/.asdf/asdf.sh && asdf global yarn $_VERSION"
+runuser -l "$_NAME" -c "source $_HOME/.asdf/asdf.sh && asdf global yarn $_VERSION"

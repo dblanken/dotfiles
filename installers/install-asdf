@@ -3,8 +3,10 @@
 set -e
 
 linux_installer() {
+  _NAME=${1:-$USER}
+  _HOME=${2:-$HOME}
   sudo apt install -y curl git
-  runuser -l "$_NAME" -c "git clone https://github.com/asdf-vm/asdf.git $HOME/.asdf --branch v0.8.0"
+  runuser -l "$_NAME" -c "git clone https://github.com/asdf-vm/asdf.git $_HOME/.asdf --branch v0.8.0"
   echo "Please add the following to your .bashrc:"
   echo "  . \$HOME/.asdf/asdf.sh"
   echo "  . \$HOME/.asdf/completions/asdf.bash"
