@@ -66,13 +66,12 @@ git --version
 # done
 
 create_new_user
+setup_dotfiles
 
 for i in vim tmux lynx docker asdf \
   nodejs ruby yarn; do
   "$_HOME/code/dotfiles/installers/install-$i"
 done
-
-setup_dotfiles
 
 been_built
 
