@@ -47,7 +47,7 @@ setup_dotfiles() {
   cd "$_HOME/code"
   git clone --branch bash "http://github.com/dblanken/dotfiles"
   cd dotfiles
-  ./setup
+  runuser -l "$_NAME" -c 'cd $_HOME/code/dotfiles && ./setup'
 }
 
 been_built() {
