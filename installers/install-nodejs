@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ ! -f "${HOME}/.asdf/asdf.sh" ]; then
+if [ ! -f "${_HOME}/.asdf/asdf.sh" ]; then
 	echo "Install asdf first"
 	return 1
 fi
@@ -8,7 +8,7 @@ fi
 _VERSION=${1:-lts}
 
 sudo apt install gpg
-asdf plugin-add nodejs
-asdf install nodejs $_VERSION
+runuser -l "$_NAME" -c "source $HOME/.asdf/asdf.sh && asdf plugin-add nodejs"
+runuser -l "$_NAME" -c "source $HOME/.asdf/asdf.sh && asdf install nodejs $_VERSION"
 
-asdf global nodejs $_VERSION
+runuser -l "$_NAME" -c "source $HOME/.asdf/asdf.sh && asdf global nodejs $_VERSION"
