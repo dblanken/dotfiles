@@ -17,9 +17,11 @@ for COMPLETION in "${LOCAL_COMPLETION}/"*; do
 done
 
 # Temporary fix for hub completion being borked
-alias __git=hub
-alias git=hub
-__git_complete hub __git_main
+if type hub &>/dev/null; then
+  alias __git=hub
+  alias git=hub
+  __git_complete hub __git_main
+fi
 
 # attach completion to my own scripts
 __git_complete gco git_checkout

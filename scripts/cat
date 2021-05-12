@@ -1,7 +1,10 @@
 #!/bin/sh
 
+# If catpath ever changes
+_CATPATH="/bin/cat"
+
 if which bat &>/dev/null; then
   exec bat "$@"
 else
-  exec builtin cat "$@"
+  exec "${_CATPATH}" "$@"
 fi
