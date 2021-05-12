@@ -39,7 +39,8 @@ create_new_user() {
   groupadd -g "$_GID" "$_NAME"
   useradd -m -s "$_SHELL" -d "$_HOME" -u "$_ID" -g "$_GID" "$_NAME"
   # TODO add to docker group
-  # TODO give no password sudo access
+  apt install sudo
+  echo "${_NAME} ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers
 }
 
 setup_dotfiles() {
@@ -72,8 +73,6 @@ for i in vim tmux lynx docker asdf \
   nodejs ruby yarn; do
   "$_HOME/code/dotfiles/installers/install-$i"
 done
-
-echo "${_USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 been_built
 
