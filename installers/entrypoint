@@ -14,6 +14,7 @@ _ID="1000"
 _GID="1000"
 _HOME="/home/you"
 _SHELL="/bin/bash"
+_EMAIL="you@you.u"
 
 get_new_user_info() {
   local user userid home
@@ -27,6 +28,13 @@ get_new_user_info() {
   test -n "$home" && _HOME="$home"
   read -p "User Shell ($_SHELL): " shell
   test -n "$shell" && _SHELL="$shell"
+  return 0
+}
+
+get_email_address() {
+  local email
+  read -p "Email ($_EMAIL): " email
+  test -n "$email" && _EMAIL="$email"
   return 0
 }
 
@@ -56,6 +64,15 @@ been_built() {
   echo "$_NAME" >/var/run/defuser
 }
 
+create_ssh_keys() {
+  ssh-keygen -t ed25519 -C "${_EMAIL}"
+  echo "Make your own ~/.config/hub file: "
+  echo "  enterprise_path:"
+  echo "  - user: <USERNAME>"
+  echo "    oauth_token: <TOKEN>"
+  echo "    protocol: https"
+}
+
 ## ------------------------------- main -------------------------------
 
 git --version
@@ -66,10 +83,17 @@ git --version
 #   echo $a
 # done
 
+while test ! "$a" = y; do
+  get_email_address
+  read -p 'Keep? ' a
+  echo $a
+done
+
 create_new_user
 setup_dotfiles
+create_ssh_keys
 
-for i in vim tmux lynx; do
+for i in vim tmux lynx hub; do
   "$_HOME/code/dotfiles/installers/install-$i"
 done
 
