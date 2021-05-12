@@ -83,15 +83,15 @@ git --version
 #   echo $a
 # done
 
-while test ! "$a" = y; do
-  get_email_address
-  read -p 'Keep? ' a
-  echo $a
-done
+# while test ! "$a" = y; do
+#   get_email_address
+#   read -p 'Keep? ' a
+#   echo $a
+# done
 
 create_new_user
 setup_dotfiles
-create_ssh_keys
+# create_ssh_keys
 
 for i in vim tmux lynx hub bash-completion; do
   "$_HOME/code/dotfiles/installers/install-$i"
