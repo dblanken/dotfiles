@@ -11,6 +11,10 @@ if type brew &>/dev/null; then
   fi
 fi
 
+if [ -f "/etc/bash_completion" ]; then
+  source /etc/bash_completion
+fi
+
 LOCAL_COMPLETION="${HOME}/.completion"
 for COMPLETION in "${LOCAL_COMPLETION}/"*; do
   [[ -r "$COMPLETION" ]] && source "$COMPLETION"
