@@ -59,19 +59,20 @@ been_built() {
 
 git --version
 
-while test ! "$a" = y; do
-  get_new_user_info
-  read -p 'Keep? ' a
-  echo $a
-done
+# while test ! "$a" = y; do
+#   get_new_user_info
+#   read -p 'Keep? ' a
+#   echo $a
+# done
 
 create_new_user
-setup_dotfiles
 
 for i in vim tmux lynx docker asdf \
   nodejs ruby yarn; do
   "$_HOME/code/dotfiles/installers/install-$i"
 done
+
+setup_dotfiles
 
 been_built
 
