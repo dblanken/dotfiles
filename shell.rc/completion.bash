@@ -27,13 +27,6 @@ if type hub &>/dev/null; then
   __git_complete hub __git_main
 fi
 
-# attach completion to my own scripts
-__git_complete gco git_checkout
-__git_complete g __git_main
-__git_complete glog git_log
-__git_complete gb git_branch
-__git_complete gca git_commit
-
 if type pandoc &>/dev/null; then
   eval "$(pandoc --bash-completion)"
 fi
