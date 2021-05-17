@@ -1,0 +1,21 @@
+#!/bin/sh
+
+run_docker() {
+  _dev=$(docker ps -a | grep dev)
+  _dev_running=$(docker ps | grep dev)
+
+  if ! test -z "$_dev_running"
+  then
+    docker attach dev
+  elif ! test -z "$_dev"
+  then
+    docker run dev
+    docker attach dev
+  else
+    docker run -it -v ~/.ssh:/.ssh -p 3000:3000  -h workspace --name dev workspace
+  fi
+
+  return 0
+}
+
+run_docker
