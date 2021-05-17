@@ -1,4 +1,4 @@
-export SCRIPTS="${HOME}/.local/bin/scripts"
+export SCRIPTS="${HOME}/.local/scripts"
 
 pathappend() {
 	for ARG in "$@"; do
@@ -42,6 +42,7 @@ cdpathprepend() {
 
 pathprepend \
 	"${SCRIPTS}" \
+  "${HOME}/.bin" \
 	"${HOME}/.local/bin" \
   "${HOME}/code/dotfiles/installers" \
 	"${HOME}/.cargo/bin" \

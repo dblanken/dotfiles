@@ -1,6 +1,5 @@
 export GITUSER="dblanken"
 export KN="${HOME}/code"
-export LANG==en_US.UTF-8
 
 if [ -e /etc/bashrc ]; then
   source /etc/bashrc
@@ -22,3 +21,4 @@ source "$HOME/.shell.rc/termcap-colors.sh"
 source "$HOME/.shell.rc/code.bash"
 source "$HOME/.shell.rc/bindings.sh"
 source "$HOME/.shell.rc/functions.sh"
+

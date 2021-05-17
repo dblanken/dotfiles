@@ -148,6 +148,7 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
   Plug 'vim-pandoc/vim-pandoc'
   Plug 'roxma/vim-tmux-clipboard'
   Plug 'morhetz/gruvbox'
+  Plug 'christoomey/vim-tmux-navigator'
   call plug#end()
 endif
 
@@ -221,12 +222,6 @@ map <F7> :set spell!<CR>
 map <F12> :set fdm=indent<CR>
 
 nmap <leader>2 :set paste<CR>i
-
-" Better window switching
-nnoremap <C-h> <C-w>h
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-l> <C-w>l
 
 " Better page down and page up
 noremap <C-n> <C-d>
