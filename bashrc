@@ -1,5 +1,6 @@
 export GITUSER="dblanken"
 export KN="${HOME}/code"
+export LANG==en_US.UTF-8
 
 if [ -e /etc/bashrc ]; then
   source /etc/bashrc

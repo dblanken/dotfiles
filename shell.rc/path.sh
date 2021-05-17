@@ -1,9 +1,4 @@
-if [ -x /usr/libexec/path_helper ]; then
-  PATH=""
-  eval `/usr/libexec/path_helper -s`
-fi
-
-export SCRIPTS="${HOME}/.local/scripts"
+export SCRIPTS="${HOME}/.local/bin/scripts"
 
 pathappend() {
 	for ARG in "$@"; do
