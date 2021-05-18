@@ -1,4 +1,4 @@
-export SCRIPTS="${HOME}/.local/scripts"
+export SCRIPTS="${HOME}/code/dotfiles/scripts"
 
 pathappend() {
 	for ARG in "$@"; do
@@ -52,6 +52,7 @@ pathprepend \
 
 pathappend \
 	"/usr/local/opt/coreutils/libexec/gnubin" \
+  "/usr/local/opt/grep/libexec/gnubin" \
 	"/usr/local/bin" \
 	"/usr/local/sbin" \
 	"/usr/sbin" \

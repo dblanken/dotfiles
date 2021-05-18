@@ -1,36 +1,23 @@
 #!/bin/sh
-
-if [ "$1" = "-h" ]; then
-  echo "Usage: $0 <-i>"
-  echo " -i - Install more mac related stuff"
-  exit 0
-fi
-
-# unlink the current linking if it exists to avoid nesting
-relink_dir() {
-  local source dest
-  source=$1
-  dest=$2
-
-  unlink "$dest" 2>/dev/null
-  ln -s "$source" "$dest" 
-}
+set -e
+test -n "$BASH_DASHX" && set -x
 
 ln -sf "$PWD/asdfrc" "$HOME/.asdfrc"
-ln -sf "$PWD/bashrc" "$HOME/.bashrc"
-ln -sf "$PWD/bash_profile" "$HOME/.bash_profile"
-relink_dir "$PWD/completion" "$HOME/.completion"
 ln -sf "$PWD/default-gems" "$HOME/.default-gems"
 ln -sf "$PWD/default-python-packages" "$HOME/.default-python-packages"
 ln -sf "$PWD/gitconfig" "$HOME/.gitconfig"
 ln -sf "$PWD/gitignore" "$HOME/.gitignore"
+
+ln -sf "$PWD/bashrc" "$HOME/.bashrc"
+unlink "$HOME/.shell.d" || true
+ln -s "$PWD/shell.d" "$HOME/.shell.d"
+ln -sf "$PWD/dircolors" "$HOME/.dircolors"
 ln -sf "$PWD/inputrc" "$HOME/.inputrc"
-relink_dir "$PWD/shell.rc" "$HOME/.shell.rc"
+ln -sf "$PWD/profile" "$HOME/.profile"
 
-mkdir "$HOME/.local" 2>/dev/null
-relink_dir "$PWD/scripts" "$HOME/.local/scripts"
+mkdir -p "$HOME/.local/bin" || true
 
-for i in vim lynx tmux bat rubocop; do
+for i in lynx rubocop tmux vim; do
   cd $i && ./setup
   cd -
 done
@@ -41,8 +28,4 @@ if [ "$OS" = Darwin ]; then
     cd $i && ./setup
     cd -
   done
-  echo "If you wanted to install more stuff (brew, brewfile, etc.) use -i next"
-  if [ "$1" = "-i" ]; then
-    ./mac.sh
-  fi
 fi
