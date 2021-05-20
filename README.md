@@ -13,6 +13,7 @@ A set of dotfiles I've been working on for almost a year now.  Characteristics i
 - Bundles a (not-excessive) number of useful Vim plug-ins, geared toward Ruby developers.
 - Relatively restrained Bash config; has CDPATH to scripts and ~/code, command elapsed time printing, etc.
 - Comprehensive Hammerspoon configuration
+- Vi-like lynx experience
 
 ### Keyboard customization
 On macOS, Karabiner-Elements is used for the following:
@@ -29,17 +30,18 @@ Bash is configured with the following prompt:
 
 Visible above are:
 
-- Indicator of vi-mode in the terminal
+- indicator of vi-mode in the terminal
   - [i] - Insert mode
   - [n] - Normal mode
-- username (red ! if last command returned an error code)
+- red ! if last command returned an error code
+- username
 - hostname
 - current directory
-- Git version control worktree status using colors that atch those used in git status:
+- git version control worktree status using colors that atch those used in git status:
   - Green dot indicates staged changes.
   - Red dot indicates unstaged changes.
   - Blue dot indicates untracked files.
-- Execution time of the last command (if greater than 5s).
+- execution time of the last command (if greater than 5s).
 
 ## Requirements
 
