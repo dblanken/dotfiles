@@ -24,7 +24,7 @@ On macOS, Karabiner-Elements is used for the following:
 Bash is configured with the following prompt:
 
 ```sh
-[i] !dblanken@Raistlin new_dotfiles [master●] 0.04s $
+[i] !dblanken@Raistlin new_dotfiles [master●] 0.06s $
 ```
 
 Visible above are:
@@ -39,7 +39,7 @@ Visible above are:
   - Green dot indicates staged changes.
   - Red dot indicates unstaged changes.
   - Blue dot indicates untracked files.
-- Execution time of the last command.
+- Execution time of the last command (if greater than 5s).
 
 ## Requirements
 
