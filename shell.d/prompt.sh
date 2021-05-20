@@ -1,5 +1,6 @@
 GIT_CHAR='●'
 
+# Adapted from https://tylercipriani.com/blog/2016/01/19/Command-Timing-Bash-Prompt/
 # Human readable time output
 # e.g., 5d 6h 3m 2s
 __format_time() {
@@ -24,6 +25,7 @@ __format_time() {
   printf "$_out"
 }
 
+# Adapted from https://jakemccrary.com/blog/2015/05/03/put-the-last-commands-run-time-in-your-bash-prompt/
 __timer_start() {
   # Don't do this for completion
   [ -n "$COMP_LINE" ] && unset timer && return
