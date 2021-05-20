@@ -1,3 +1,5 @@
+GIT_CHAR='●'
+
 # Human readable time output
 # e.g., 5d 6h 3m 2s
 __format_time() {
@@ -12,10 +14,14 @@ __format_time() {
   local minutes=$(( $_time / 60 % 60 ))
   local seconds=$(( $_time % 60 ))
   (( $days > 0 )) && _out="${days}d"
-  (( $hours > 0 )) && _out="$_out ${hours}h"
-  (( $minutes > 0 )) && _out="$_out ${minutes}m"
-  _out="$_out ${seconds}s"
-  printf "$_out "
+  (( ${#_out} > 0 )) && _out="$_out "
+  (( $hours > 0 )) && _out="$_out${hours}h"
+  (( ${#_out} > 0 )) && _out="$_out "
+  (( $minutes > 0 )) && _out="$_out${minutes}m"
+  (( ${#_out} > 0 )) && _out="$_out "
+  _out="$_out${seconds}s"
+  (( ${#_out} > 0 )) && _out=" $_out"
+  printf "$_out"
 }
 
 __timer_start() {
@@ -29,28 +35,28 @@ __timer_start() {
 }
 
 __timer_stop() {
-  timer_show="$(($SECONDS - $timer))"
-  unset timer
+    timer_show="$(($SECONDS - $timer))"
+    unset timer
 }
 
 __git_unstaged() {
   local c='\e[31m'
   local x='\e[0m'
-  local char='●'
+  local char="${GIT_CHAR}"
   git diff --no-ext-diff --ignore-submodules=dirty --quiet --exit-code 2> /dev/null || echo "$c$char$x"
 }
 
 __git_untracked() {
   local c='\e[34m'
   local x='\e[0m'
-  local char='●'
+  local char="${GIT_CHAR}"
   [[ -n "$(git ls-files --exclude-standard --others 2> /dev/null)" ]] && echo "$c$char$x"
 }
 
 __git_staged() {
   local c='\e[32m'
   local x='\e[0m'
-  local char='●'
+  local char="${GIT_CHAR}"
   git diff-index --cached --quiet --ignore-submodules=dirty HEAD 2> /dev/null || echo "$c$char$x"
 }
 
@@ -59,6 +65,7 @@ __ps1 () {
   # Positionally, this is needed to capture the last status code
   # If it were to be lower, we would get incorrect results
   local last_status=$?
+  local ts=$(__format_time "${timer_show}")
   local P='$' # changes to hashtag when root
 
 	# set shortcuts for all the colors
@@ -96,11 +103,13 @@ __ps1 () {
   local gst=$(__git_staged)
   local gus=$(__git_unstaged)
   local gut=$(__git_untracked)
-  local B=$(__git_ps1 " $g[$b%s$g$gst$r$gus$h$gut$g]$x ")
+  local B=$(__git_ps1 " $g[$b%s$g$gst$r$gus$h$gut$g]$x")
   local ts=$(__format_time "${timer_show}")
-  local short="\[$cr$u\u$g@$h\h$g $w$dir$x$B$lg$ts$p$P$x \]"
+  local short="$cr$u\u$g@$h\h$g $w$dir$x$B$lg$ts $p$P$x "
 
-  PS1="\[${short}\]"
+  # reset timer for next command
+  unset timer
+  PS1="${short}"
 }
 
 trap '__timer_start' DEBUG
