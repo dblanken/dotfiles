@@ -3,3 +3,7 @@ set completion-ignore-case on
 set editing-mode vi
 set bell-style none
 set keymap vi
+set show-mode-in-prompt on
+set vi-ins-mode-string "\[\e[36mi\e[0m\] "
+set vi-cmd-mode-string "\[\e[36mn\e[0m\] "
+

@@ -1,44 +1,89 @@
+# Human readable time output
+# e.g., 5d 6h 3m 2s
+__format_time() {
+  local _time=$1
 
-# Adaptive prompt that will be shortened if there is room. Set the
-# following to your preferred threshold.
+  # Don't show anything if time is less than 5 seconds
+  (( $_time < 5 )) && return
 
-PROMPT_LONG=50
-PROMPT_MAX=95
+  local _out
+  local days=$(( $_time / 60 / 60 / 24 ))
+  local hours=$(( $_time / 60 / 60 % 24 ))
+  local minutes=$(( $_time / 60 % 60 ))
+  local seconds=$(( $_time % 60 ))
+  (( $days > 0 )) && _out="${days}d"
+  (( $hours > 0 )) && _out="$_out ${hours}h"
+  (( $minutes > 0 )) && _out="$_out ${minutes}m"
+  _out="$_out ${seconds}s"
+  printf "$_out "
+}
+
+__timer_start() {
+  # Don't do this for completion
+  [ -n "$COMP_LINE" ] && unset timer && return
+
+  # Don't pre-exec PROMPT_COMMAND
+  [ "$BASH_COMMAND" = "$PROMPT_COMMAND" ] && unset timer && return
+
+  timer=${timer:-$SECONDS}
+}
+
+__timer_stop() {
+  timer_show="$(($SECONDS - $timer))"
+  unset timer
+}
+
+__git_unstaged() {
+  local c='\e[31m'
+  local x='\e[0m'
+  local char='●'
+  git diff --no-ext-diff --ignore-submodules=dirty --quiet --exit-code 2> /dev/null || echo "$c$char$x"
+}
+
+__git_untracked() {
+  local c='\e[34m'
+  local x='\e[0m'
+  local char='●'
+  [[ -n "$(git ls-files --exclude-standard --others 2> /dev/null)" ]] && echo "$c$char$x"
+}
+
+__git_staged() {
+  local c='\e[32m'
+  local x='\e[0m'
+  local char='●'
+  git diff-index --cached --quiet --ignore-submodules=dirty HEAD 2> /dev/null || echo "$c$char$x"
+}
 
 __ps1 () {
 
+  # Positionally, this is needed to capture the last status code
+  # If it were to be lower, we would get incorrect results
+  local last_status=$?
   local P='$' # changes to hashtag when root
 
 	# set shortcuts for all the colors
-  if test -n "${ZSH_VERSION}"; then
-    local r='%F{red}'
-    local g='%F{black}'
-    local h='%F{blue}'
-    local u='%F{yellow}'
-    local p='%F{yellow}'
-    local w='%F{magenta}'
-    local b='%F{cyan}'
-    local x='%f'
-  else
-		local r='\[\e[31m\]'
-		local g='\[\e[32m\]'
-		local h='\[\e[34m\]'
-		local u='\[\e[33m\]'
-		local p='\[\e[33m\]'
-		local w='\[\e[35m\]'
-		local b='\[\e[36m\]'
-		local x='\[\e[0m\]'
-  fi
+  local r='\[\e[31m\]'
+  local g='\[\e[32m\]'
+  local h='\[\e[34m\]'
+  local u='\[\e[33m\]'
+  local p='\[\e[33m\]'
+  local w='\[\e[35m\]'
+  local b='\[\e[36m\]'
+  local lg='\[\e[37m\]'
+  local x='\[\e[0m\]'
 
   # watch out, you're root
   if test "${EUID}" == 0; then
     P='#'
-    if test -n "${ZSH_VERSION}"; then
-      u='$F{red}'
-    else
-      u=$r
-    fi
+    u=$r
     p=$u
+  fi
+
+  local failure="$r!$x"
+  local cr=""
+
+  if [[ "$last_status" != "0" ]]; then
+    cr="$failure"
   fi
 
   # Need to look more into this; don't think I need it
@@ -48,33 +93,15 @@ __ps1 () {
     dir=${dir#/}
   fi
 
-  local B=$(git branch --show-current 2>/dev/null)
-  test "${dir}" = "${B}" && B='.'
-  local countme="$USER@$(hostname):$dir($B)\$ "
+  local gst=$(__git_staged)
+  local gus=$(__git_unstaged)
+  local gut=$(__git_untracked)
+  local B=$(__git_ps1 " $g[$b%s$g$gst$r$gus$h$gut$g]$x ")
+  local ts=$(__format_time "${timer_show}")
+  local short="\[$cr$u\u$g@$h\h$g $w$dir$x$B$lg$ts$p$P$x \]"
 
-  test "${B}" = master -o "${B}" = main && b=$r
-  test -n "${B}" && B="$g($b$B$g)"
-
-  # let's see how long this thing really is
-
-  if test -n "${ZSH_VERSION}"; then
-    local short="$u%n$g@$h%m$g:$w$dir$B$p$P$x "
-    local long="$g╔ $u%n$g@%m\h$g:$w$dir$B\n$g╚ $p$P$x "
-    local double="$g╔ $u%n$g@%m\h$g:$w$dir\n$g║ $B\n$g╚ $p$P$x "
-  else
-    local short="$u\u$g@$h\h$g:$w$dir$B$p$P$x "
-    local long="$g╔ $u\u$g@$h\h$g:$w$dir$B\n$g╚ $p$P$x "
-    local double="$g╔ $u\u$g@$h\h$g:$w$dir\n$g║ $B\n$g╚ $p$P$x "
-  fi
-
-  if test ${#countme} -gt "${PROMPT_MAX}"  ;  then
-    PS1="${double}"
-  elif test ${#countme} -gt "${PROMPT_LONG}"  ;  then
-    PS1="${long}"
-  else
-    PS1="${short}"
-  fi
+  PS1="\[${short}\]"
 }
 
-PROMPT_COMMAND="__ps1;"
-
+trap '__timer_start' DEBUG
+PROMPT_COMMAND="__timer_stop; __ps1;"
