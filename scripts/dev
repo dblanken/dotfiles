@@ -17,7 +17,7 @@ run_docker() {
   then
     docker attach dev
   else
-    docker run -it -v ~/.ssh:/.ssh -p 3000:3000  -h workspace --name dev workspace
+    docker run -it -p 3000:3000 -h workspace --name dev workspace
   fi
 
   return 0
