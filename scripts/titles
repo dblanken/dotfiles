@@ -1,0 +1,3 @@
+#!/bin/sh
+
+head -1 ~/code/zet/*/README.md | grep '^#' | sed 's/^\# //'
