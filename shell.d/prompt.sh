@@ -37,7 +37,28 @@ __ps1 () {
   fi
 
   local B=$(__git_ps1 " %s")
-  local short="$cr$u\u$g@$h\h$g $w$dir$x$B$lg $p$P$x "
+
+  local user=$(whoami)
+  local host=$(hostname)
+
+  if test "${user}" != "dblanken"; then
+    user="$u\u"
+  else
+    user=""
+  fi
+
+  if test "${host}" != "neimoon"; then
+    host="$h\h$g "
+  else
+    host=""
+  fi
+
+  local uhs=""
+  if test "${user}" != "" && test "${host}" != ""; then
+    uhs="$g@"
+  fi
+
+  local short="$cr$user$uhs$host$w$dir$x$B$lg $p$P$x "
 
   PS1="${short}"
 }

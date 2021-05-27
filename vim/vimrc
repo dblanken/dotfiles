@@ -149,6 +149,9 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
   Plug 'roxma/vim-tmux-clipboard'
   Plug 'morhetz/gruvbox'
   Plug 'christoomey/vim-tmux-navigator'
+  Plug 'dense-analysis/ale'
+  Plug 'chriskempson/base16-vim'
+  Plug 'vim-ruby/vim-ruby'
   call plug#end()
 endif
 
@@ -191,7 +194,7 @@ set wildmenu
 nnoremap <C-L> :nohl<CR><C-L>
 
 " enable omni-completion
-set omnifunc=syntaxcomplete#Complete
+" set omnifunc=syntaxcomplete#Complete
 
 " force some file names to be specific file type
 au bufnewfile,bufRead *.bash* set ft=sh
@@ -235,4 +238,93 @@ let g:rails_projections = {
       \ "test/models/*_test.rb": {"command": "modeltest"}
       \ }
 
-colorscheme gruvbox
+set signcolumn=yes
+set colorcolumn=80
+
+nmap <silent> [W <Plug>(ale_first)
+nmap <silent> [w <Plug>(ale_previous)
+nmap <silent> ]W <Plug>(ale_last)
+nmap <silent> ]w <Plug>(ale_next)
+
+" Always show sign column
+let g:ale_sign_column_always = 1
+
+" Set to show which linter says there is an issue
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+let g:ale_sign_error = '✖'
+let g:ale_sign_info = 'ℹ'
+let g:ale_sign_warning = '⚠'
+
+let g:ale_set_balloons = 1
+let g:ale_hover_to_preview = 1
+let g:ale_hover_cursor = 1
+
+let g:ale_linters = {
+      \ "ruby": [ "brakeman", "rails_best_practices", "reek", "solargraph" ]
+      \ }
+let g:ale_fixers = {
+      \ "*": [ "remove_trailing_lines" ],
+      \ "ruby": [ "standardrb" ]
+      \ }
+let g:ale_fix_on_save = 1
+
+function! LinterStatus() abort
+  let l:counts = ale#statusline#Count(bufnr(''))
+
+  let l:all_errors = l:counts.error + l:counts.style_error
+  let l:all_non_errors = l:counts.total - l:all_errors
+
+  return l:counts.total == 0 ? 'OK' : printf(
+        \   '%dW %dE',
+        \   all_non_errors,
+        \   all_errors
+        \)
+endfunction
+
+let g:ale_completion_symbols = {
+      \ 'text': '',
+      \ 'method': '',
+      \ 'function': '',
+      \ 'constructor': '',
+      \ 'field': '',
+      \ 'variable': '',
+      \ 'class': '',
+      \ 'interface': '',
+      \ 'module': '',
+      \ 'property': '',
+      \ 'unit': 'unit',
+      \ 'value': 'val',
+      \ 'enum': '',
+      \ 'keyword': 'keyword',
+      \ 'snippet': '',
+      \ 'color': 'color',
+      \ 'file': '',
+      \ 'reference': 'ref',
+      \ 'folder': '',
+      \ 'enum member': '',
+      \ 'constant': '',
+      \ 'struct': '',
+      \ 'event': 'event',
+      \ 'operator': '',
+      \ 'type_parameter': 'type param',
+      \ '<default>': 'v'
+      \ }
+" let g:ale_completion_enabled = 1
+let g:ale_hover_to_floating_preview = 1
+
+if filereadable(expand("~/.vimrc_background"))
+  let base16colorspace=256
+  source ~/.vimrc_background
+endif
+
+let g:rubycomplete_buffer_loading = 1
+let g:rubycomplete_classes_in_global = 1
+let g:rubycomplete_rails = 1
+let g:rubycomplete_load_gemfile = 1
+
+let ruby_operators = 1
+let ruby_pseudo_operators = 1
+let ruby_space_errors = 1
+let ruby_line_continuation_error = 1
+let ruby_global_variable_error = 1
+let ruby_spellcheck_strings = 1

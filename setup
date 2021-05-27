@@ -9,6 +9,7 @@ ln -sf "$PWD/gitconfig" "$HOME/.gitconfig"
 ln -sf "$PWD/gitignore" "$HOME/.gitignore"
 
 ln -sf "$PWD/bashrc" "$HOME/.bashrc"
+ln -sf "$PWD/zshrc" "$HOME/.zshrc"
 unlink "$HOME/.shell.d" || true
 ln -s "$PWD/shell.d" "$HOME/.shell.d"
 ln -sf "$PWD/dircolors" "$HOME/.dircolors"
