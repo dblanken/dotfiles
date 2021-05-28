@@ -44,15 +44,36 @@ query() {
   term="$*"
   it="https://github.com/$GITUSER/$EXE/search?q=$(urlencode $term)"
   echo "[$term]: <$it>"
-  type wee >/dev/null 2>&1 || return 0
-  exec wee "$it"
+}
+
+open_search() {
+  test -z "$1" && echo "Missing search query." && exit 1
+  type urlencode >/dev/null 2>&1
+  term="$*"
+  it="https://github.com/$GITUSER/$EXE/search?q=$(urlencode $term)"
+  echo "[$term]: <$it>"
+  open "$it"
 }
 
 case "$1" in
-add | "") add ;;
+a | add) add ;;
 q | query)
   shift
   query "$@"
+  ;;
+o | open)
+  shift
+  open_search "$@"
+  ;;
+h | "-h")
+  echo "Usage: $0 <cmd>"
+  echo "  a | add - Add a new zet"
+  echo "  q | query <arg> - Get url for query"
+  echo "  o | open <arg> - Open browser with query"
+  echo "  h | -h - This usage"
+  ;;
+comp)
+  echo "add query open"
   ;;
 *) echo Unsupported. ;;
 esac

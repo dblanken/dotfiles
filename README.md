@@ -49,7 +49,7 @@ Visible above are:
 - [Homebrew](https://brew.sh)
 - tmux 3.0 or later
 - Vim 8.0 or later
-- Recent Bash, Git
+- Recent Bash/Zsh, Git
 
 ## Usage
 

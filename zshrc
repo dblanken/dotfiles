@@ -1,6 +1,8 @@
 # vim: nowrap fdm=marker
 
 # {{{ Exports
+export SHELL_SESSIONS_DISABLE=1
+export SHELL_SESSION_HISTORY=0
 export CLICOLOR=1
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
 export PATH=$HOME/.bin:$HOME/.local/bin:$PATH:$HOME/.cargo/bin
@@ -104,6 +106,10 @@ zstyle ':completion:*' special-dirs true
 
 # Allow completing of the remainder of a command
 bindkey "^N" insert-last-word
+
+autoload bashcompinit
+bashcompinit
+complete -C "zet comp" zet
 # }}}
 
 # {{{1 VIMODE Display
@@ -282,7 +288,8 @@ setopt share_history          # share command history data
 
 # {{{1 asdf
 if [[ -a /usr/local/opt/asdf/asdf.sh ]]; then
-  source /usr/local/opt/asdf/asdf.sh
+ source /usr/local/opt/asdf/asdf.sh
+ source ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh
 fi
 # }}}
 
@@ -394,7 +401,7 @@ PROMPT='${VIMODE} %(?.%F{yellow}%n%f.%F{red}%n%f)@%F{blue}%m%f %F{magenta}%1~%f 
 # }}}
 
 # {{{1 Scripts
-export PATH=~/code/dotfiles/scripts:$PATH
+export PATH=~/code/dotfiles/scripts:~/.local/bin:$PATH
 # }}}
 
 # {{{1 Base16 Shell
