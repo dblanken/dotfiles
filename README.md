@@ -65,4 +65,4 @@ Unless otherwise noted, the contents of this repo are in the public domain.  See
 ## Authors
 This repo was written and maintained by David Blankenship <dtblankenship@gmail.com>.
 
-I want to give a lot of thanks to [Greg Hurrell](https://www.youtube.com/c/GregHurrell) for sharing his experiences with Vim and configurations.
+I want to give a lot of thanks to [Ben Orenstein](https://github.com/r00k), [Greg Hurrell](https://www.youtube.com/c/GregHurrell), and [Rob Muhlestein](https://github.com/rwxrob) for sharing their experiences with the command line, Vim, and configurations.
