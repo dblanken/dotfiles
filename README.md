@@ -53,6 +53,9 @@ Visible above are:
 
 ## Usage
 
+NOTE: For most out-of-the-box experience, you should clone to $HOME/code/dotfiles.
+If you decide to put it elsewhere, you might need to globally replace "/code/dotfiles"
+
 ```sh
 git clone https://github.com/dblanken/dotfiles <path-to-dotfiles>
 cd <path-to-dotfiles>
