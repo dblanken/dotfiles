@@ -1,0 +1,5 @@
+#!/bin/sh
+
+head -1 */README.md
+#| grep '^#'
+#| sed 's/^\# //'
