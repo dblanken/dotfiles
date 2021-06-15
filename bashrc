@@ -41,14 +41,19 @@ __COLORS[RESET]=$'\[\e[0m\]'
 # }}}
 
 # {{{1 Environment variables
-export TERM=xterm-256color
+# export TERM=xterm-256color
 export EDITOR=vi
 export VISUAL=vi
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CONFIG_HOME="$HOME/.config"
+export TERMINFO_DIRS="$HOME/.local/share/terminfo"
 
 if [ -d ~/.vim/spell ]; then
   export VIMSPELL=(~/.vim/spell/*.add)
+fi
+
+if ! test -d "$XDG_DATA_HOME/terminfo"; then
+  mkdir -p "$XDG_DATA_HOME/terminfo"
 fi
 # }}}
 
@@ -113,6 +118,22 @@ alias gco='git checkout'
 alias be='bundle exec'
 
 alias git='hub'
+alias tmux='tmux -f "$XDG_CONFIG_HOME/tmux/tmux.conf"'
+alias vim='vim -u "$XDG_CONFIG_HOME/vim/vimrc"'
+
+alias '?'='duck'
+alias '??'='google'
+alias '???'='bing'
+
+alias grep='grep -i --colour=auto'
+alias egrep='egrep -i --colour=auto'
+alias fgrep='fgrep -i --colour=auto'
+
+alias curl='curl -L'
+alias scripts='cd "$XDG_CONFIG_HOME/scripts"'
+
+alias irb='irb --readline -r irb/completion'
+alias mkdir='mkdir -p'
 
 if ! test -d "$XDG_DATA_HOME/wget"; then
   mkdir -p "$XDG_DATA_HOME/wget"
@@ -162,6 +183,8 @@ fi
 export ASDF_DIR="$XDG_DATA_HOME/asdf"
 export ASDF_DATA_DIR="$XDG_DATA_HOME/asdf"
 export ASDF_CONFIG_FILE="$XDG_CONFIG_HOME/asdf/asdfrc"
+export ASDF_GEM_DEFAULT_PACKAGES_FILE="$XDG_CONFIG_HOME/asdf/default-gems"
+export ASDF_PYTHON_DEFAULT_PACKAGES_FILE="$XDG_CONFIG_HOME/asdf/default-python-packages"
 if test -d "$ASDF_DIR"; then
   . "$ASDF_DIR/asdf.sh"
   . "$ASDF_DIR/completions/asdf.bash"
@@ -336,4 +359,8 @@ else
     [[ -r "$COMPLETION" ]] && . "$COMPLETION"
   done
 fi
+# }}}
+
+# {{{1 Paths
+export PATH="$XDG_CONFIG_HOME/scripts:$PATH"
 # }}}

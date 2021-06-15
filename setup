@@ -2,26 +2,12 @@
 set -e
 test -n "$BASH_DASHX" && set -x
 
-ln -sf "$PWD/asdfrc" "$HOME/.asdfrc"
-ln -sf "$PWD/default-gems" "$HOME/.default-gems"
-ln -sf "$PWD/default-python-packages" "$HOME/.default-python-packages"
-ln -sf "$PWD/gitconfig" "$HOME/.gitconfig"
-ln -sf "$PWD/gitignore" "$HOME/.gitignore"
+cd ./config && ./setup
 
 ln -sf "$PWD/bashrc" "$HOME/.bashrc"
-ln -sf "$PWD/zshrc" "$HOME/.zshrc"
-unlink "$HOME/.shell.d" || true
-ln -s "$PWD/shell.d" "$HOME/.shell.d"
-ln -sf "$PWD/dircolors" "$HOME/.dircolors"
-ln -sf "$PWD/inputrc" "$HOME/.inputrc"
 ln -sf "$PWD/profile" "$HOME/.profile"
 
 mkdir -p "$HOME/.local/bin" || true
-
-for i in lynx rubocop tmux vim; do
-  cd $i && ./setup
-  cd -
-done
 
 [ -z "$OS" ] && export OS=`uname`
 if [ "$OS" = Darwin ]; then
