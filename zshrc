@@ -289,7 +289,7 @@ setopt share_history          # share command history data
 # {{{1 asdf
 if [[ -a /usr/local/opt/asdf/asdf.sh ]]; then
  source /usr/local/opt/asdf/asdf.sh
- source ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh
+ [[ -a ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh ]] && source ~/.asdf/plugins/dotnet-core/set-dotnet-home.zsh
 fi
 # }}}
 

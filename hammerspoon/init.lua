@@ -20,6 +20,7 @@ local internalDisplay = nil
 local prepareScreencast = nil
 local tearDownEventHandling = nil
 local windowCount = nil
+local appCount = nil
 
 local screenCount = #hs.screen.allScreens()
 
@@ -50,35 +51,12 @@ spoon.ReloadConfiguration:start()
 
 local layoutConfig = {
     _before_ = (function()
-    hide('com.spotify.client')
   end),
 
   _after_ = (function()
     -- Make sure iTerm appears in front of others.
+    activate('com.apple.Terminal')
     activate('com.googlecode.iterm2')
-  end),
-
-  ['com.github.atom'] = (function(window)
-    -- Leave room for simulator to the right.
-    hs.grid.set(window, grid.leftTwoThirds, internalDisplay())
-  end),
-
-  ['com.google.Chrome'] = (function(window, forceScreenCount)
-    local count = forceScreenCount or screenCount
-    if count == 1 then
-      hs.grid.set(window, grid.fullScreen)
-    else
-      hs.grid.set(window, grid.fullScreen, hs.screen.primaryScreen())
-    end
-  end),
-
-  ['com.google.Chrome.canary'] = (function(window, forceScreenCount)
-    local count = forceScreenCount or screenCount
-    if count == 1 then
-      hs.grid.set(window, grid.fullScreen)
-    else
-      hs.grid.set(window, grid.fullScreen, hs.screen.primaryScreen())
-    end
   end),
 
   ['com.googlecode.iterm2'] = (function(window, forceScreenCount)
@@ -86,7 +64,60 @@ local layoutConfig = {
     if count == 1 then
       hs.grid.set(window, grid.fullScreen)
     else
-      hs.grid.set(window, grid.fullScreen, hs.screen.primaryScreen())
+      hs.grid.set(window, grid.fullScreen, hs.screen{x=-1,y=0})
+    end
+  end),
+
+  ['com.apple.Terminal'] = (function(window, forceScreenCount)
+    local count = forceScreenCount or screenCount
+    if count == 1 then
+      hs.grid.set(window, grid.fullScreen)
+    else
+      hs.grid.set(window, grid.fullScreen, hs.screen{x=-1,y=0})
+    end
+  end),
+
+  ['com.apple.mail'] = (function(window, forceScreenCount)
+    local count = forceScreenCount or screenCount
+    if appCount(hs.application.find('com.apple.mail')) == 1 then
+      if count == 1 then
+        hs.grid.set(window, grid.bottomHalf)
+      else
+        hs.grid.set(window, grid.bottomHalf, internalDisplay())
+      end
+    end
+  end),
+
+  ['com.microsoft.SkypeForBusiness'] = (function(window, forceScreenCount)
+    local count = forceScreenCount or screenCount
+    if appCount(hs.application.find('com.microsoft.SkypeForBusiness')) == 1 then
+      if count == 1 then
+        hs.grid.set(window, grid.topRight)
+      else
+        hs.grid.set(window, grid.topRight, internalDisplay())
+      end
+    end
+  end),
+
+  ['Messages'] = (function(window, forceScreenCount)
+    local count = forceScreenCount or screenCount
+    if appCount(hs.application.find('Messages')) == 1 then
+      if count == 1 then
+        hs.grid.set(window, grid.topLeft)
+      else
+        hs.grid.set(window, grid.topLeft, internalDisplay())
+      end
+    end
+  end),
+
+  ['com.apple.MobileSMS'] = (function(window, forceScreenCount)
+    local count = forceScreenCount or screenCount
+    if appCount(hs.application.find('com.apple.MobileSMS')) == 1 then
+      if count == 1 then
+        hs.grid.set(window, grid.topLeft)
+      else
+        hs.grid.set(window, grid.topLeft, internalDisplay())
+      end
     end
   end),
 }
@@ -107,6 +138,14 @@ windowCount = (function(app)
         count = count + 1
       end
     end
+  end
+  return count
+end)
+
+appCount = (function(app)
+  local count = 0
+  if app then
+    count = #app:allWindows()
   end
   return count
 end)
@@ -138,11 +177,14 @@ end)
 local macBookAir13 = '1440x900'
 local macBookPro15_2015 = '1440x900'
 local macBookPro15_2019 = '1680x1050'
+local macBookPro16_2019 = '1792x1120'
+local asus_ve278 = '1920x1080'
 local samsung_S24C450 = '1920x1200'
 
 internalDisplay = (function()
   return hs.screen.find(macBookPro15_2015) or
-    hs.screen.find(macBookPro15_2019)
+    hs.screen.find(macBookPro15_2019) or 
+    hs.screen.find(macBookPro16_2019)
 end)
 
 activateLayout = (function(forceScreenCount)
@@ -172,6 +214,7 @@ handleWindowEvent = (function(window)
   if canManageWindow(window) then
     local application = window:application()
     local bundleID = application:bundleID()
+    --log:w(bundleID)
     if layoutConfig[bundleID] then
       layoutConfig[bundleID](window)
     end
