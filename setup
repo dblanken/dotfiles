@@ -3,6 +3,7 @@ set -e
 test -n "$BASH_DASHX" && set -x
 
 cd ./config && ./setup
+cd -
 
 ln -sf "$PWD/bashrc" "$HOME/.bashrc"
 ln -sf "$PWD/profile" "$HOME/.profile"
