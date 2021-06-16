@@ -263,7 +263,8 @@ let g:ale_hover_to_preview = 1
 let g:ale_hover_cursor = 1
 
 let g:ale_linters = {
-      \ "ruby": [ "brakeman", "rails_best_practices", "reek", "solargraph" ]
+      \ "ruby": [ "brakeman", "rails_best_practices", "reek", "solargraph" ],
+      \ "sh": [ "shellcheck" ]
       \ }
 let g:ale_fixers = {
       \ "*": [ "remove_trailing_lines" ],
