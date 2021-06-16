@@ -567,6 +567,14 @@ export CDPATH=.:\
 
 # }}}
 
+# {{{1 Sensitive includes
+
+test -r ~/.bash_personal && source ~/.bash_personal
+test -r ~/.bash_private && source ~/.bash_private
+test -r ~/.bash_work && source ~/.bash_work
+
+# }}}
+
 # {{{1 Debugging
 
 if [ "$DEBUG" == "1" ]; then
