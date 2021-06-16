@@ -9,6 +9,39 @@ esac
 
 # }}}
 
+# {{{1 OS checks
+
+# Detection of major operating systems. 
+[ -z "$OS" ] && export OS=`uname`
+case "$OS" in
+  Linux)          export PLATFORM=linux ;;
+  *indows*)       export PLATFORM=windows ;;
+  FreeBSD|Darwin) export PLATFORM=mac ;;
+  *)              export PLATFORM=unknown ;;
+esac
+
+onmac () {
+  [ "$PLATFORM" = mac ] && return 0
+  return 1
+}
+
+onwin () {
+  [ "$PLATFORM" == windows ]  && return 0
+  return 1
+}
+
+onlinux () {
+  [ "$PLATFORM" == linux ]  && return 0
+  return 1
+}
+
+onunknown () {
+  [ "$PLATFORM" == unknown ]  && return 0
+  return 1
+}
+
+# }}}
+
 # {{{1 BASHRC Hash
 
 # Hash to not muck up our environment variables
@@ -110,7 +143,11 @@ shopt -s extglob
 # {{{ Aliasses
 
 alias clear='printf "\e[H\e[2J"'
-alias ls='ls -h --color=auto'
+if onlinux; then
+	alias ls='ls -h --color=auto'
+elif onmac; then
+	alias ls='ls -h -G'
+fi
 
 alias gst='git status'
 alias gca='git commit -a'
@@ -128,9 +165,15 @@ alias '?'='duck'
 alias '??'='google'
 alias '???'='bing'
 
-alias grep='grep -i --colour=auto'
-alias egrep='egrep -i --colour=auto'
-alias fgrep='fgrep -i --colour=auto'
+if onlinux; then
+  alias grep='grep -i --colour=auto'
+  alias egrep='egrep -i --colour=auto'
+  alias fgrep='fgrep -i --colour=auto'
+elif onmac; then
+  alias grep='ggrep -i --colour=auto'
+  alias egrep='gegrep -i --colour=auto'
+  alias fgrep='gfgrep -i --colour=auto'
+fi
 
 alias curl='curl -L'
 alias scripts='cd "$XDG_CONFIG_HOME/scripts"'
@@ -197,8 +240,13 @@ else
   install_asdf() {
     mkdir -p "$XDG_CONFIG_HOME/asdf"
     echo "Installing prerequesites for ASDF"
-    echo "Apt installing curl and git"
-    sudo apt install curl git
+    if onlinux; then
+      echo "Apt installing curl and git"
+      sudo apt install curl git
+    elif onmac; then
+      echo "Brew installing curl and git"
+      brew install curl git
+    fi
     echo "Cloning ASDF"
     git clone https://github.com/asdf-vm/asdf.git "$ASDF_DIR" --branch v0.8.1 
 
@@ -371,6 +419,17 @@ PROMPT_COMMAND="__ps1"
 # }}}
 
 # {{{ Completion
+if type brew &>/dev/null; then
+  HOMEBREW_PREFIX="$(brew --prefix)"
+  if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]; then
+    source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
+  else
+    for COMPLETION in "${HOMEBREW_PREFIX}/etc/bash_completion.d/"*; do
+      [[ -r "$COMPLETION" ]] && source "$COMPLETION"
+    done
+  fi
+fi
+
 if [ -f "/etc/bash_completion" ]; then
   source /etc/bash_completion
 else
