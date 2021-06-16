@@ -41,12 +41,15 @@ __COLORS[RESET]=$'\[\e[0m\]'
 # }}}
 
 # {{{1 Environment variables
+
 # export TERM=xterm-256color
 export EDITOR=vi
 export VISUAL=vi
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CONFIG_HOME="$HOME/.config"
 export TERMINFO_DIRS="$HOME/.local/share/terminfo"
+# If execution time gets in the way ever, set this to 0 to disable
+__BASHRC[EXEC_TIME]=1
 
 if [ -d ~/.vim/spell ]; then
   export VIMSPELL=(~/.vim/spell/*.add)
@@ -148,7 +151,7 @@ function cd {
 
 # I like to use c to get into my code
 c() {
-  cd ~/code/$1
+  cd "$HOME/code/$1" || return
 }
 _c_complete() {
   local file
@@ -169,9 +172,9 @@ elif command -v gdircolors &>/dev/null; then
   __BASHRC[DIRCOLORS_EXE]="gdircolors"
 fi
 
-if test -z $dircolor; then
+if test -z "${__BASHRC[DIRCOLORS_EXE]}"; then
   if test -r "$XDG_CONFIG_HOME/ls/dircolors"; then
-    eval "$(${__BASHRC[DIRCOLORS_EXE]} -b $XDG_CONFIG_HOME/ls/dircolors)"
+    eval "$("${__BASHRC[DIRCOLORS_EXE]}" -b "$XDG_CONFIG_HOME/ls/dircolors")"
   else
     eval "$(${__BASHRC[DIRCOLORS_EXE]} -b)"
   fi
@@ -186,7 +189,9 @@ export ASDF_CONFIG_FILE="$XDG_CONFIG_HOME/asdf/asdfrc"
 export ASDF_GEM_DEFAULT_PACKAGES_FILE="$XDG_CONFIG_HOME/asdf/default-gems"
 export ASDF_PYTHON_DEFAULT_PACKAGES_FILE="$XDG_CONFIG_HOME/asdf/default-python-packages"
 if test -d "$ASDF_DIR"; then
+  # shellcheck source=/home/me/.local/share/asdf/asdf.sh
   . "$ASDF_DIR/asdf.sh"
+  # shellcheck source=/home/me/.local/share/asdf/completions/asdf.bash
   . "$ASDF_DIR/completions/asdf.bash"
 else
   install_asdf() {
@@ -197,7 +202,9 @@ else
     echo "Cloning ASDF"
     git clone https://github.com/asdf-vm/asdf.git "$ASDF_DIR" --branch v0.8.1 
 
+    # shellcheck source=/home/me/.local/share/asdf/asdf.sh
     . "$ASDF_DIR/asdf.sh"
+    # shellcheck source=/home/me/.local/share/asdf/completions/asdf.bash
     . "$ASDF_DIR/completions/asdf.bash"
   }
 fi
@@ -217,18 +224,18 @@ format_time() {
   local _time=$1
 
   # Don't show anything if time is less than 5 seconds
-  (( $_time < 5 )) && return
+  (( _time < 5 )) && return
 
   local _out
-  local days=$(( $_time / 60 / 60 / 24 ))
-  local hours=$(( $_time / 60 / 60 % 24 ))
-  local minutes=$(( $_time / 60 % 60 ))
-  local seconds=$(( $_time % 60 ))
-  (( $days > 0 )) && _out=" ${days}d"
-  (( $hours > 0 )) && _out="$_out ${hours}h"
-  (( $minutes > 0 )) && _out="$_out ${minutes}m"
-  (( $seconds >= 5 )) && _out="$_out ${seconds}s"
-  printf "$_out"
+  local days=$(( _time / 60 / 60 / 24 ))
+  local hours=$(( _time / 60 / 60 % 24 ))
+  local minutes=$(( _time / 60 % 60 ))
+  local seconds=$(( _time % 60 ))
+  (( days > 0 )) && _out=" ${days}d"
+  (( hours > 0 )) && _out="$_out ${hours}h"
+  (( minutes > 0 )) && _out="$_out ${minutes}m"
+  (( seconds >= 5 )) && _out="$_out ${seconds}s"
+  printf "%s" "$_out"
 }
 
 debug() {
@@ -241,20 +248,23 @@ debug() {
     start_time=$(date +'%s')
   }
 
-trap 'debug' DEBUG
+if test -n "${__BASHRC[EXEC_TIME]}" && test "${__BASHRC[EXEC_TIME]}" == "1"; then
+  trap 'debug' DEBUG
+fi
 
 # }}}
 
 # {{{2 Shell level
 # Get the shell level based on whether in TMUX
 __level() {
-  local TMUXING=$(case "$TERM" in
+  local TMUXING
+  TMUXING=$(case "$TERM" in
   tmux*) echo tmux;;
   screen*) echo tmux;;
   *) ;;
 esac)
-  if [ -n "$TMUXING" -a -n "$TMUX" ]; then
-    local LVL=$(($SHLVL - 1))
+  if [ -n "$TMUXING" ] && [ -n "$TMUX" ]; then
+    local LVL=$((SHLVL - 1))
   else
     local LVL=$SHLVL
   fi
@@ -268,25 +278,30 @@ esac)
 
 # Set indicators for staged, unstaged, and untracked files for prompt
 __git_stats() {
-  local GIT_DOT="●"
-  local STATUS=$(git status -s 2> /dev/null)
-  local UNTRACKED=$(echo "$STATUS" | grep '^??' | wc -l)
-  local STAGED=$(($(echo "$STATUS" | grep '^M ' | wc -l) + $(echo "$STATUS" | grep '^D ' | wc -l) + $(echo "$STATUS" | grep '^R ' | wc -l) + $(echo "$STATUS" | grep '^C ' | wc -l)+$(echo "$STATUS" | grep '^A ' | wc -l)))
-  local UNSTAGED=$(echo "$STATUS" | grep '^ M' | wc -l)
+  local STATUS
+  local UNTRACKED
+  local STAGED
+  local UNSTAGED
 
-  if [ $UNTRACKED != 0 ]; then
+  local GIT_DOT="●"
+  STATUS=$(git status -s 2> /dev/null)
+  UNTRACKED=$(echo "$STATUS" | grep -c '^??')
+  STAGED=$(($(echo "$STATUS" | grep -c '^M ') + $(echo "$STATUS" | grep -c '^D ') + $(echo "$STATUS" | grep -c '^R ') + $(echo "$STATUS" | grep -c '^C ')+$(echo "$STATUS" | grep -c '^A ')))
+  UNSTAGED=$(echo "$STATUS" | grep -c '^ M')
+
+  if [ "$UNTRACKED" != 0 ]; then
     __BASHRC[GIT_UNTRACKED]="${GIT_DOT}"
   else
     __BASHRC[GIT_UNTRACKED]=""
   fi
 
-  if [ $STAGED != 0 ]; then
+  if [ "$STAGED" != 0 ]; then
     __BASHRC[GIT_STAGED]="${GIT_DOT}"
   else
     __BASHRC[GIT_STAGED]=""
   fi
 
-  if [ $UNSTAGED != 0 ]; then
+  if [ "$UNSTAGED" != 0 ]; then
     __BASHRC[GIT_UNSTAGED]="${GIT_DOT}"
   else
     __BASHRC[GIT_UNSTAGED]=""
@@ -304,7 +319,7 @@ __print_unicode_prompt() {
   i=1
   while [ "$i" -le "${__BASHRC[LVL]}" ]; do
     printf '\u276f'
-    i=$(($i + 1))
+    i=$((i + 1))
   done
 }
 
@@ -318,10 +333,14 @@ __ps1() {
     __BASHRC[EXIT_STATUS]=""
   fi
 
-  # Calculate execution time
-  # See trap debug and debug()
-  end_time=$(date +'%s')
-  time_f=$(format_time $(( end_time - start_time )))
+  if test -n "${__BASHRC[EXEC_TIME]}" && test "${__BASHRC[EXEC_TIME]}" == "1"; then
+    # Calculate execution time
+    # See trap debug and debug()
+    end_time=$(date +'%s')
+    time_f=$(format_time $(( end_time - start_time )))
+  else
+    time_f=""
+  fi
 
   # Get jobs if any exist
   __BASHRC[JOBS]=""
@@ -330,7 +349,7 @@ __ps1() {
   fi
 
   # Only do git stuff if we have it
-  if which git &>/dev/null; then
+  if command -v git &>/dev/null; then
     __git_stats
     __BASHRC[BRANCH]=$(git branch --show-current 2>/dev/null)
     if test -n "${__BASHRC[BRANCH]}"; then
@@ -342,9 +361,9 @@ __ps1() {
   # Blue directory
   # Yellow jobs number
   # Dark Gray Git Branch (green dot = staged, red dot = unstaged, blue dot = untracked)
-  # Dark Gray Execution time (if more than 5s)
+  # Dark Gray Execution time (if more than 5s) (if enabled)
   # Red > (one for each subshell level)
-  PS1="${__COLORS[GREEN]}${SSH_TTY:+\u@\h}${__COLORS[RESET]}${SSY_TTY:+:}${__COLORS[BLUE]}\w${__COLORS[YELLOW]}${__BASHRC[JOBS]}${__BASHRC[EXIT_STATUS]}${__BASHRC[BRANCH]}${__COLORS[DARKGRAY]}${__BASHRC[ITALIC_ON]}${time_f}${__BASHRC[ITALIC_OFF]} ${__COLORS[RED]}$(__print_unicode_prompt) ${__COLORS[RESET]}"
+  PS1="${__COLORS[GREEN]}${SSH_TTY:+\u@\h}${__COLORS[RESET]}${SSY_TTY:+:}${__COLORS[BLUE]}\W${__COLORS[YELLOW]}${__BASHRC[JOBS]}${__BASHRC[EXIT_STATUS]}${__BASHRC[BRANCH]}${__COLORS[DARKGRAY]}${__BASHRC[ITALIC_ON]}${time_f}${__BASHRC[ITALIC_OFF]} ${__COLORS[RED]}$(__print_unicode_prompt) ${__COLORS[RESET]}"
 }
 
 PROMPT_COMMAND="__ps1"
