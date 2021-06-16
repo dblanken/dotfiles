@@ -1,9 +1,0 @@
-set show-all-if-ambiguous on
-set completion-ignore-case on
-set editing-mode vi
-set bell-style none
-set keymap vi
-# set show-mode-in-prompt on
-# set vi-ins-mode-string "\001\[\e[36mi\e[0m\]\002 "
-# set vi-cmd-mode-string "\001\[\e[36mn\e[0m\]\002 "
-

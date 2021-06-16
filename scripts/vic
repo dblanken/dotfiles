@@ -1,3 +1,0 @@
-#!/bin/sh
-
-exec vi "$(which $1)"

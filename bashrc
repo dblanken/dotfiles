@@ -1,5 +1,15 @@
 # vim: nowrap:expandtab:fdm=marker:tabstop=2:shiftwidth=2
 
+# {{{1 Debugging
+
+# To debug, run a separate process with DEBUG set
+# i.e. DEBUG=1 bash
+if [ "$DEBUG" == "1" ]; then
+  set -x
+fi
+
+# }}}
+
 # {{{1 Interactive check
 
 case $- in
@@ -7,6 +17,12 @@ case $- in
   *) return;;
 esac
 
+# }}}
+
+# {{{1 Autoload tmux
+if command -v tmux &> /dev/null && test -z "$TMUX"; then
+  exec tmux new-session -A -s "$(whoami)"
+fi
 # }}}
 
 # {{{1 OS checks
@@ -81,6 +97,8 @@ export VISUAL=vi
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CONFIG_HOME="$HOME/.config"
 export TERMINFO_DIRS="$HOME/.local/share/terminfo"
+export SHELL_SESSION_HISTORY=0
+export DOTFILES_PATH="$HOME/code/dotfiles"
 # If execution time gets in the way ever, set this to 0 to disable
 __BASHRC[EXEC_TIME]=1
 
@@ -91,6 +109,43 @@ fi
 if ! test -d "$XDG_DATA_HOME/terminfo"; then
   mkdir -p "$XDG_DATA_HOME/terminfo"
 fi
+# }}}
+
+# {{{1 Dry Hax
+
+# Set 60 fps key repeat rate
+#
+# Equivalent to the fatest rate acheivable with:
+#
+#     defaults write NSGlobalDomain KeyRepeat -int 1
+#
+# But doesn't require a logout and will get restored every time we open a
+# shell (for example, if somebody manipulates the slider in the UI).
+#
+# Fastest rate available from UI corresponds to:
+#
+#     defaults write NSGlobalDomain KeyRepeat -int 2
+#
+# Slowest rate available from UI corresponds to:
+#
+#     defaults write NSGlobalDomain KeyRepeat -int 120
+#
+# Values at each slider position in UI, from slowest to fastest:
+#
+# - 120 -> 2 seconds (ie. .5 fps)
+# - 90 -> 1.5 seconds (ie .6666 fps)
+# - 60 -> 1 second (ie 1 fps)
+# - 30 -> 0.5 seconds (ie. 2 fps)
+# - 12 -> 0.2 seconds (ie. 5 fps)
+# - 6 -> 0.1 seconds (ie. 10 fps)
+# - 2 -> 0.03333 seconds (ie. 30 fps)
+#
+# See: https://github.com/mathiasbynens/dotfiles/issues/687
+#
+if [ -d "$DOTFILES_PATH" ] && [ -x "$DOTFILES_PATH/dry/dry" ]; then
+  "$DOTFILES_PATH/dry/dry" 0.0166666666667 > /dev/null
+fi
+
 # }}}
 
 # {{{1 Pager
@@ -264,7 +319,52 @@ __BASHRC[ITALIC_ON]=$'\[\e[3m\]'
 __BASHRC[ITALIC_OFF]=$'\[\e[23m\]'
 __BASHRC[BRANCH]=''
 
-# {{{2 Execution time
+# {{{2 Tmux title
+
+function __set-tab-and-window-title() {
+  # local CMD="${1:gs/$/\\$}"
+  # print -Pn "\e]0;$CMD:q\a"
+
+  local CMD="$1"
+  printf "\033]2;%s\033\\" "$CMD"
+  # printf "\e]0;%s:q\a" "$CMD"
+}
+
+# $HISTCMD (the current history event number) is shared across all shells
+# (due to SHARE_HISTORY). Maintain this local variable to count the number of
+# commands run in this specific shell.
+HISTCMD_LOCAL=0
+
+# Executed before displaying prompt.
+function __update-window-title-precmd() {
+  HISTCMD_LOCAL=$((++HISTCMD_LOCAL))
+  if [[ HISTCMD_LOCAL -eq 0 ]]; then
+    # About to display prompt for the first time; nothing interesting to show in
+    # the history. Show $PWD.
+    __set-tab-and-window-title "$(basename $PWD)"
+  else
+    local LAST=$(history | tail -1 | awk '{print $2}')
+    # Skip ENV=settings, sudo, ssh; show first distinctive word of command;
+    # mostly stolen from:
+    #   https://github.com/robbyrussell/oh-my-zsh/blob/master/lib/termsupport.zsh
+    # local TRIMMED="${LAST[(wr)^(*=*|mosh|ssh|sudo)]}"
+
+    if [ -n "$TMUX" ]; then
+      if [ -z "$LAST" ]; then
+        LAST="$(basename $PWD)"
+      fi
+      # Inside tmux, just show the last command: tmux will prefix it with the
+      # session name (for context).
+      __set-tab-and-window-title "$LAST"
+    else
+      # Outside tmux, show $PWD (for context) followed by the last command.
+      __set-tab-and-window-title "$(basename $PWD) > $LAST"
+    fi
+  fi
+}
+# }}}
+
+# {{{2 Execution time & tmux window update
 
 # Human readable time output
 # e.g., 5d 6h 3m 2s
@@ -294,6 +394,8 @@ debug() {
     [ "$BASH_COMMAND" = "$PROMPT_COMMAND" ] && return
 
     start_time=$(date +'%s')
+
+    __update-window-title-precmd "${PWD##*/}"
   }
 
 if test -n "${__BASHRC[EXEC_TIME]}" && test "${__BASHRC[EXEC_TIME]}" == "1"; then
@@ -315,6 +417,11 @@ esac)
     local LVL=$((SHLVL - 1))
   else
     local LVL=$SHLVL
+  fi
+
+  # When using exec tmux, shell level is 0
+  if [ "$LVL" == "0" ]; then
+    LVL=1
   fi
 
   __BASHRC[LVL]=$LVL
@@ -374,6 +481,10 @@ __print_unicode_prompt() {
 # }}}
 
 __ps1() {
+  if [ "$DEBUG" == "1" ]; then
+    set -x
+  fi
+
   # Exit status
   if test "$?" != "0"; then
     __BASHRC[EXIT_STATUS]="!"
@@ -412,6 +523,13 @@ __ps1() {
   # Dark Gray Execution time (if more than 5s) (if enabled)
   # Red > (one for each subshell level)
   PS1="${__COLORS[GREEN]}${SSH_TTY:+\u@\h}${__COLORS[RESET]}${SSY_TTY:+:}${__COLORS[BLUE]}\W${__COLORS[YELLOW]}${__BASHRC[JOBS]}${__BASHRC[EXIT_STATUS]}${__BASHRC[BRANCH]}${__COLORS[DARKGRAY]}${__BASHRC[ITALIC_ON]}${time_f}${__BASHRC[ITALIC_OFF]} ${__COLORS[RED]}$(__print_unicode_prompt) ${__COLORS[RESET]}"
+
+  # Reset prompt since we're out of a process
+  __set-tab-and-window-title "${PWD##*/}"
+
+  if [ "$DEBUG" == "1" ]; then
+    set +x
+  fi
 }
 
 PROMPT_COMMAND="__ps1"
@@ -441,4 +559,18 @@ fi
 
 # {{{1 Paths
 export PATH="$XDG_CONFIG_HOME/scripts:$PATH"
+
+export CDPATH=.:\
+~/code:\
+~/.config:\
+~
+
+# }}}
+
+# {{{1 Debugging
+
+if [ "$DEBUG" == "1" ]; then
+  set +x
+fi
+
 # }}}
