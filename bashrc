@@ -92,13 +92,16 @@ __COLORS[RESET]=$'\[\e[0m\]'
 # {{{1 Environment variables
 
 # export TERM=xterm-256color
-export EDITOR=vi
-export VISUAL=vi
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CONFIG_HOME="$HOME/.config"
+export EDITOR=vi
+export VISUAL=vi
 export TERMINFO_DIRS="$HOME/.local/share/terminfo"
 export SHELL_SESSION_HISTORY=0
 export DOTFILES_PATH="$HOME/code/dotfiles"
+export MYVIMRC="$XDG_CONFIG_HOME/vim/vimrc"
+export MYTMUXRC="$XDG_CONFIG_HOME/tmux/tmux.conf"
+
 # If execution time gets in the way ever, set this to 0 to disable
 __BASHRC[EXEC_TIME]=1
 
@@ -106,8 +109,8 @@ if [ -d ~/.vim/spell ]; then
   export VIMSPELL=(~/.vim/spell/*.add)
 fi
 
-if ! test -d "$XDG_DATA_HOME/terminfo"; then
-  mkdir -p "$XDG_DATA_HOME/terminfo"
+if ! test -d "${XDG_DATA_HOME:-$HOME/.local/share}/terminfo"; then
+  mkdir -p "${XDG_DATA_HOME:-$HOME/.local/share}/terminfo"
 fi
 # }}}
 
@@ -155,11 +158,11 @@ if test -x /usr/bin/lesspipe; then
   export LESSCLOSE="/usr/bin/lesspipe %s %s";
 fi
 
-if ! test -d "$XDG_DATA_HOME/less"; then
-  mkdir -p "$XDG_DATA_HOME/less"
+if ! test -d "${XDG_DATA_HOME:-$HOME/.local/share}/less"; then
+  mkdir -p "${XDG_DATA_HOME:-$HOME/.local/share}/less"
 fi
 
-export LESSHISTFILE="$XDG_DATA_HOME/less/lesshst"
+export LESSHISTFILE="${XDG_DATA_HOME:-$HOME/.local/share}/less/lesshst"
 
 export LESS_TERMCAP_mb="[35m" # magenta
 export LESS_TERMCAP_md="[33m" # yellow
@@ -173,14 +176,14 @@ export LESS_TERMCAP_us="[4m"  # underline
 
 # {{{1 History
 
-if ! test -d "$XDG_DATA_HOME/bash"; then
-  mkdir -p "$XDG_DATA_HOME/bash"
+if ! test -d "${XDG_DATA_HOME:-$HOME/.local/share}/bash"; then
+  mkdir -p "${XDG_DATA_HOME:-$HOME/.local/share}/bash"
 fi
 
 export HISTCONTROL=ignoreboth
 export HISTSIZE=5000
 export HISTFILESIZE=10000
-export HISTFILE=$XDG_DATA_HOME/bash/history
+export HISTFILE=${XDG_DATA_HOME:-$HOME/.local/share}/bash/history
 set -o vi
 shopt -s histappend
 
@@ -204,17 +207,18 @@ elif onmac; then
 	alias ls='ls -h -G'
 fi
 
-alias gst='git status'
-alias gca='git commit -a'
-alias gb='git branch'
-alias gcb='git checkout -b'
-alias gco='git checkout'
+# alias gst='git status'
+# alias gca='git commit -a'
+# alias gb='git branch'
+# alias gcb='git checkout -b'
+# alias gco='git checkout'
 
-alias be='bundle exec'
+# alias be='bundle exec'
 
 alias git='hub'
-alias tmux='tmux -f "$XDG_CONFIG_HOME/tmux/tmux.conf"'
-alias vim='vim -u "$XDG_CONFIG_HOME/vim/vimrc"'
+alias tmux='tmux -f "$MYTMUXRC"'
+# alias vi='vim -u "$MYVIMRC"'
+# alias vim='vim -u "$MYVIMRC"'
 
 alias '?'='duck'
 alias '??'='google'
@@ -231,15 +235,15 @@ elif onmac; then
 fi
 
 alias curl='curl -L'
-alias scripts='cd "$XDG_CONFIG_HOME/scripts"'
+alias scripts='cd "${XDG_CONFIG_HOME:-$HOME/.config}/scripts"'
 
 alias irb='irb --readline -r irb/completion'
 alias mkdir='mkdir -p'
 
-if ! test -d "$XDG_DATA_HOME/wget"; then
-  mkdir -p "$XDG_DATA_HOME/wget"
+if ! test -d "${XDG_DATA_HOME:-$HOME/.local/share}/wget"; then
+  mkdir -p "${XDG_DATA_HOME:-$HOME/.local/share}/wget"
 fi
-alias wget='wget --hsts-file="$XDG_DATA_HOME/wget/hsts"'
+alias wget='wget --hsts-file="${XDG_DATA_HOME:-$HOME/.local/share}/wget/hsts"'
 
 # I like saving some keystrokes
 # If I cd, I ls
@@ -271,8 +275,8 @@ elif command -v gdircolors &>/dev/null; then
 fi
 
 if test -z "${__BASHRC[DIRCOLORS_EXE]}"; then
-  if test -r "$XDG_CONFIG_HOME/ls/dircolors"; then
-    eval "$("${__BASHRC[DIRCOLORS_EXE]}" -b "$XDG_CONFIG_HOME/ls/dircolors")"
+  if test -r "${XDG_CONFIG_HOME:-$HOME/.config}/ls/dircolors"; then
+    eval "$("${__BASHRC[DIRCOLORS_EXE]}" -b "${XDG_CONFIG_HOME:-$HOME/.config}/ls/dircolors")"
   else
     eval "$(${__BASHRC[DIRCOLORS_EXE]} -b)"
   fi
@@ -281,11 +285,11 @@ fi
 # }}}
 
 # {{{1 ASDF
-export ASDF_DIR="$XDG_DATA_HOME/asdf"
-export ASDF_DATA_DIR="$XDG_DATA_HOME/asdf"
-export ASDF_CONFIG_FILE="$XDG_CONFIG_HOME/asdf/asdfrc"
-export ASDF_GEM_DEFAULT_PACKAGES_FILE="$XDG_CONFIG_HOME/asdf/default-gems"
-export ASDF_PYTHON_DEFAULT_PACKAGES_FILE="$XDG_CONFIG_HOME/asdf/default-python-packages"
+export ASDF_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/asdf"
+export ASDF_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/asdf"
+export ASDF_CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/asdf/asdfrc"
+export ASDF_GEM_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/asdf/default-gems"
+export ASDF_PYTHON_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/asdf/default-python-packages"
 if test -d "$ASDF_DIR"; then
   # shellcheck source=/home/me/.local/share/asdf/asdf.sh
   . "$ASDF_DIR/asdf.sh"
@@ -293,7 +297,7 @@ if test -d "$ASDF_DIR"; then
   . "$ASDF_DIR/completions/asdf.bash"
 else
   install_asdf() {
-    mkdir -p "$XDG_CONFIG_HOME/asdf"
+    mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/asdf"
     echo "Installing prerequesites for ASDF"
     if onlinux; then
       echo "Apt installing curl and git"
@@ -558,7 +562,7 @@ fi
 # }}}
 
 # {{{1 Paths
-export PATH="$XDG_CONFIG_HOME/scripts:$PATH"
+export PATH="${XDG_CONFIG_HOME:-$HOME/.config}/scripts:$PATH"
 
 export CDPATH=.:\
 ~/code:\
