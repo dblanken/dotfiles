@@ -1,0 +1,8 @@
+#!/bin/sh
+for i in $(seq 0 255); do
+  output="$i"
+  if test "$i" -le 7; then
+    output="$i:$(echo "$i + 30" | bc)"
+  fi
+  printf "\e[38;5;${i}m${output} "
+done
