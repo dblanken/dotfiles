@@ -1,8 +1,0 @@
-#!/bin/sh
-
-vimpath=/usr/bin/vim
-if [ -x /usr/local/bin/vim ]; then
-  vimpath=/usr/local/bin/vim
-fi
-
-exec "$vimpath" -u "$MYVIMRC" "$@"

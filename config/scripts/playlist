@@ -1,7 +1,59 @@
 #!/bin/sh
 
-# Place your default playlist in ~/.default_playlist
-default_playlist=$(head -n 1 $HOME/.default_playlist)
+# Place your default playlist in ~/.playlists/default
+playlist_path="$HOME/.playlists"
+playlist_settings="--volume=40 --geometry=100%:100% --shuffle"
 
-playlist="${1:-$default_playlist}"
-exec mpv "$playlist" --volume=40 --geometry=100%:100% --shuffle 2>/dev/null
+# Playlists will be stored in .log in case you need the URL again.
+# .past will not track duplicate URLs
+log_playlist() {
+  echo "$1" >> "$playlist_path/.past"
+  uniq "$playlist_path/.past" > "$playlist_path/.past_tmp"
+  mv "$playlist_path/.past_tmp" "$playlist_path/.past"
+}
+
+# Record the last played playlist for easy redo
+record_last_playlist() {
+  echo "$1" > "$playlist_path/last"
+}
+
+play_default_or_input_or_file() {
+  default_playlist="default"
+
+  playlist="${1:-$default_playlist}"
+  case "$playlist" in
+    http*) ;;
+    *)
+      # If the file has multiple lines, we only take the first
+      playlist_from_file="$(head -n 1 "$playlist_path/$playlist")"
+      if test -n "$playlist_from_file"; then
+        playlist="$playlist_from_file"
+      fi
+      ;;
+  esac
+  # Disregard playlist name to get other options to pass to mpv
+  shift
+
+  record_last_playlist "$playlist"
+  log_playlist "$playlist"
+
+  echo "Attempting to play $playlist"
+  exec mpv "$playlist" $playlist_settings "$@" 2>/dev/null
+}
+
+usage() {
+  echo "This script will shuffle a URL/file using MPV with default set settings" 
+  echo ""
+  echo "Usage: ${0##*/} <url or file> (extra_mpv_options)"
+  echo "  url: A quoted url to youtube/twitch/etc."
+  echo "  file: A file containing a url located in $playlist_path"
+  echo ""
+  echo "This records the last played playlist into $playlist_path/last"
+}
+
+case "$1" in
+  usage) usage && exit 0 ;;
+  *) ;;
+esac
+
+play_default_or_input_or_file "$@"
