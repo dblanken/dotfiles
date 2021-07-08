@@ -1,0 +1,6 @@
+#!/bin/sh
+
+rm "/tmp/vim.log" 2>/dev/null
+vim --startuptime "/tmp/vim.log" "$@" +qa
+echo "\n"
+tail -n 1 "/tmp/vim.log" | awk '{ print $1 }'

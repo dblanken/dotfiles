@@ -1,88 +1,31 @@
+" designed for vim8+
 let skip_defaults_vim=1
 set nocompatible
 
 let mapleader="\<Space>"
 let localmapleader="\\"
 
-" Vi compatible (~/.exrc)
+set encoding=UTF-8
 
-" automatically indent new lines
-set autoindent
-
-" automatically write files when changing when multiple files open
-set autowrite
-
-" activate line numbers
-set nonumber
-
-" turn col and row position on in bottom right
 set ruler
+set number relativenumber
 
-" show command and insert mode
-set showmode
-
-" Cause 2 spaces is king ;)
 set tabstop=2
 set softtabstop=2
 set shiftwidth=2
-set smartindent
-set smarttab
-
-" replace tabs with spaces automatically
 set expandtab
 
-if v:version >= 800
-  " stop vim from silently messing with files that it shouldn't
-  set nofixendofline
-
-  " better ascii friendly listchars
-  set listchars=space:*,trail:*,nbsp:*,extends:>,precedes:<,tab:\|>
-
-  " i hate automatic folding
-  set foldmethod=manual
-endif
-
-" mark trailing spaces as errors
-match ErrorMsg '\s\+$'
-
-" enough for line numbers + gutter within 80 standard
 set textwidth=72
-
-" disable relative line numbers, remove no to sample it
-set norelativenumber
-
-highlight NonText guifg=bg
-
-" turn on default spell checking
-"set spell
-
-" more risky, but cleaner
 set nobackup
 set noswapfile
 set nowritebackup
 
-set icon
-
-" highlight search hits, \+<cr> to clear
 set hlsearch
 set incsearch
-set linebreak
-map <silent> <leader><cr> :noh<cr>:redraw!<cr>
 
-" avoid most of the 'Hit Enter ...' messages
 set shortmess=aoOtI
 
-" prevents truncated yanks, deletes, etc.
 set viminfo='20,<1000,s1000
-
-" not a fan of bracket matching or folding
-let g:loaded_matchparen=1
-set noshowmatch
-
-" Just the defaults, these are changed per filetype by plugins.
-" Most of the utility of all of this has been superceded by the use of
-" modern simplified pandoc for capturing knowledge source instead of
-" arbitrary raw text files.
 
 set formatoptions-=t   " don't auto-wrap text using text width
 set formatoptions+=c   " autowrap comments using textwidth with leader
@@ -102,219 +45,465 @@ set formatoptions+=M   " don't add space before or after multi-byte char
 set formatoptions-=B   " don't add space between two multi-byte chars in join 
 set formatoptions+=1   " don't break a line after a one-letter word
 
-" requires PLATFORM env variable set (in ~/.bashrc)
-if $PLATFORM == 'mac'
-  " required for mac delete to work
-  set backspace=indent,eol,start
-endif
+set backspace=indent,eol,start
 
-
-" stop complaints about switching buffer with changes
 set hidden
 
-" command history
-set history=100
-
-" here because plugins and stuff need it
 syntax enable
 
-" faster scrolling
 set ttyfast
 
-" allow sensing the filetype
 filetype plugin on
 
-" Install vim-plug if not already installed
-if v:version >= 800 && executable('curl') && empty(glob('~/.vim/autoload/plug.vim'))
-  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-      \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  autocmd VimEnter * PlugInstall
-endif
+match Error '\s\+$'
 
 if filereadable(expand("~/.vim/autoload/plug.vim"))
   call plug#begin('~/.vimplugins')
-  Plug 'tpope/vim-commentary'
-  Plug 'tpope/vim-rails'
-  Plug 'tpope/vim-eunuch'
-  Plug 'tpope/vim-dispatch'
-  Plug 'tpope/vim-fugitive'
-  Plug 'tpope/vim-surround'
-  Plug 'tpope/vim-repeat'
-  Plug 'tpope/vim-endwise'
-  Plug 'tpope/vim-bundler'
-  Plug 'tpope/vim-rake'
-  Plug 'tpope/vim-unimpaired'
-  Plug 'vim-test/vim-test'
-  Plug 'vim-pandoc/vim-pandoc'
-  Plug 'roxma/vim-tmux-clipboard'
-  Plug 'morhetz/gruvbox'
-  Plug 'christoomey/vim-tmux-navigator'
-  Plug 'dense-analysis/ale'
+
   Plug 'chriskempson/base16-vim'
+  Plug 'christoomey/vim-tmux-navigator'
+  Plug 'kchmck/vim-coffee-script'
+  Plug 'morhetz/gruvbox'
+  Plug 'roxma/vim-tmux-clipboard'
+  Plug 'rwxrob/vim-pandoc-syntax-simple'
+  Plug 'tpope/vim-bundler'
+  Plug 'tpope/vim-commentary'
+  Plug 'tpope/vim-dispatch'
+  Plug 'tpope/vim-eunuch'
+  Plug 'tpope/vim-fugitive'
+  Plug 'tpope/vim-rails'
+  Plug 'tpope/vim-rake'
+  Plug 'tpope/vim-repeat'
+  Plug 'tpope/vim-surround'
+  Plug 'tpope/vim-unimpaired'
+  Plug 'tpope/vim-vinegar'
+  Plug 'vim-pandoc/vim-pandoc'
   Plug 'vim-ruby/vim-ruby'
+  Plug 'vim-test/vim-test'
+
+  if has('nvim')
+
+    Plug 'hrsh7th/nvim-compe'
+    Plug 'hrsh7th/vim-vsnip'
+    Plug 'hrsh7th/vim-vsnip-integ'
+    Plug 'kyazdani42/nvim-web-devicons'
+    Plug 'neovim/nvim-lspconfig'
+    Plug 'nvim-lua/plenary.nvim'
+    Plug 'nvim-lua/popup.nvim'
+    Plug 'nvim-telescope/telescope.nvim'
+    Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
+    Plug 'rafamadriz/friendly-snippets'
+
+  else
+
+
+    Plug 'SirVer/ultisnips'
+    " Plug 'dense-analysis/ale'
+    Plug 'honza/vim-snippets'
+    Plug 'tpope/vim-endwise'
+    Plug 'neoclide/coc.nvim', {'branch': 'release' }
+
+    " if has('nvim')
+    "   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+    " else
+    "   Plug 'Shougo/deoplete.nvim'
+    "   Plug 'roxma/nvim-yarp'
+    "   Plug 'roxma/vim-hug-neovim-rpc'
+    " endif
+
+  endif
+
   call plug#end()
 endif
 
-" Plugin-specific: Vim-Test
-nmap <silent> <leader>t :TestNearest<CR>
-nmap <silent> <leader>T :TestFile<CR>
-nmap <silent> <leader>a :TestSuite<CR>
-nmap <silent> <leader>l :TestLast<CR>
-let test#strategy = 'dispatch'
+function! PlugLoaded(name)
+  return (
+        \ has_key(g:plugs, a:name) &&
+        \ isdirectory(g:plugs[a:name].dir) &&
+        \ stridx(&rtp, substitute(g:plugs[a:name].dir, '/$', '', '')) >= 0)
+endfunction
 
-" high contrast for streaming, etc.
+if !has('nvim')
+  if PlugLoaded('coc.nvim')
+
+    " Set internal encoding of vim, not needed on neovim, since coc.nvim using some
+    " unicode characters in the file autoload/float.vim
+    set encoding=utf-8
+
+    " TextEdit might fail if hidden is not set.
+    set hidden
+
+    " Some servers have issues with backup files, see #649.
+    set nobackup
+    set nowritebackup
+
+    " Give more space for displaying messages.
+    set cmdheight=2
+
+    " Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
+    " delays and poor user experience.
+    set updatetime=300
+
+    " Don't pass messages to |ins-completion-menu|.
+    set shortmess+=c
+
+    " Always show the signcolumn, otherwise it would shift the text each time
+    " diagnostics appear/become resolved.
+    if has("nvim-0.5.0") || has("patch-8.1.1564")
+      " Recently vim can merge signcolumn and number column into one
+      set signcolumn=number
+    else
+      set signcolumn=yes
+    endif
+
+    " Use tab for trigger completion with characters ahead and navigate.
+    " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+    " other plugin before putting this into your config.
+    inoremap <silent><expr> <TAB>
+          \ pumvisible() ? "\<C-n>" :
+          \ <SID>check_back_space() ? "\<TAB>" :
+          \ coc#refresh()
+    inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+    function! s:check_back_space() abort
+      let col = col('.') - 1
+      return !col || getline('.')[col - 1]  =~# '\s'
+    endfunction
+
+    " Use <c-space> to trigger completion.
+    if has('nvim')
+      inoremap <silent><expr> <c-space> coc#refresh()
+    else
+      inoremap <silent><expr> <c-@> coc#refresh()
+    endif
+
+    " Make <CR> auto-select the first completion item and notify coc.nvim to
+    " format on enter, <cr> could be remapped by other vim plugin
+    inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
+          \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+    " Use `[g` and `]g` to navigate diagnostics
+    " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+    nmap <silent> [g <Plug>(coc-diagnostic-prev)
+    nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+    " GoTo code navigation.
+    nmap <silent> gd <Plug>(coc-definition)
+    nmap <silent> gy <Plug>(coc-type-definition)
+    nmap <silent> gi <Plug>(coc-implementation)
+    nmap <silent> gr <Plug>(coc-references)
+
+    " Use K to show documentation in preview window.
+    nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+    function! s:show_documentation()
+      if (index(['vim','help'], &filetype) >= 0)
+        execute 'h '.expand('<cword>')
+      elseif (coc#rpc#ready())
+        call CocActionAsync('doHover')
+      else
+        execute '!' . &keywordprg . " " . expand('<cword>')
+      endif
+    endfunction
+
+    " Highlight the symbol and its references when holding the cursor.
+    autocmd CursorHold * silent call CocActionAsync('highlight')
+
+    " Symbol renaming.
+    nmap <leader>rn <Plug>(coc-rename)
+
+    " Formatting selected code.
+    xmap <leader>f  <Plug>(coc-format-selected)
+    nmap <leader>f  <Plug>(coc-format-selected)
+
+    augroup mygroup
+      autocmd!
+      " Setup formatexpr specified filetype(s).
+      autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+      " Update signature help on jump placeholder.
+      autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+    augroup end
+
+    " Applying codeAction to the selected region.
+    " Example: `<leader>aap` for current paragraph
+    xmap <leader>a  <Plug>(coc-codeaction-selected)
+    nmap <leader>a  <Plug>(coc-codeaction-selected)
+
+    " Remap keys for applying codeAction to the current buffer.
+    nmap <leader>ac  <Plug>(coc-codeaction)
+    " Apply AutoFix to problem on the current line.
+    nmap <leader>qf  <Plug>(coc-fix-current)
+
+    " Map function and class text objects
+    " NOTE: Requires 'textDocument.documentSymbol' support from the language server.
+    xmap if <Plug>(coc-funcobj-i)
+    omap if <Plug>(coc-funcobj-i)
+    xmap af <Plug>(coc-funcobj-a)
+    omap af <Plug>(coc-funcobj-a)
+    xmap ic <Plug>(coc-classobj-i)
+    omap ic <Plug>(coc-classobj-i)
+    xmap ac <Plug>(coc-classobj-a)
+    omap ac <Plug>(coc-classobj-a)
+
+    " Remap <C-f> and <C-b> for scroll float windows/popups.
+    if has('nvim-0.4.0') || has('patch-8.2.0750')
+      nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+      nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+      inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+      inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+      vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+      vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+    endif
+
+    " Use CTRL-S for selections ranges.
+    " Requires 'textDocument/selectionRange' support of language server.
+    nmap <silent> <C-s> <Plug>(coc-range-select)
+    xmap <silent> <C-s> <Plug>(coc-range-select)
+
+    " Add `:Format` command to format current buffer.
+    command! -nargs=0 Format :call CocAction('format')
+
+    " Add `:Fold` command to fold current buffer.
+    command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+
+    " Add `:OR` command for organize imports of the current buffer.
+    command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+
+    " Add (Neo)Vim's native statusline support.
+    " NOTE: Please see `:h coc-status` for integrations with external plugins that
+    " provide custom statusline: lightline.vim, vim-airline.
+    set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+
+    " Mappings for CoCList
+    " Show all diagnostics.
+    nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+    " Manage extensions.
+    nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+    " Show commands.
+    nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+    " Find symbol of current document.
+    nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+    " Search workspace symbols.
+    nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+    " Do default action for next item.
+    nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+    " Do default action for previous item.
+    nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+    " Resume latest coc list.
+    nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+
+  endif
+
+  if PlugLoaded('deoplete.nvim')
+    let g:deoplete#enable_at_startup=0
+    autocmd InsertEnter * call deoplete#enable()
+  endif
+
+  if PlugLoaded('ultisnips')
+    " Must set trigger to no-op so we can handle it
+    let g:UltiSnipsExpandTrigger = "<nop>"
+    let g:UltiSnipsJumpForwardTrigger = "<Tab>"
+    let g:UltiSnipsJumpBackwardTrigger = "<S-Tab>"
+    " This is a variable that ultisnips will set when
+    " UltiSnips#ExpandSnippetOrJump() is called.
+    "   1 = It expanded or jumped
+    "   0 = It did nothing
+    let g:ulti_expand_or_jump_res = 0
+
+    " We define our own function that attemps the expand or jump, and if nothing
+    " happened, we return just a regular return.
+    function ExpandSnippetOrCarriageReturn()
+      let snippet = UltiSnips#ExpandSnippetOrJump()
+      if g:ulti_expand_or_jump_res > 0
+        return snippet
+      else
+        return "\<CR>"
+      endif
+    endfunction
+
+    " Obligitory check last character was space function
+    " get the column number before the current
+    " if col is zero, return 1 so we know it was a space
+    " if col is not zero, get the character before and return 1 if it's a space
+    function! s:check_last_char_was_space() abort
+      let col = col('.') - 1
+      return !col || getline('.')[col - 1]  =~ '\s'
+    endfunction
+
+    " If tab is pressed:
+    "    and pull up menu is visible:
+    "      C-n to traverse list
+    "    else
+    "      if we are at the beginning of the line or the character before is a space,
+    "      then allow a tab (no autocomplete needed)
+    "      if we are not at the beginning of the line and the character before is not
+    "        a space, attempt a deoplete completion.
+    inoremap <silent><expr> <TAB> pumvisible() ? "\<C-n>" : <SID>check_last_char_was_space() ? "\<TAB>" : deoplete#manual_complete()
+    inoremap <expr>   <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"| " Shift-Tab is previous entry if completion menu open.
+
+    " If CR is pressed:
+    "  if the pull up menu is visible
+    "    We attempt to expand the snippet or jump
+    "  otherwise
+    "    We CR
+    inoremap <expr> <CR> pumvisible() ? "\<C-R>=ExpandSnippetOrCarriageReturn()\<CR>" : "\<CR>"
+  end
+
+  if PlugLoaded('ultisnips') && PlugLoaded('vim-endwise')
+    " Make sure we don't allow endwise to do its own magic to CR.
+    let g:endwise_no_mappings = 1
+
+    " If CR is pressed:
+    "  if the pull up menu is visible
+    "    We attempt to expand the snippet or jump
+    "  otherwise
+    "    We CR with our own endwise call
+    inoremap <expr> <CR> pumvisible() ? "\<C-R>=ExpandSnippetOrCarriageReturn()\<CR>" : "\<CR>\<C-R>=EndwiseDiscretionary()\<CR>"
+  endif
+end
+
+if PlugLoaded('vim-test')
+  " Plugin-specific: Vim-Test
+  nmap <silent> <leader>t :TestNearest<CR>
+  nmap <silent> <leader>T :TestFile<CR>
+  nmap <silent> <leader>a :TestSuite<CR>
+  nmap <silent> <leader>l :TestLast<CR>
+  let test#strategy = 'dispatch'
+endif
+
 set background=dark
 
-hi Normal ctermbg=NONE " for transparent background
-hi SpellBad ctermbg=red " for transparent background
-hi SpellRare ctermbg=red
-hi Special ctermfg=cyan
-
+" Status bar
 set noruler
 set laststatus=2
 set statusline=
 set statusline+=%*\ %<%.60F%*                      " path, trunc to 80 length
 set statusline+=\ [%{strlen(&ft)?&ft:'none'}]      " filetype
 set statusline+=%*\ %{FugitiveStatusline()}        " Fugitive branch
+if !has('nvim') && PlugLoaded('ale')
+  set statusline+=\ [%{LinterStatus()}]              " ALE status
+endif
 set statusline+=%*\ %l:%c%*                        " current line and column
 set statusline+=%*\ %p%%%*                         " percentage
 set cmdheight=1
 
-" if you are gonna visual, might as well...
-vmap < <gv
-vmap > >gv
-
 " make Y consitent with D and C (yank til end)
 map Y y$
+
+nnoremap Q @q
+nnoremap <Leader>= migg=G`i
+nnoremap <Leader>g :grep!<Space>
+if exists(':tnoremap')
+  tnoremap <Esc> <C-\><C-n>
+endif
+
+nnoremap <Leader>\ :vsplit<CR>
+nnoremap <Leader>- :split<CR>
+
+" Delete what you have highlighted to the void register and paste what you
+" wanted.  It does not replace what you've copied previously.  Actual delete.
+vnoremap <Leader>p "_dP
 
 " better command-line completion
 set wildmenu
 
-" disable search highlighting with <C-L> when refreshing screen
-nnoremap <C-L> :nohl<CR><C-L>
-
-" enable omni-completion
-" set omnifunc=syntaxcomplete#Complete
-
-" force some file names to be specific file type
-au bufnewfile,bufRead *.bash* set ft=sh
-au bufnewfile,bufRead *.profile set filetype=sh
-au bufnewfile,bufRead *.crontab set filetype=crontab
-au bufnewfile,bufRead *ssh/config set filetype=sshconfig
-au bufnewfile,bufRead .dockerignore set filetype=gitignore
-au bufnewfile,bufRead *gitconfig set filetype=gitconfig
-
-" displays all the syntax rules for current position, useful
-" when writing vimscript syntax plugins
-function! <SID>SynStack()
-  if !exists("*synstack")
-    return
-  endif
-    echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-endfunc
-
 " start at last place you were editing
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-
-" functions keys
-map <F1> :set number!<CR> :set relativenumber!<CR>
-nmap <F2> :call <SID>SynStack()<CR>
-set pastetoggle=<F3>
-map <F4> :set list!<CR>
-map <F5> :set cursorline!<CR>
-map <F7> :set spell!<CR>
-map <F12> :set fdm=indent<CR>
-
-nmap <leader>2 :set paste<CR>i
 
 " Better page down and page up
 noremap <C-n> <C-d>
 noremap <C-p> <C-b>
 
-hi StatusLineNC term=bold cterm=bold gui=bold
-hi StatusLine term=bold cterm=bold gui=bold
 
-let g:rails_projections = {
-      \ "test/models/*_test.rb": {"command": "modeltest"}
-      \ }
+if PlugLoaded('vim-rails')
+  let g:rails_projections = {
+        \ "test/models/*_test.rb": {"command": "modeltest"}
+        \ }
+endif
 
 set signcolumn=yes
 set colorcolumn=80
 
-nmap <silent> [W <Plug>(ale_first)
-nmap <silent> [w <Plug>(ale_previous)
-nmap <silent> ]W <Plug>(ale_last)
-nmap <silent> ]w <Plug>(ale_next)
+if PlugLoaded('ale')
+  nmap <silent> [W <Plug>(ale_first)
+  nmap <silent> [w <Plug>(ale_previous)
+  nmap <silent> ]W <Plug>(ale_last)
+  nmap <silent> ]w <Plug>(ale_next)
 
-" Always show sign column
-let g:ale_sign_column_always = 1
+  " Always show sign column
+  let g:ale_sign_column_always = 1
 
-" Set to show which linter says there is an issue
-let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-let g:ale_sign_error = '✖'
-let g:ale_sign_info = 'ℹ'
-let g:ale_sign_warning = '⚠'
+  " Set to show which linter says there is an issue
+  let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+  let g:ale_sign_error = '✖'
+  let g:ale_sign_info = 'ℹ'
+  let g:ale_sign_warning = '⚠'
 
-let g:ale_set_balloons = 1
-let g:ale_hover_to_preview = 1
-let g:ale_hover_cursor = 1
+  let g:ale_set_balloons = 1
+  let g:ale_hover_to_preview = 1
+  let g:ale_hover_cursor = 1
 
-let g:ale_linters = {
-      \ "ruby": [ "brakeman", "rails_best_practices", "reek", "solargraph" ]
-      \ }
-let g:ale_fixers = {
-      \ "*": [ "remove_trailing_lines" ],
-      \ "ruby": [ "standardrb" ]
-      \ }
-let g:ale_fix_on_save = 1
+  let g:ale_linters = {
+        \ "ruby": [ "brakeman", "rails_best_practices", "reek", "solargraph" ],
+        \ "sh": [ "shellcheck" ],
+        \ "javascript": [ "tsserver" ],
+        \ }
+  let g:ale_fixers = {
+        \ "*": [ "remove_trailing_lines" ],
+        \ "ruby": [ "standardrb" ],
+        \ }
+  let g:ale_fix_on_save = 1
 
-function! LinterStatus() abort
-  let l:counts = ale#statusline#Count(bufnr(''))
+  function! LinterStatus() abort
+    let l:counts = ale#statusline#Count(bufnr(''))
 
-  let l:all_errors = l:counts.error + l:counts.style_error
-  let l:all_non_errors = l:counts.total - l:all_errors
+    let l:all_errors = l:counts.error + l:counts.style_error
+    let l:all_non_errors = l:counts.total - l:all_errors
 
-  return l:counts.total == 0 ? 'OK' : printf(
-        \   '%dW %dE',
-        \   all_non_errors,
-        \   all_errors
-        \)
-endfunction
+    return l:counts.total == 0 ? 'OK' : printf(
+          \   '%dW %dE',
+          \   all_non_errors,
+          \   all_errors
+          \)
+  endfunction
 
-let g:ale_completion_symbols = {
-      \ 'text': '',
-      \ 'method': '',
-      \ 'function': '',
-      \ 'constructor': '',
-      \ 'field': '',
-      \ 'variable': '',
-      \ 'class': '',
-      \ 'interface': '',
-      \ 'module': '',
-      \ 'property': '',
-      \ 'unit': 'unit',
-      \ 'value': 'val',
-      \ 'enum': '',
-      \ 'keyword': 'keyword',
-      \ 'snippet': '',
-      \ 'color': 'color',
-      \ 'file': '',
-      \ 'reference': 'ref',
-      \ 'folder': '',
-      \ 'enum member': '',
-      \ 'constant': '',
-      \ 'struct': '',
-      \ 'event': 'event',
-      \ 'operator': '',
-      \ 'type_parameter': 'type param',
-      \ '<default>': 'v'
-      \ }
-" let g:ale_completion_enabled = 1
-let g:ale_hover_to_floating_preview = 1
+  let g:ale_completion_symbols = {
+        \ 'text': '',
+        \ 'method': '',
+        \ 'function': '',
+        \ 'constructor': '',
+        \ 'field': '',
+        \ 'variable': '',
+        \ 'class': '',
+        \ 'interface': '',
+        \ 'module': '',
+        \ 'property': '',
+        \ 'unit': 'unit',
+        \ 'value': 'val',
+        \ 'enum': '',
+        \ 'keyword': 'keyword',
+        \ 'snippet': '',
+        \ 'color': 'color',
+        \ 'file': '',
+        \ 'reference': 'ref',
+        \ 'folder': '',
+        \ 'enum member': '',
+        \ 'constant': '',
+        \ 'struct': '',
+        \ 'event': 'event',
+        \ 'operator': '',
+        \ 'type_parameter': 'type param',
+        \ '<default>': 'v'
+        \ }
+  " let g:ale_completion_enabled = 1
+  let g:ale_hover_to_floating_preview = 1
 
-if filereadable(expand("~/.vimrc_background"))
-  let base16colorspace=256
-  source ~/.vimrc_background
+  " For standardrb to work well with vim-ruby, we need to define
+  " indention.
+  let g:ruby_indent_assignment_style = 'variable'
+
+  nnoremap <silent> <Leader>= :ALEFix<CR>
+
 endif
 
 let g:rubycomplete_buffer_loading = 1
@@ -328,3 +517,57 @@ let ruby_space_errors = 1
 let ruby_line_continuation_error = 1
 let ruby_global_variable_error = 1
 let ruby_spellcheck_strings = 1
+
+if PlugLoaded('coc.nvim') && PlugLoaded('ale')
+  " Uncomment for coc.nvim integration
+  let g:ale_disable_lsp = 1
+endif
+
+function! SetDefaultCustomColors() abort
+  " base default color changes (gruvbox dark friendly)
+  hi StatusLine ctermfg=black ctermbg=NONE
+  hi StatusLineNC ctermfg=black ctermbg=NONE
+  hi Normal ctermbg=NONE
+  hi Special ctermfg=cyan
+  hi LineNr ctermbg=NONE
+  hi SpecialKey ctermfg=black ctermbg=NONE
+  hi ModeMsg ctermfg=black cterm=NONE ctermbg=NONE
+  hi MoreMsg ctermfg=black ctermbg=NONE
+  hi NonText ctermfg=black ctermbg=NONE
+  hi vimGlobal ctermfg=black ctermbg=NONE
+  hi ErrorMsg ctermbg=234 ctermfg=darkred cterm=NONE
+  hi Error ctermbg=234 ctermfg=darkred cterm=NONE
+  hi SpellBad ctermbg=234 ctermfg=darkred cterm=NONE
+  hi SpellRare ctermbg=234 ctermfg=darkred cterm=NONE
+  hi Search ctermbg=236 ctermfg=darkred
+  hi vimTodo ctermbg=236 ctermfg=darkred
+  hi Todo ctermbg=236 ctermfg=darkred
+  hi IncSearch ctermbg=236 cterm=NONE ctermfg=darkred
+  hi MatchParen ctermbg=236 ctermfg=darkred
+endfunction
+
+augroup dblanken_gruvbox_overrides
+  autocmd!
+  autocmd ColorScheme * call SetDefaultCustomColors()
+  au FileType markdown,pandoc hi Title ctermfg=yellow ctermbg=NONE
+  au FileType markdown,pandoc hi Operator ctermfg=yellow ctermbg=NONE
+augroup END
+
+let g:gruvbox_invert_signs=0
+let g:gruvbox_italic=1
+let g:gruvbox_transparent_bg=1
+let g:gruvbox_underline=1
+let g:gruvbox_undercurl=1
+let g:gruvbox_improved_strings=1
+let g:gruvbox_improved_warnings=1
+colorscheme gruvbox
+
+" displays all the syntax rules under current position
+function! <SID>SynStack() abort
+  if !exists("*synstack")
+    return
+  endif
+
+  echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
+endfunction
+nmap <F2> :call <SID>SynStack()<CR>

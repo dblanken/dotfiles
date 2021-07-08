@@ -1,0 +1,11 @@
+#!/bin/sh
+
+rbfile() {
+  local current_file="$1"
+
+  # In test file, so give original
+  echo "$current_file" | perl -pe 's/^(.*)\/?test\/(.+)_test.rb$/\1app\/\2.rb/' | perl -pe 's/^(.*)app\/lib(.+)/\1lib\2/'
+}
+
+rbfile "$@"
+

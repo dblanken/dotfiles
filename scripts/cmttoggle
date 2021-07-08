@@ -1,0 +1,17 @@
+#!/usr/local/bin/bash
+
+# Traverses each line and either
+# comments or uncomments
+toggle() {
+  local cmt=^"${1:-#}".+$
+
+  while IFS= read -r line; do
+    if [[ "${line}" =~ $cmt ]]; then
+      echo "$line" | ucmt "$1"
+    else
+      echo "$line" | cmt "$1"
+    fi
+  done
+}
+
+toggle "$@"
