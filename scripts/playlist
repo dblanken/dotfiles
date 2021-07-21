@@ -42,7 +42,7 @@ play_default_or_input_or_file() {
 }
 
 usage() {
-  echo "This script will shuffle a URL/file using MPV with default set settings" 
+  echo "This script will shuffle a URL/file using MPV with default set settings"
   echo ""
   echo "Usage: ${0##*/} <url or file> (extra_mpv_options)"
   echo "  url: A quoted url to youtube/twitch/etc."
@@ -55,5 +55,9 @@ case "$1" in
   usage) usage && exit 0 ;;
   *) ;;
 esac
+
+if test -n "$TMUX"; then
+  tmux rename-window playlist
+fi
 
 play_default_or_input_or_file "$@"

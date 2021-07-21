@@ -1,0 +1,5 @@
+require "test_helper"
+
+class {1}Test < ActiveSupport::TestCase
+
+end

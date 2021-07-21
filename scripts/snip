@@ -1,0 +1,63 @@
+#!/usr/local/bin/bash
+
+[[ -z $SNIPPETS ]] && echo "SNIPPETS directory undefined" && exit 1
+
+snip() {
+  local name="$1"
+  shift
+  local path="$SNIPPETS/$name"
+  
+  if [[ -r $path ]]; then
+
+    local buf="$(<$path)"
+    if [[ -s /dev/stdin ]]; then
+      local in="$(</dev/stdin)"
+    else
+      local in=""
+    fi
+
+    if [[ $# = 0 && -z $in ]]; then
+      echo "$buf"
+      return
+    fi
+
+    if [[ $# > 0 ]]; then
+      local -i n=1
+      for arg in $@; do
+        buf=${buf//\{$n\}/$arg}
+        ((n++))
+      done
+      echo "$buf"
+    else
+      IFS=$'\n'
+      for argline in $in; do
+        if [[ -n $argline ]]; then
+          IFS=" " snip $name $argline
+        fi
+      done
+    fi
+
+  fi
+}
+
+snip_completion() {
+  local possibilities=$(find $SNIPPETS -type f)
+  if [[ -n $2 ]]; then
+    for c in ${possibilities[@]}; do
+      local truncated_possibility="${c##${SNIPPETS}\/}"
+      [[ ${truncated_possibility:0:${#2}} == $2 ]] && echo "$truncated_possibility"
+    done
+  else
+    for c in ${possibilities[@]}; do
+      printf "${c##${SNIPPETS}\/}\n"
+    done
+  fi
+  exit
+}
+
+# complete -C snip snip
+if [[ -n $COMP_LINE ]]; then
+  snip_completion "$@"
+fi
+
+snip "$@"

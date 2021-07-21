@@ -1,0 +1,50 @@
+#!/usr/local/bin/bash
+
+# This snippet contains the scaffolding for Bash tab completion using
+# the complete -C foo foo variation which allows scripts to complete
+# themselves (rather than having another script somewhere to manage). To
+# use it simply add a function with the additional command and add the
+# name of it to the commands array declaration at the top of the script.
+# Then add complete -C foo foo (or something like it) to your bashrc.
+# Begin functions with underscore to allow useful command names to be
+# used that would otherwise conflict with existing systam and bash
+# keywords.
+
+# ------------------------- complete context -------------------------
+
+declare -a COMMANDS=(hello hi privyet)
+
+if [[ -n $COMP_LINE ]]; then
+    for c in "${COMMANDS[@]}"; do
+        [[ ${c:0:${#2}} == "${2,,}" ]] && echo "$c"
+    done
+    exit
+fi
+
+# ----------------------------- commands -----------------------------
+
+_usage() {
+    local cmds="${COMMANDS[@]}"
+    printf "usage: ${0##*/} (${cmds// /|})\n"
+}
+
+_hello() {
+    echo hello
+}
+
+
+_hi() {
+    echo hi there
+}
+
+_privyet() {
+    echo privyet
+    return 1
+}
+
+# ---------------------------- delegation ----------------------------
+
+declare cmd="$1"; shift
+for c in "${COMMANDS[@]}"; do
+    [[ $c == "$cmd" ]] && "_$cmd" "$@" && exit $?
+done

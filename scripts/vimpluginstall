@@ -1,2 +1,2 @@
 #!/bin/sh
-exec vim +':PlugInstall' +':qa!'
+exec "${EDITOR:-vim}" +':PlugInstall' +':qa!'

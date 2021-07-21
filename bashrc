@@ -7,8 +7,10 @@ esac
 #                           (also see envx)
 
 export GITUSER="$USER"
-export DOTFILES="$HOME/repos/github.com/$GITUSER/dot"
-export GHREPOS="$HOME/repos/github.com/$GITUSER/"
+export DOTFILES="$HOME/code/dotfiles"
+export SNIPPETS="$HOME/code/dotfiles/snippets"
+export SCRIPTS="$HOME/code/dotfiles/scripts"
+export GHREPOS="$HOME/code"
 export KN=$GHREPOS
 
 export TERM=xterm-256color
@@ -105,11 +107,6 @@ pathprepend() {
   done
 }
 
-# override as needed in .bashrc_{personal,private,work}
-# several utilities depend on SCRIPTS being in a github repo
-export SCRIPTS=~/.local/bin/scripts
-mkdir -p "$SCRIPTS" &>/dev/null
-
 # remember last arg will be first in path
 pathprepend \
   /usr/local/opt/unzip/bin \
@@ -132,11 +129,7 @@ pathappend \
 # ------------------------------ cdpath ------------------------------
 
 export CDPATH=.:\
-~/repos/github.com:\
-~/repos/github.com/$GITUSER:\
-~/repos/github.iu.edu/$GITUSER:\
-~/repos/scratch:\
-~/repos:\
+~/code:\
 ~
 
 # ------------------------ bash shell options ------------------------
@@ -291,9 +284,11 @@ alias temp='cd $(mktemp -d)'
 alias view='vi -R' # which is usually linked to vim
 alias c='printf "\e[H\e[2J"'
 alias clear='printf "\e[H\e[2J"'
+alias snippets='cd $SNIPPETS'
+alias lock='pmset displaysleepnow'
 
 which vim &>/dev/null && alias vi=vim
-which nvim &>/dev/null && alias vi=nvim
+# which nvim &>/dev/null && alias vi=nvim
 
 # ----------------------------- functions ----------------------------
 
