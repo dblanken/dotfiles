@@ -1,6 +1,6 @@
 case $- in
   *i*) ;; # interactive
-  *) return ;; 
+  *) return ;;
 esac
 
 # ----------------------- environment variables ----------------------
@@ -18,8 +18,6 @@ export HRULEWIDTH=73
 export EDITOR=vi
 export VISUAL=vi
 export EDITOR_PREFIX=vi
-
-export PYTHONDONTWRITEBYTECODE=1
 
 test -d ~/.vim/spell && export VIMSPELL=(~/.vim/spell/*.add)
 
@@ -112,7 +110,7 @@ pathprepend \
   /usr/local/opt/unzip/bin \
   /usr/local/go/bin \
   ~/.local/bin \
-  "$SCRIPTS" 
+  "$SCRIPTS"
 
 pathappend \
   /usr/local/opt/coreutils/libexec/gnubin \
@@ -170,7 +168,7 @@ __ps1() {
     local x='%f'
   else
     local r='\[\e[31m\]'
-    local g='\[\e[30m\]'
+    local g='\[\e[0m\]'
     local h='\[\e[34m\]'
     local u='\[\e[33m\]'
     local p='\[\e[33m\]'
@@ -207,15 +205,14 @@ __ps1() {
   test "$dir" = "$B" && B='.'
   local countme="$USER@$(hostname):$dir($B)\$ "
 
-  test "$B" = master -o "$B" = main && b=$r
-  test -n "$B" && B="$g($b$B$g)"
+  test -n "$B" && B="$g[$b$B$g]"
 
   if test -n "${ZSH_VERSION}"; then
     local short="$u%n$g@$h%m$g:$w$dir$B$p$P$x "
     local long="$g╔ $u%n$g@%m\h$g:$w$dir$B\n$g╚ $p$P$x "
     local double="$g╔ $u%n$g@%m\h$g:$w$dir\n$g║ $B\n$g╚ $p$P$x "
   else
-    local short="$u\u$g@$h\h$g:$w$dir$B$p$P$x "
+    local short="$u\u$g@$h\h$g $w$dir$B$p$P$x "
     local long="$g╔ $u\u$g@$h\h$g:$w$dir$B\n$g╚ $p$P$x "
     local double="$g╔ $u\u$g@$h\h$g:$w$dir\n$g║ $B\n$g╚ $p$P$x "
   fi
@@ -247,14 +244,11 @@ if type brew &>/dev/null; then
     done
   fi
 else
-  owncomp=(pdf md yt gl kn auth pomo config sshkey ws ./build build b ./setup)
+  owncomp=()
   for i in ${owncomp[@]}; do complete -C $i $i; done
 
   type gh &>/dev/null && . <(gh completion -s bash)
   type pandoc &>/dev/null && . <(pandoc --bash-completion)
-  type kubectl &>/dev/null && . <(kubectl completion bash)
-  type k &>/dev/null && complete -o default -F __start_kubectl k
-  type kind &>/dev/null && . <(kind completion bash)
   type yq &>/dev/null && . <(yq shell-completion bash)
 fi
 type asdf &>/dev/null && test -d /usr/local/opt/asdf && . /usr/local/opt/asdf/asdf.sh
@@ -293,30 +287,30 @@ which vim &>/dev/null && alias vi=vim
 # ----------------------------- functions ----------------------------
 
 build() { ./build "$@"; } && export -f build
-  b() { build "$@"; } && export -f b
-    d() { docker "$@"; } && export -f d
-      k() { kubectl "$@"; } && export -f k
+b() { build "$@"; } && export -f b
+d() { docker "$@"; } && export -f d
+k() { kubectl "$@"; } && export -f k
 
-        envx() {
-          local envfile="$1"
-          if test ! -e "$envfile" ; then
-            if test ! -e ~/.env ; then
-              echo "file not found: $envfile"
-              return
-            fi
-            envfile=~/.env
-          fi
-          while IFS= read -r line; do
-            name=${line%%=*}
-            value=${line#*=}
-            if [[ -z "${name}" || $name =~ ^# ]]; then
-              continue
-            fi
-            export "$name"="$value"
-          done <"${envfile}"
-        } && export -f envx
+envx() {
+  local envfile="$1"
+  if test ! -e "$envfile" ; then
+    if test ! -e ~/.env ; then
+      echo "file not found: $envfile"
+      return
+    fi
+    envfile=~/.env
+  fi
+  while IFS= read -r line; do
+    name=${line%%=*}
+    value=${line#*=}
+    if [[ -z "${name}" || $name =~ ^# ]]; then
+      continue
+    fi
+    export "$name"="$value"
+  done <"${envfile}"
+} && export -f envx
 
-      test -e ~/.env && envx ~/.env 
+test -e ~/.env && envx ~/.env
 
 # -------------------- personalized configuration --------------------
 
@@ -324,5 +318,8 @@ test -r ~/.bash_personal && source ~/.bash_personal
 test -r ~/.bash_private && source ~/.bash_private
 test -r ~/.bash_work && source ~/.bash_work
 
-# ------------------------ fzf ------------------------
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+# Base16 Shell
+BASE16_SHELL="$HOME/.config/base16-shell/"
+[ -n "$PS1" ] && \
+    [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
+        eval "$("$BASE16_SHELL/profile_helper.sh")"

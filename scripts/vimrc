@@ -1,3 +1,14 @@
 #!/bin/sh
 
-exec $EDITOR ~/.vim/vimrc
+function vimrc() {
+    local vimrc_location
+    vimrc_location=~/.vimrc
+
+    if test -f ~/.vim/vimrc; then
+        vimrc_location=~/.vim/vimrc
+    fi
+
+    exec ${EDITOR:-vim} "$vimrc_location"
+}
+
+vimrc "$@"
