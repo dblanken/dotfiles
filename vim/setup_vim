@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+BASE_DIR="$HOME/.vim"
+PLUGIN_DIR="$BASE_DIR/pack/bundle/start"
+COLORS_DIR="$BASE_DIR/colors"
+PLUGINS=(
+  'christoomey/vim-tmux-navigator'
+  'dense-analysis/ale'
+  'junegunn/fzf'
+  'junegunn/fzf.vim'
+  'tpope/vim-bundler'
+  'tpope/vim-commentary'
+  'tpope/vim-cucumber'
+  'tpope/vim-dispatch'
+  'tpope/vim-endwise'
+  'tpope/vim-eunuch'
+  'tpope/vim-fugitive'
+  'tpope/vim-projectionist'
+  'tpope/vim-ragtag'
+  'tpope/vim-rails'
+  'tpope/vim-rake'
+  'tpope/vim-repeat'
+  'tpope/vim-sensible'
+  'tpope/vim-surround'
+  'tpope/vim-unimpaired'
+  'tpope/vim-vinegar'
+)
+
+mkdir -p $PLUGIN_DIR
+mkdir -p $COLORS_DIR
+
+wget https://raw.githubusercontent.com/dracula/vim/master/colors/dracula.vim -O $COLORS_DIR/dracula.vim
+
+for PLUGIN in ${PLUGINS[@]}; do
+   DIRNAME="$(basename $PLUGIN)"
+   git clone https://github.com/$PLUGIN.git $PLUGIN_DIR/$DIRNAME
+done
+
+echo "vim setup done <3"
