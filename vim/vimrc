@@ -1,136 +1,338 @@
-" vim: nowrap fdm=marker
-
+" This version of vimrc/init.vim is my attempt to minimize as many plugins as
+" I can by creating "good enough" versions.
+"
+" Some of the ones I think I succeeded on are:
+" vim-tmux-navigator
+" vim-rails
+" vim-test
+" vim-dispatch (not for async, but for quickfix loading with vim-test)
+" vim-unimpaired ([q]q, [f]f) (Actually, pretty verbatim taken from plugin)
+"
 let mapleader="\<Space>"
 
-" {{{1 Settings
-unlet! skip_defaults_vim
-source $VIMRUNTIME/defaults.vim
+" Set up default environment for vim
+if !has('nvim')
+  filetype plugin indent on
+  syntax on
 
-set autoindent
-set shiftwidth=2              " number of spaces when shift indenting
-set tabstop=2                 " number of visual spaces per tab
-set softtabstop=2             " number of spaces in tab when editing
-set expandtab                 " tab to spaces
-set number                    " show line numbers
-set relativenumber            " show line numbers relative to current line
-set cursorline                " highlight current line
-set showmatch                 " highlight matching [{()}]
-set incsearch                 " search as characters are entered
-set hlsearch                  " higlight matches
-" Ignore a lot of stuff I don't want to see in my file base
-set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*
-set noswapfile                " No need to create swap files
-set colorcolumn=81            " Notify me if I go over 80 characters
-set hidden
-" }}}
-
-" {{{1 Mappings
-" I rarely use Q to its fullest so let's use it to redo @q macros
-nnoremap Q @q
-" Format the whole buffer
-nnoremap <Leader>= migg=G`i
-" Use yank like D, C, etc.
-nnoremap Y y$
-" Easy grep
-nnoremap <Leader>g :grep!<Space>
-
-" Get out of terminal easily with ESC
-if exists(':tnoremap')
-  tnoremap <Esc> <C-\><C-n>
+  set autoindent
+  set backspace=indent,eol,start
+  set incsearch
+  set ruler
+  set wildmenu
+  set noswapfile
+  set wildmode=longest:full,full
 endif
 
-" Do a search or replace with the current word
-nnoremap <Leader>s :s/\(<C-r>=expand("<cword>")<CR>\)/
-" }}}
+set hidden			                " Possibility to have more than one unsaved buffers
+set expandtab			              " Make all tabs spaces
+set tabstop=2			              " Make all tabs 2 spaces long
+set shiftwidth=2		            " When shifting text, use 2 spaces for tabs
+set softtabstop=-1		          " Use shiftwidth's settings when Tab/BS used
+set path& | let &path .= "**"   " Lazy file finding
+set wildcharm=<C-z>             " Expand file finding in commands/macros
+set number                      " Have line numbers on side
+set relativenumber              " Have number be relative to my cursor line
 
-" {{{1 FZF config
-let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
-
-let $FZF_DEFAULT_OPTS='--reverse --preview "bat --style=numbers --color=always --line-range :500 {}"'
-nnoremap <C-p> :Files<CR>
-" }}}
-
-" {{{1 ruby-test config
-" Use vim-dispatch to do vim-test type stuff
-function s:map_tests() abort
-  nmap <buffer> <silent> <leader>t :w<bar>exec "FocusDispatch rails test %:<C-R>=line('.')<CR>" <bar> Dispatch<CR>
-  nmap <buffer> <silent> <leader>T :w<bar>exec "FocusDispatch rails test %" <bar> Dispatch<CR>
-  nmap <buffer> <silent> <leader>a :w<bar>exec "FocusDispatch rails test" <bar> Dispatch<CR>
-  nmap <buffer> <silent> <leader>l :w<bar>Dispatch<CR>
+" Good defaults for default scheme
+function! ChangeColors() abort
+	hi ModeMsg      cterm=NONE ctermbg=green    ctermfg=black |
+  hi Search       cterm=NONE ctermbg=yellow   ctermfg=black |
+  hi StatusLineNC cterm=bold ctermbg=darkgrey |
+  hi Visual       cterm=NONE ctermbg=white    ctermfg=darkblue
 endfunction
 
-" Do this only for ruby files
-augroup rubytests
-  autocmd!
-  autocmd FileType ruby call s:map_tests()
+" various autocommands
+augroup minivimrc
+	autocmd!
+	" automatic location/quickfix window
+	autocmd QuickFixCmdPost [^l]* cwindow
+	autocmd QuickFixCmdPost    l* lwindow
+	autocmd VimEnter            * cwindow
+	" various adjustments of the default colorscheme
+	autocmd ColorScheme * call ChangeColors()
+	" Git-specific settings
+	autocmd FileType gitcommit nnoremap <buffer> { ?^@@<CR>|nnoremap <buffer> } /^@@<CR>|setlocal iskeyword+=-
 augroup END
-" }}}
 
-" {{{1 vim-rails config
-" This lets me create a test file properly
-let g:rails_projections = {
-      \ "test/models/*_test.rb": {"command": "modeltest",
-      \   "template":
-      \     ["require \"test_helper\"",
-      \      "",
-      \      "class {camelcase|capitalize|colons}Test < ActiveSupport::TestCase",
-      \      "end"]
-      \   }
-      \ }
-" }}}
+" juggling with quickfix entries
+nnoremap ]q  :cnext<CR>
+nnoremap [q :cprevious<CR>
 
-" {{{1 rg/grep
-if executable('rg')
-  set grepprg=rg\ -H\ --no-heading\ --vimgrep\ --smart-case
-endif
-" }}}
+" better completion menu
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap        ,,      <C-n><C-r>=pumvisible() ? "\<lt>Down>\<lt>C-p>\<lt>Down>\<lt>C-p>" : ""<CR>
+inoremap        ,:      <C-x><C-f><C-r>=pumvisible() ? "\<lt>Down>\<lt>C-p>\<lt>Down>\<lt>C-p>" : ""<CR>
+inoremap        ,=      <C-x><C-l><C-r>=pumvisible() ? "\<lt>Down>\<lt>C-p>\<lt>Down>\<lt>C-p>" : ""<CR>
 
-" {{{1 ale
-nmap <silent> [W <Plug>(ale_first)
-nmap <silent> [w <Plug>(ale_previous)
-nmap <silent> ]W <Plug>(ale_last)
-nmap <silent> ]w <Plug>(ale_next)
+" :h ins-completion
+function! CleverTab()
+   if strpart( getline('.'), 0, col('.')-1 ) =~ '^\s*$'
+      return "\<Tab>"
+   else
+      return "\<C-N>"
+   endif
+endfunction
+inoremap <Tab> <C-R>=CleverTab()<CR>
 
-" Always show sign column
-let g:ale_sign_column_always = 1
 
-" Set to show which linter says there is an issue
-let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-let g:ale_sign_error = '✖'
-let g:ale_sign_info = 'ℹ'
-let g:ale_sign_warning = '⚠'
+" pair expansion on the cheap
+inoremap (<CR> (<CR>)<Esc>O
+inoremap (;    (<CR>);<Esc>O
+inoremap (,    (<CR>),<Esc>O
+inoremap {<CR> {<CR>}<Esc>O
+inoremap {;    {<CR>};<Esc>O
+inoremap {,    {<CR>},<Esc>O
+inoremap [<CR> [<CR>]<Esc>O
+inoremap [;    [<CR>];<Esc>O
+inoremap [,    [<CR>],<Esc>O
 
-let g:ale_set_balloons = 1
-let g:ale_hover_to_preview = 1
-let g:ale_hover_cursor = 1
+" If app exists, it'll return the test version
+" If test exists, it'll return the app version
+" If neither exist, it'll return the current filename
+function! AlternateFile() abort
+  let l:filename = expand('%')
+  if l:filename[0:len('app')-1] ==# 'app'
+    let l:filename = substitute(l:filename, "app", "test", "")
+    let l:filename = substitute(l:filename, ".rb", "_test.rb", "")
+  elseif l:filename[0:len('test')-1] ==# 'test'
+    let l:filename = substitute(l:filename, "test", "app", "")
+    let l:filename = substitute(l:filename, "_test.rb", ".rb", "")
+  endif
+  echo l:filename
+  return l:filename
+endfunction
 
-set omnifunc=ale#completion#OmniFunc
-let g:ale_hover_to_floating_preview = 1
+" lazy vim-rails
+function! LoadRailsMappings() abort
+  cnoremap <buffer> Emo          find app/models/
+  cnoremap <buffer> Eco          find app/controllers/
+  cnoremap <buffer> Eview        find app/views/
+  cnoremap <buffer> Ejavascript  find app/javascript/
+  cnoremap <buffer> Etest        find test/
 
-let g:ale_linters = {
-      \ "ruby": [ "brakeman", "rails_best_practices", "reek", "solargraph" ]
-      \ }
-let g:ale_fixers = {
-      \ "*": [ "remove_trailing_lines" ],
-      \ "ruby": [ "rubocop" ]
-      \ }
-" }}}
+  cmap <buffer> Vmo              vsp <bar> Emo
+  cmap <buffer> Vco              vsp <bar> Eco
+  cmap <buffer> Vview            vsp <bar> Eview
+  cmap <buffer> Vjavascript      vsp <bar> Ejavascript
+  cmap <buffer> Vtest            vsp <bar> Etest
 
-" {{{1 colorscheme
-let g:transparency=1
-function! s:makeTransparentBackground() abort
-  if exists("g:transparency")
-    highlight Normal guibg=NONE ctermbg=NONE
+  cmap <buffer> Smo              sp <bar> Emo
+  cmap <buffer> Sco              sp <bar> Eco
+  cmap <buffer> Sview            sp <bar> Eview
+  cmap <buffer> Sjavascript      sp <bar> Ejavascript
+  cmap <buffer> Stest            sp <bar> Etest
+
+  command! Bopen :edit Gemfile<CR>
+  command! Eroutes :edit config/routes.rb
+
+  " Lazy alternates
+  command! A  :execute 'find '       .. AlternateFile()
+  command! AV :execute 'vert sfind ' .. AlternateFile()
+  command! AS :execute 'sfind '      .. AlternateFile()
+endfunction
+
+function! LoadTestMappings() abort
+  if !exists("g:last_run")
+    let g:last_run=''
+  endif
+
+  nnoremap <buffer> <Leader>a :let g:last_run='' <bar> make test<CR>
+  nnoremap <buffer> <Leader>t :let g:last_run=expand('%') .. ':' .. line('.') <bar> exec 'make test ' .. expand('%') .. ':' .. line('.')<CR>
+  nnoremap <buffer> <Leader>T :let g:last_run=expand('%') <bar> exec 'make ' .. expand('%')<CR>
+  nnoremap <buffer> <Leader>l :exec "make " .. g:last_run<CR><CR>
+endfunction
+
+augroup rails
+  autocmd!
+  " autocmd FileType ruby,javascript,yaml call LoadRailsMappings()
+  autocmd FileType ruby compiler rake | setlocal makeprg=bundle\ exec\ rails\ test
+  autocmd VimEnter * call LoadRailsMappings()
+  autocmd FileType ruby call LoadRailsMappings()
+  if executable('rubocop')
+    " Allow rubocop to be our gq
+    autocmd FileType ruby setlocal formatexpr=
+    " Must tail to remove ===== chars on first line
+    autocmd FileType ruby setlocal formatprg=bundle\ exec\ rubocop\ -x\ -o\ /dev/null\ -s\ %\ 2>/dev/null\ \|\ tail\ -n\ +2
+  endif
+augroup END
+
+augroup testing
+  autocmd!
+  autocmd FileType ruby,javascript,yaml call LoadTestMappings()
+augroup END
+
+" Lazy tmux-navigator
+" Set defaults
+nnoremap <silent> <c-h> <c-w>h
+nnoremap <silent> <c-j> <c-w>j
+nnoremap <silent> <c-k> <c-w>k
+nnoremap <silent> <c-l> <c-w>l
+
+function! VimNavigate(direction)
+  let nr = winnr()
+  try
+    execute 'wincmd ' . a:direction
+  catch
+  endtry
+  let samewin = (nr == winnr())
+
+  " If it's 1, we didn't go anywhere
+  if samewin == 1
+    let cmd = 'tmux select-pane -' . tr(a:direction, 'hjkl', 'LDUR')
+    let retval = system(cmd)
   endif
 endfunction
 
-" Only if I have set it to be transparent
-augroup dblanken_transparency
-  autocmd!
-  autocmd ColorScheme * call s:makeTransparentBackground()
-augroup END
+if exists('$TMUX')
+  nnoremap <c-h> :call VimNavigate('h')<CR>
+  nnoremap <c-j> :call VimNavigate('j')<CR>
+  nnoremap <c-k> :call VimNavigate('k')<CR>
+  nnoremap <c-l> :call VimNavigate('l')<CR>
+endif
 
-packadd! dracula
-colorscheme dracula
-" }}}
+" Lazy unimpaired file traversal
+" i.e. [f, ]f
+"
+" Given a path, it will split all entries to get a list of them over all,
+" including dotfiles
+function! s:entries(path) abort
+  let path = substitute(a:path,'[\\/]$','','')
+  let files = split(glob(path."/.*"),"\n")
+  let files += split(glob(path."/*"),"\n")
+  call map(files,'substitute(v:val,"[\\/]$","","")')
+  call filter(files,'v:val !~# "[\\\\/]\\.\\.\\=$"')
 
+  let filter_suffixes = substitute(escape(&suffixes, '~.*$^'), ',', '$\\|', 'g') .'$'
+  call filter(files, 'v:val !~# filter_suffixes')
+
+  return files
+endfunction
+
+" Gets the next or previous file
+function! FileByOffset(num) abort
+  let file = expand('%:p')
+  if empty(file)
+    let file = getcwd() . '/'
+  endif
+  let num = a:num
+  while num
+    let files = s:entries(fnamemodify(file,':h'))
+    if a:num < 0
+      call reverse(sort(filter(files,'v:val <# file')))
+    else
+      call sort(filter(files,'v:val ># file'))
+    endif
+    let temp = get(files,0,'')
+    if empty(temp)
+      let file = fnamemodify(file,':h')
+    else
+      let file = temp
+      let found = 1
+      while isdirectory(file)
+        let files = s:entries(file)
+        if empty(files)
+          let found = 0
+          break
+        endif
+        let file = files[num > 0 ? 0 : -1]
+      endwhile
+      let num += (num > 0 ? -1 : 1) * found
+    endif
+  endwhile
+  return file
+endfunction
+
+nnoremap ]f :<C-U>edit <C-R>=FileByOffset(1)<CR><CR>
+nnoremap [f :<C-U>edit <C-R>=FileByOffset(-1)<CR><CR>
+
+if executable("rg")
+  set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case\ --hidden\ --follow
+elseif executable("ag")
+  set grepprg=ag\ --vimgrep\ $*
+endif
+
+" Lazy commenting
+" From
+" https://stackoverflow.com/questions/1676632/whats-a-quick-way-to-comment-uncomment-lines-in-vim
+" let s:comment_map = { 
+"     \   "c": '\/\/',
+"     \   "cpp": '\/\/',
+"     \   "go": '\/\/',
+"     \   "java": '\/\/',
+"     \   "javascript": '\/\/',
+"     \   "lua": '--',
+"     \   "scala": '\/\/',
+"     \   "php": '\/\/',
+"     \   "python": '#',
+"     \   "ruby": '#',
+"     \   "rust": '\/\/',
+"     \   "sh": '#',
+"     \   "desktop": '#',
+"     \   "fstab": '#',
+"     \   "conf": '#',
+"     \   "profile": '#',
+"     \   "bashrc": '#',
+"     \   "bash_profile": '#',
+"     \   "mail": '>',
+"     \   "eml": '>',
+"     \   "bat": 'REM',
+"     \   "ahk": ';',
+"     \   "vim": '"',
+"     \   "tex": '%',
+"     \ }
+
+" function! ToggleComment(type = '') abort
+"   " Do not comment empty lines
+"   if getline('.') =~ "^$"
+"     return
+"   endif
+
+"   if has_key(s:comment_map, &filetype)
+"     let comment_leader = s:comment_map[&filetype]
+"     " Do we have it with a space after?
+"     if getline('.') =~ "^\\s*" . comment_leader . " " 
+"       " Uncomment the line
+"       execute "silent s/^\\(\\s*\\)" . comment_leader . " /\\1/"
+"     else 
+"       " Do we have it without a space afterward?
+"       if getline('.') =~ "^\\s*" . comment_leader
+"         " Uncomment the line
+"         execute "silent s/^\\(\\s*\\)" . comment_leader . "/\\1/"
+"       else
+"         " Comment the line
+"         execute "silent s/^\\(\\s*\\)/\\1" . comment_leader . " /"
+"       end
+"     end
+"   else
+"     echo "No comment leader found for filetype"
+"   end
+" endfunction
+
+" nnoremap <c-\> :call ToggleComment()<cr>
+" vnoremap <c-\> :call ToggleComment()<cr>
+" xnoremap <expr> gc ToggleComment()
+" nnoremap <expr> gcc ToggleComment() .. '_'
+
+" nnoremap gcc :call ToggleComment()<cr>
+" nnoremap gcl :call ToggleComment()<cr>
+" nnoremap gck :.-1,.call ToggleComment()<cr>
+" nnoremap gcj :.,.+1call ToggleComment()<cr>
+" " Pseudo text objects
+" for c in range(1, 50)
+"   execute 'nnoremap gc' .. c .. 'k :.-' .. c .. ',.call ToggleComment()<cr>'
+"   execute 'nnoremap ' .. c .. 'gck :.-' .. c .. ',.call ToggleComment()<cr>'
+"   execute 'nnoremap gc' .. c .. 'j :.,.+' .. c .. 'call ToggleComment()<cr>'
+"   execute 'nnoremap ' .. c .. 'gcj :.,.+' .. c .. 'call ToggleComment()<cr>'
+" endfor
+" nnoremap gcap normal 'vap' <bar> :call ToggleComment()<cr>
+" nnoremap gcam normal 'vam' <bar> :call ToggleComment()<cr>
+" nnoremap gcaM normal 'vaM' <bar> :call ToggleComment()<cr>
+
+
+" Plugins I don't want to rewrite yet
+packadd! vim-surround
+packadd! vim-endwise
+packadd! vim-commentary
+
+colorscheme vividchalk
