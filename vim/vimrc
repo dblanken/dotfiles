@@ -1,338 +1,626 @@
-" This version of vimrc/init.vim is my attempt to minimize as many plugins as
-" I can by creating "good enough" versions.
-"
-" Some of the ones I think I succeeded on are:
-" vim-tmux-navigator
-" vim-rails
-" vim-test
-" vim-dispatch (not for async, but for quickfix loading with vim-test)
-" vim-unimpaired ([q]q, [f]f) (Actually, pretty verbatim taken from plugin)
-"
+" vim: nowrap fdm=marker
+
 let mapleader="\<Space>"
 
-" Set up default environment for vim
+" {{{1 Short circuits
+if has('nvim')
+  if has('unix')
+    if glob('~/.asdf')
+      let g:python_host_prog = expand('~/.asdf/shims/python2')
+      let g:python3_host_prog = expand('~/.asdf/shims/python3')
+      let g:ruby_host_prog = expand('~/.asdf/shims/neovim-ruby-host')
+    endif
+    let g:node_host_prog = expand('~/.config/yarn/global/node_modules/neovim/bin/cli.js')
+    let g:perl_host_prog = expand('~/.asdf/shims/perl')
+  endif
+endif
+" }}}
+
+" {{{1 Settings
 if !has('nvim')
-  filetype plugin indent on
-  syntax on
+  unlet! skip_defaults_vim
+  source $VIMRUNTIME/defaults.vim
 
+  " My attempt to get as close to a nvim setup for vim as I can
+  " Referenced :h defaults in neovim
+  " set smarttab
   set autoindent
-  set backspace=indent,eol,start
-  set incsearch
-  set ruler
+  set autoread
+  set background=dark
+  set belloff=all
+  set cscopeverbose
+  set directory=$HOME/.local/share/vim/swap//
+  set encoding=utf8
+  set fileencoding=utf8
+  set fillchars="vert:│,fold:·"
+  set formatoptions+=j
+  set history=10000
+  set hlsearch
+  set laststatus=2
+  set listchars="tab:> ,trail:-,nbsp:+"
+  set nrformats-=octal
+  set sessionoptions+=unix,slash
+  set sessionoptions-=options
+  set shortmess+=F
+  set shortmess-=S
+  set sidescroll=1
+  set signcolumn=yes
+  set tabpagemax=50
+  set ttimeoutlen=50
+  set undodir=$HOME/.local/share/vim/undo
+  set viewoptions+=unix,slash
   set wildmenu
-  set noswapfile
-  set wildmode=longest:full,full
+  set wildoptions=tagfile
+
+  let g:loaded_getscriptPlugin = 1
+  let g:loaded_gzip = 1
+  let g:loaded_logiPat = 1
+  let g:loaded_rrhelper = 1
+  let g:loaded_tarPlugin = 1
+  let g:loaded_vimballPlugin = 1
+  let g:loaded_zipPlugin = 1
 endif
+" If I ever stop using vim-sleuth, set these again
+" set expandtab
+" set shiftwidth=2
+" set softtabstop=2
+set clipboard=unnamedplus,unnamed
+set colorcolumn=81
+set formatoptions-=cro
+set guioptions-=e
+set hidden
+set incsearch
+set nobackup
+set nowritebackup
+set noerrorbells
+set noswapfile
+set nowrap
+set number
+set relativenumber
+set showtabline=2
+set smartcase
+set undofile
+set updatetime=50
+set cmdheight=2
+set shortmess+=c
+" }}}
 
-set hidden			                " Possibility to have more than one unsaved buffers
-set expandtab			              " Make all tabs spaces
-set tabstop=2			              " Make all tabs 2 spaces long
-set shiftwidth=2		            " When shifting text, use 2 spaces for tabs
-set softtabstop=-1		          " Use shiftwidth's settings when Tab/BS used
-set path& | let &path .= "**"   " Lazy file finding
-set wildcharm=<C-z>             " Expand file finding in commands/macros
-set number                      " Have line numbers on side
-set relativenumber              " Have number be relative to my cursor line
+" {{{1 Plugins
+call plug#begin()
 
-" Good defaults for default scheme
-function! ChangeColors() abort
-	hi ModeMsg      cterm=NONE ctermbg=green    ctermfg=black |
-  hi Search       cterm=NONE ctermbg=yellow   ctermfg=black |
-  hi StatusLineNC cterm=bold ctermbg=darkgrey |
-  hi Visual       cterm=NONE ctermbg=white    ctermfg=darkblue
-endfunction
+Plug 'morhetz/gruvbox'
+Plug 'chriskempson/base16-vim'
+Plug 'christoomey/vim-tmux-navigator'
+"" Plug 'dense-analysis/ale'
+" Plug 'prabirshrestha/vim-lsp'
+" Plug 'mattn/vim-lsp-settings'
+Plug 'honza/vim-snippets'
+Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+Plug 'godlygeek/tabular'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+Plug 'tpope/vim-abolish'
+Plug 'tpope/vim-afterimage'
+Plug 'tpope/vim-apathy'
+Plug 'tpope/vim-bundler'
+Plug 'tpope/vim-characterize'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-cucumber'
+Plug 'tpope/vim-dadbod'
+Plug 'tpope/vim-dispatch'
+Plug 'tpope/vim-dotenv'
+Plug 'tpope/vim-endwise'
+Plug 'tpope/vim-eunuch'
+Plug 'tpope/vim-fireplace'
+Plug 'tpope/vim-flagship'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-git'
+Plug 'tpope/vim-jdaddy'
+Plug 'tpope/vim-markdown'
+Plug 'tpope/vim-projectionist'
+Plug 'tpope/vim-ragtag'
+Plug 'tpope/vim-rails'
+Plug 'tpope/vim-rake'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-rhubarb'
+Plug 'tpope/vim-salve'
+Plug 'tpope/vim-sensible'
+Plug 'tpope/vim-sleuth'
+Plug 'tpope/vim-speeddating'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-tbone'
+Plug 'tpope/vim-unimpaired'
+Plug 'tpope/vim-vinegar'
+Plug 'tpope/vim-vividchalk'
+Plug 'vim-pandoc/vim-pandoc'
+Plug 'vim-test/vim-test'
+Plug 'wincent/loupe'
+Plug 'wincent/terminus'
+" Plug 'jiangmiao/auto-pairs'
+Plug 'kana/vim-textobj-user'
+Plug 'nelstrom/vim-textobj-rubyblock'
+Plug 'ecomba/vim-ruby-refactoring'
 
-" various autocommands
-augroup minivimrc
-	autocmd!
-	" automatic location/quickfix window
-	autocmd QuickFixCmdPost [^l]* cwindow
-	autocmd QuickFixCmdPost    l* lwindow
-	autocmd VimEnter            * cwindow
-	" various adjustments of the default colorscheme
-	autocmd ColorScheme * call ChangeColors()
-	" Git-specific settings
-	autocmd FileType gitcommit nnoremap <buffer> { ?^@@<CR>|nnoremap <buffer> } /^@@<CR>|setlocal iskeyword+=-
-augroup END
+call plug#end()
+" }}}
 
-" juggling with quickfix entries
-nnoremap ]q  :cnext<CR>
-nnoremap [q :cprevious<CR>
+" {{{1 FZF config
+let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
 
-" better completion menu
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-inoremap        ,,      <C-n><C-r>=pumvisible() ? "\<lt>Down>\<lt>C-p>\<lt>Down>\<lt>C-p>" : ""<CR>
-inoremap        ,:      <C-x><C-f><C-r>=pumvisible() ? "\<lt>Down>\<lt>C-p>\<lt>Down>\<lt>C-p>" : ""<CR>
-inoremap        ,=      <C-x><C-l><C-r>=pumvisible() ? "\<lt>Down>\<lt>C-p>\<lt>Down>\<lt>C-p>" : ""<CR>
+let $FZF_DEFAULT_OPTS='--reverse --preview "bat --style=numbers --color=always --line-range :500 {}"'
+nnoremap <C-p> :Files<CR>
+nnoremap <Leader>ez :Files $HOME/code/dotfiles<CR>
 
-" :h ins-completion
-function! CleverTab()
-   if strpart( getline('.'), 0, col('.')-1 ) =~ '^\s*$'
-      return "\<Tab>"
-   else
-      return "\<C-N>"
-   endif
-endfunction
-inoremap <Tab> <C-R>=CleverTab()<CR>
-
-
-" pair expansion on the cheap
-inoremap (<CR> (<CR>)<Esc>O
-inoremap (;    (<CR>);<Esc>O
-inoremap (,    (<CR>),<Esc>O
-inoremap {<CR> {<CR>}<Esc>O
-inoremap {;    {<CR>};<Esc>O
-inoremap {,    {<CR>},<Esc>O
-inoremap [<CR> [<CR>]<Esc>O
-inoremap [;    [<CR>];<Esc>O
-inoremap [,    [<CR>],<Esc>O
-
-" If app exists, it'll return the test version
-" If test exists, it'll return the app version
-" If neither exist, it'll return the current filename
-function! AlternateFile() abort
-  let l:filename = expand('%')
-  if l:filename[0:len('app')-1] ==# 'app'
-    let l:filename = substitute(l:filename, "app", "test", "")
-    let l:filename = substitute(l:filename, ".rb", "_test.rb", "")
-  elseif l:filename[0:len('test')-1] ==# 'test'
-    let l:filename = substitute(l:filename, "test", "app", "")
-    let l:filename = substitute(l:filename, "_test.rb", ".rb", "")
-  endif
-  echo l:filename
-  return l:filename
-endfunction
-
-" lazy vim-rails
-function! LoadRailsMappings() abort
-  cnoremap <buffer> Emo          find app/models/
-  cnoremap <buffer> Eco          find app/controllers/
-  cnoremap <buffer> Eview        find app/views/
-  cnoremap <buffer> Ejavascript  find app/javascript/
-  cnoremap <buffer> Etest        find test/
-
-  cmap <buffer> Vmo              vsp <bar> Emo
-  cmap <buffer> Vco              vsp <bar> Eco
-  cmap <buffer> Vview            vsp <bar> Eview
-  cmap <buffer> Vjavascript      vsp <bar> Ejavascript
-  cmap <buffer> Vtest            vsp <bar> Etest
-
-  cmap <buffer> Smo              sp <bar> Emo
-  cmap <buffer> Sco              sp <bar> Eco
-  cmap <buffer> Sview            sp <bar> Eview
-  cmap <buffer> Sjavascript      sp <bar> Ejavascript
-  cmap <buffer> Stest            sp <bar> Etest
-
-  command! Bopen :edit Gemfile<CR>
-  command! Eroutes :edit config/routes.rb
-
-  " Lazy alternates
-  command! A  :execute 'find '       .. AlternateFile()
-  command! AV :execute 'vert sfind ' .. AlternateFile()
-  command! AS :execute 'sfind '      .. AlternateFile()
-endfunction
-
-function! LoadTestMappings() abort
-  if !exists("g:last_run")
-    let g:last_run=''
-  endif
-
-  nnoremap <buffer> <Leader>a :let g:last_run='' <bar> make test<CR>
-  nnoremap <buffer> <Leader>t :let g:last_run=expand('%') .. ':' .. line('.') <bar> exec 'make test ' .. expand('%') .. ':' .. line('.')<CR>
-  nnoremap <buffer> <Leader>T :let g:last_run=expand('%') <bar> exec 'make ' .. expand('%')<CR>
-  nnoremap <buffer> <Leader>l :exec "make " .. g:last_run<CR><CR>
-endfunction
-
-augroup rails
+augroup fzf_overrides
   autocmd!
-  " autocmd FileType ruby,javascript,yaml call LoadRailsMappings()
-  autocmd FileType ruby compiler rake | setlocal makeprg=bundle\ exec\ rails\ test
-  autocmd VimEnter * call LoadRailsMappings()
-  autocmd FileType ruby call LoadRailsMappings()
-  if executable('rubocop')
-    " Allow rubocop to be our gq
-    autocmd FileType ruby setlocal formatexpr=
-    " Must tail to remove ===== chars on first line
-    autocmd FileType ruby setlocal formatprg=bundle\ exec\ rubocop\ -x\ -o\ /dev/null\ -s\ %\ 2>/dev/null\ \|\ tail\ -n\ +2
-  endif
+  " Allow Esc to exit fzf
+  autocmd FileType fzf tnoremap <buffer> <Esc> <Esc><Esc>
 augroup END
+" }}}
 
-augroup testing
+" {{{1 Netrw config
+let g:netrw_browse_split = 2
+let g:netrw_banner = 0
+let g:netrw_winsize = 25
+" }}}
+
+" {{{1 vim-test config
+nmap <silent> <leader>t :TestNearest<CR>
+nmap <silent> <leader>T :TestFile<CR>
+nmap <silent> <leader>a :TestSuite<CR>
+nmap <silent> <leader>l :TestLast<CR>
+let test#strategy = 'dispatch'
+" }}}
+
+" {{{1 vim-rails config
+" This lets me create a test file properly
+let g:rails_projections = {
+      \ "test/models/*_test.rb": {"command": "modeltest",
+      \   "template":
+      \     ["require \"test_helper\"",
+      \      "",
+      \      "class {camelcase|capitalize|colons}Test < ActiveSupport::TestCase",
+      \      "end"]
+      \   }
+      \ }
+" }}}
+
+" {{{1 vim-fugitive
+nnoremap <Leader>gd :Gvdiffsplit!<CR>
+nnoremap gdf :diffget //2<CR>
+nnoremap gdj :diffget //3<CR>
+" }}}
+
+" {{{1 Mappings
+nnoremap Q @q
+nnoremap <Leader>= migg=G`i
+nnoremap Y y$
+nnoremap <Leader>g :grep!<Space>
+if exists(':tnoremap')
+  tnoremap <Esc> <C-\><C-n>
+endif
+
+nnoremap <Leader>s :s/\(<C-r>=expand("<cword>")<CR>\)/
+
+command! Vimrc vsp ~/.vimrc
+
+nnoremap <Leader>\ :vsplit<CR>
+nnoremap <Leader>- :split<CR>
+
+" Delete what you have highlighted to the void register and paste what you
+" wanted.  It does not replace what you've copied previously.  Actual delete.
+vnoremap <Leader>p "_dP
+
+nnoremap n nzzzv
+nnoremap N Nzzzv
+nnoremap J mzJ`z
+
+inoremap , ,<c-g>u
+inoremap . .<c-g>u
+inoremap ! !<c-g>u
+inoremap ? ?<c-g>u
+inoremap ( (<c-g>u
+inoremap [ [<c-g>u
+
+nnoremap expr k (v:count > 5 ? "m'" . v:count : "") . "k"
+nnoremap expr j (v:count > 5 ? "m'" . v:count : "") . "j"
+
+vnoremap J :m '>+1<CR>gv=gv
+vnoremap K :m '<-2<CR>gv=gv
+" inoremap <C-j> :m .+1<CR>==
+" inoremap <C-k> :m .-2<CR>==
+nnoremap <Leader>J :m .+1<CR>==
+nnoremap <Leader>K :m .-2<CR>==
+" }}}
+
+" {{{1 Autogroups
+function! TrimWhitespace()
+  let l:save = winsaveview()
+  keeppatterns %s/\s\+$//e
+  call winrestview(l:save)
+endfunction
+
+augroup misc
   autocmd!
-  autocmd FileType ruby,javascript,yaml call LoadTestMappings()
+
+  " This is already in the default.vim, so only for nvim here
+  if has('nvim')
+    " On opening a file, jump to the last known cursor position (see :h line())
+    autocmd BufReadPost *
+          \ if line("'\"") > 1 && line("'\"") <= line("$") && &ft !~# 'commit' |
+          \   exe "normal! g`\"" |
+          \ endif
+  endif
+
+  " When resized, resize the windows inside
+  autocmd VimResized * execute "normal! \<c-w>="
+
+  " Nest source on changes to vimrc
+  autocmd BufWritePost .vimrc,init.vim,vimrc nested source %
+
+  autocmd BufEnter,BufNewFile .zshrc,zshrc setlocal filetype=zsh
+
+  autocmd BufWritePre * :call TrimWhitespace()
+augroup end
+
+augroup ruby
+  autocmd!
+  " Make ? part of a keyword
+  autocmd FileType ruby,eruby,yaml setlocal iskeyword+=?
+augroup end
+
+if has('nvim')
+  augroup TextYankPoster
+    autocmd!
+    if exists('##TextYankPost')
+      autocmd TextYankPost * silent! lua vim.highlight.on_yank {"IncSearch", 200}
+    endif
+  augroup END
+endif
+
+augroup dblanken_filetypes
+  autocmd FileType * setlocal nolinebreak
+  autocmd FileType xml,xsd,xslt,javascript setlocal ts=2
+  autocmd FileType mail,gitcommit setlocal tw=72
+  autocmd FileType sh,zsh,csh,tcsh setlocal fo-=t|
+        \ inoremap <silent> <buffer> <C-X>! #!/bin/<C-R>=&ft<CR>
+  autocmd FileType perl,python,ruby,tcl
+        \ inoremap <silent> <buffer> <C-X>! #!/usr/bin/env<Space><C-R>=&ft<CR>
+  autocmd FileType javascript
+        \ inoremap <silent> <buffer> <C-X>! #!/usr/bin/env<Space>node
+  autocmd FileType help setlocal ai formatoptions+=2n
+  autocmd FileType ruby setlocal comments=:#\ tw=78
+  autocmd FileType liquid,markdown,text,txt setlocal tw=78 linebreak keywordprg=dict
+  autocmd FileType markdown call SetBujoMappings()
 augroup END
 
-" Lazy tmux-navigator
-" Set defaults
-nnoremap <silent> <c-h> <c-w>h
-nnoremap <silent> <c-j> <c-w>j
-nnoremap <silent> <c-k> <c-w>k
-nnoremap <silent> <c-l> <c-w>l
-
-function! VimNavigate(direction)
-  let nr = winnr()
-  try
-    execute 'wincmd ' . a:direction
-  catch
-  endtry
-  let samewin = (nr == winnr())
-
-  " If it's 1, we didn't go anywhere
-  if samewin == 1
-    let cmd = 'tmux select-pane -' . tr(a:direction, 'hjkl', 'LDUR')
-    let retval = system(cmd)
+let g:transparency=1
+function! s:makeTransparentBackground() abort
+  if exists("g:transparency")
+    highlight Normal guibg=NONE ctermbg=NONE
   endif
 endfunction
 
-if exists('$TMUX')
-  nnoremap <c-h> :call VimNavigate('h')<CR>
-  nnoremap <c-j> :call VimNavigate('j')<CR>
-  nnoremap <c-k> :call VimNavigate('k')<CR>
-  nnoremap <c-l> :call VimNavigate('l')<CR>
+" Only if I have set it to be transparent
+augroup dblanken_transparency
+  autocmd!
+  autocmd ColorScheme * call s:makeTransparentBackground()
+augroup END
+" }}}
+
+" {{{1 rg/grep
+if executable('rg')
+  set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case
+endif
+" }}}
+
+" {{{1 vim-rhubarb
+let g:github_enterprise_urls = ['https://github.iu.edu']
+" }}}
+
+" {{{1 vim-ragtag
+let g:ragtag_global_maps = 1
+" }}}
+
+" {{{1 vim-surround
+let b:surround_{char2nr('e')} = "\r\n}"
+let g:surround_{char2nr('-')} = "<% \r %>"
+let g:surround_{char2nr('=')} = "<%= \r %>"
+let g:surround_{char2nr('8')} = "/* \r */"
+let g:surround_{char2nr('s')} = " \r"
+let g:surround_{char2nr('^')} = "/^\r$/"
+let g:surround_indent = 1
+" }}}
+
+" {{{1 vim-markdown
+let g:markdown_fenced_languages = ['ruby', 'html', 'javascript', 'css', 'bash=sh', 'sh']
+" }}}
+
+" {{{1 corpus
+if has('nvim')
+  lua <<
+    CorpusDirectories = {
+      ['~/Documents/Corpus'] = {
+        autocommit = true,
+        autoreference = 1,
+        autotitle = 1,
+        base = './',
+        transform = 'local',
+      },
+      ['~/OneDrive - Indiana University/wiki'] = {
+        autocommit = true,
+        autoreference = 1,
+        autotitle = 1,
+        base = './',
+        transform = 'local',
+      }
+    }
+.
+endif
+" }}}
+
+" {{{1 Spelling
+if has('spell')
+  setglobal spelllang=en_us
+  setglobal spellfile=~/.vim/spell/en.utf-8.add
+  let g:spellfile_URL = 'http://ftp.vim.org/vim/runtime/spell'
+  autocmd FileType gitcommit setlocal spell
+  autocmd FileType help if &buftype ==# 'help' | setlocal nospell | endif
 endif
 
-" Lazy unimpaired file traversal
-" i.e. [f, ]f
-"
-" Given a path, it will split all entries to get a list of them over all,
-" including dotfiles
-function! s:entries(path) abort
-  let path = substitute(a:path,'[\\/]$','','')
-  let files = split(glob(path."/.*"),"\n")
-  let files += split(glob(path."/*"),"\n")
-  call map(files,'substitute(v:val,"[\\/]$","","")')
-  call filter(files,'v:val !~# "[\\\\/]\\.\\.\\=$"')
+" }}}
 
-  let filter_suffixes = substitute(escape(&suffixes, '~.*$^'), ',', '$\\|', 'g') .'$'
-  call filter(files, 'v:val !~# filter_suffixes')
-
-  return files
+" {{{ vim-bujo
+" Remap these since surround attempts to take over experimental stuff
+function! SetBujoMappings() abort
+  nmap <buffer> <C-S> <Plug>BujoAddnormal
+  imap <buffer> <C-S> <Plug>BujoAddinsert
+  nmap <buffer> <C-Q> <Plug>BujoChecknormal
+  imap <buffer> <C-Q> <Plug>BujoCheckinsert
 endfunction
+" }}}
 
-" Gets the next or previous file
-function! FileByOffset(num) abort
-  let file = expand('%:p')
-  if empty(file)
-    let file = getcwd() . '/'
+" {{{1 coc.nvim
+nmap <silent> ]d <Plug>(coc-diagnostic-next)
+nmap <silent> [d <Plug>(coc-diagnostic-prev)
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+autocmd CursorHold * silent call CocActionAsync('highlight')
+nmap <leader>rn <Plug>(coc-rename)
+xmap <leader>f  <Plug>(coc-format-selected)
+nmap <leader>f  <Plug>(coc-format-selected)
+
+nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  elseif (coc#rpc#ready())
+    call CocActionAsync('doHover')
+  else
+    execute '!' . &keywordprg . " " . expand('<cword>')
   endif
-  let num = a:num
-  while num
-    let files = s:entries(fnamemodify(file,':h'))
-    if a:num < 0
-      call reverse(sort(filter(files,'v:val <# file')))
-    else
-      call sort(filter(files,'v:val ># file'))
-    endif
-    let temp = get(files,0,'')
-    if empty(temp)
-      let file = fnamemodify(file,':h')
-    else
-      let file = temp
-      let found = 1
-      while isdirectory(file)
-        let files = s:entries(file)
-        if empty(files)
-          let found = 0
-          break
-        endif
-        let file = files[num > 0 ? 0 : -1]
-      endwhile
-      let num += (num > 0 ? -1 : 1) * found
-    endif
-  endwhile
-  return file
 endfunction
 
-nnoremap ]f :<C-U>edit <C-R>=FileByOffset(1)<CR><CR>
-nnoremap [f :<C-U>edit <C-R>=FileByOffset(-1)<CR><CR>
+augroup mygroup
+  autocmd!
+  " Setup formatexpr specified filetype(s).
+  autocmd FileType typescript,json,ruby setl formatexpr=CocAction('formatSelected')
+  " Update signature help on jump placeholder.
+  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+augroup end
 
-if executable("rg")
-  set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case\ --hidden\ --follow
-elseif executable("ag")
-  set grepprg=ag\ --vimgrep\ $*
-endif
+" Apply AutoFix to problem on the current line.
+nmap <leader>qf  <Plug>(coc-fix-current)
 
-" Lazy commenting
-" From
-" https://stackoverflow.com/questions/1676632/whats-a-quick-way-to-comment-uncomment-lines-in-vim
-" let s:comment_map = { 
-"     \   "c": '\/\/',
-"     \   "cpp": '\/\/',
-"     \   "go": '\/\/',
-"     \   "java": '\/\/',
-"     \   "javascript": '\/\/',
-"     \   "lua": '--',
-"     \   "scala": '\/\/',
-"     \   "php": '\/\/',
-"     \   "python": '#',
-"     \   "ruby": '#',
-"     \   "rust": '\/\/',
-"     \   "sh": '#',
-"     \   "desktop": '#',
-"     \   "fstab": '#',
-"     \   "conf": '#',
-"     \   "profile": '#',
-"     \   "bashrc": '#',
-"     \   "bash_profile": '#',
-"     \   "mail": '>',
-"     \   "eml": '>',
-"     \   "bat": 'REM',
-"     \   "ahk": ';',
-"     \   "vim": '"',
-"     \   "tex": '%',
-"     \ }
+command! -nargs=0 Format :call CocAction('format')
 
-" function! ToggleComment(type = '') abort
-"   " Do not comment empty lines
-"   if getline('.') =~ "^$"
-"     return
-"   endif
+" Install the following coc.nvim extensions
+let g:coc_global_extensions = [
+            \ 'coc-actions',
+            \ 'coc-css',
+            \ 'coc-cssmodules',
+            \ 'coc-diagnostic',
+            \ 'coc-emmet',
+            \ 'coc-emoji',
+            \ 'coc-git',
+            \ 'coc-gitignore',
+            \ 'coc-highlight',
+            \ 'coc-html',
+            \ 'coc-go',
+            \ 'coc-html-css-support',
+            \ 'coc-json',
+            \ 'coc-lists',
+            \ 'coc-markdownlint',
+            \ 'coc-pairs',
+            \ 'coc-pyright',
+            \ 'coc-rust-analyzer',
+            \ 'coc-sh',
+            \ 'coc-snippets',
+            \ 'coc-solargraph',
+            \ 'coc-sql',
+            \ 'coc-stylelintplus',
+            \ 'coc-sumneko-lua',
+            \ 'coc-syntax',
+            \ 'coc-tag',
+            \ 'coc-tsserver',
+            \ 'coc-vimlsp',
+            \ 'coc-xml',
+            \ 'coc-yaml',
+            \ 'coc-yank'
+            \]
+" " {{{2 completion
+" Us this until I can figure out "choose snippet" issue
+" Use <c-n/p> to traverse
+" Rip endwise
+let g:endwise_no_mappings=1
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? coc#_select_confirm() :
+      \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
 
-"   if has_key(s:comment_map, &filetype)
-"     let comment_leader = s:comment_map[&filetype]
-"     " Do we have it with a space after?
-"     if getline('.') =~ "^\\s*" . comment_leader . " " 
-"       " Uncomment the line
-"       execute "silent s/^\\(\\s*\\)" . comment_leader . " /\\1/"
-"     else 
-"       " Do we have it without a space afterward?
-"       if getline('.') =~ "^\\s*" . comment_leader
-"         " Uncomment the line
-"         execute "silent s/^\\(\\s*\\)" . comment_leader . "/\\1/"
-"       else
-"         " Comment the line
-"         execute "silent s/^\\(\\s*\\)/\\1" . comment_leader . " /"
-"       end
-"     end
-"   else
-"     echo "No comment leader found for filetype"
-"   end
+let g:coc_snippet_next = '<tab>'
+
+" " Use tab for trigger completion with characters ahead and navigate.
+" " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+" " other plugin before putting this into your config.
+" " How this reads:
+" " If the pull up menu is visible, send C-n
+" " otherwise
+" "   if there are characters behind, send a real tab
+" "   otherwise refresh
+" inoremap <silent><expr> <TAB>
+"       \ pumvisible() ?
+"       \ "\<C-n>" :
+"       \ <SID>check_back_space() ? "\<TAB>" :
+"       \ coc#refresh()
+" inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+" function! s:check_back_space() abort
+"   let col = col('.') - 1
+"   return !col || getline('.')[col - 1]  =~# '\s'
 " endfunction
 
-" nnoremap <c-\> :call ToggleComment()<cr>
-" vnoremap <c-\> :call ToggleComment()<cr>
-" xnoremap <expr> gc ToggleComment()
-" nnoremap <expr> gcc ToggleComment() .. '_'
+" let g:coc_snippet_next = '<tab>'
+" let g:coc_snippet_prev = '<s-tab>'
 
-" nnoremap gcc :call ToggleComment()<cr>
-" nnoremap gcl :call ToggleComment()<cr>
-" nnoremap gck :.-1,.call ToggleComment()<cr>
-" nnoremap gcj :.,.+1call ToggleComment()<cr>
-" " Pseudo text objects
-" for c in range(1, 50)
-"   execute 'nnoremap gc' .. c .. 'k :.-' .. c .. ',.call ToggleComment()<cr>'
-"   execute 'nnoremap ' .. c .. 'gck :.-' .. c .. ',.call ToggleComment()<cr>'
-"   execute 'nnoremap gc' .. c .. 'j :.,.+' .. c .. 'call ToggleComment()<cr>'
-"   execute 'nnoremap ' .. c .. 'gcj :.,.+' .. c .. 'call ToggleComment()<cr>'
-" endfor
-" nnoremap gcap normal 'vap' <bar> :call ToggleComment()<cr>
-" nnoremap gcam normal 'vam' <bar> :call ToggleComment()<cr>
-" nnoremap gcaM normal 'vaM' <bar> :call ToggleComment()<cr>
+" " Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
+" " position. Coc only does snippet and additional edit on confirm.
+" " <cr> could be remapped by other vim plugin, try `:verbose imap <CR>`.
+" " Play nicely with vim-endwise: https://github.com/tpope/vim-endwise/issues/109
+" let g:endwise_no_mappings=1
+" " How this reads:
+" " If the pull up menu is visible
+" "   If the current selection is expandable, expand it
+" "   otherwise confirm the selection
+" " else
+" "   on_enter
+" inoremap <expr> <Plug>CustomCocCR
+"       \ pumvisible() ? coc#expandable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand',''])\<CR>" :
+"       \ coc#_select_confirm() :
+"       \ "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+" imap <CR> <Plug>CustomCocCR<Plug>DiscretionaryEnd
 
+" " }}}
+" }}}
 
-" Plugins I don't want to rewrite yet
-packadd! vim-surround
-packadd! vim-endwise
-packadd! vim-commentary
+" " {{{1 vim-lsp
+" function! s:on_lsp_buffer_enabled() abort
+"     setlocal omnifunc=lsp#complete
+"     setlocal signcolumn=yes
+"     if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
+"     nmap <buffer> gd <plug>(lsp-definition)
+"     nmap <buffer> gs <plug>(lsp-document-symbol-search)
+"     nmap <buffer> gS <plug>(lsp-workspace-symbol-search)
+"     nmap <buffer> gr <plug>(lsp-references)
+"     nmap <buffer> gi <plug>(lsp-implementation)
+"     nmap <buffer> gt <plug>(lsp-type-definition)
+"     nmap <buffer> <leader>rn <plug>(lsp-rename)
+"     nmap <buffer> [d <plug>(lsp-previous-diagnostic)
+"     nmap <buffer> ]d <plug>(lsp-next-diagnostic)
+"     nmap <buffer> K <plug>(lsp-hover)
+"     inoremap <buffer> <expr><c-f> lsp#scroll(+4)
+"     inoremap <buffer> <expr><c-d> lsp#scroll(-4)
+"     nnoremap <buffer> <Leader>f <plug>(lsp-document-format)
+"     vnoremap <buffer> <Leader>f <plug>(lsp-document-format)
 
-colorscheme vividchalk
+"     let g:lsp_format_sync_timeout = 1000
+"     autocmd! BufEnter *.rb,*.vim call execute('LspDocumentFormatSync')
+
+"     " refer to doc to add more commands
+" endfunction
+
+" " Opens preview windows as floating
+" let g:lsp_preview_float = 1
+" let g:lsp_diagnostics_float_cursor = 1
+" let g:lsp_diagnostics_echo_cursor = 1
+
+" augroup lsp_install
+"   au!
+"   autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
+" augroup END
+" " }}}
+
+" " {{{1 ale
+" nmap <silent> [W <Plug>(ale_first)
+" nmap <silent> [w <Plug>(ale_previous)
+" nmap <silent> ]W <Plug>(ale_last)
+" nmap <silent> ]w <Plug>(ale_next)
+
+" " Always show sign column
+" let g:ale_sign_column_always = 1
+
+" " Set to show which linter says there is an issue
+" let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+" let g:ale_sign_error = '✖'
+" let g:ale_sign_info = 'ℹ'
+" let g:ale_sign_warning = '⚠'
+
+" let g:ale_set_balloons = 1
+" let g:ale_hover_to_preview = 1
+" let g:ale_hover_cursor = 1
+
+" let g:ale_linters = {
+"       \ "ruby": [ "brakeman", "rails_best_practices", "reek", "solargraph" ]
+"       \ }
+" let g:ale_fixers = {
+"       \ "*": [ "remove_trailing_lines" ],
+"       \ "ruby": [ "rubocop" ]
+"       \ }
+" let g:ale_fix_on_save = 1
+
+" function! LinterStatus() abort
+"   let l:counts = ale#statusline#Count(bufnr(''))
+
+"   let l:all_errors = l:counts.error + l:counts.style_error
+"   let l:all_non_errors = l:counts.total - l:all_errors
+
+"   return l:counts.total == 0 ? 'OK' : printf(
+"         \   '%dW %dE',
+"         \   all_non_errors,
+"         \   all_errors
+"         \)
+" endfunction
+
+" augroup ale_flagship
+"   autocmd!
+"   autocmd User Flags call Hoist("buffer", "LinterStatus")
+" augroup END
+
+" let g:ale_completion_symbols = {
+"       \ 'text': '',
+"       \ 'method': '',
+"       \ 'function': '',
+"       \ 'constructor': '',
+"       \ 'field': '',
+"       \ 'variable': '',
+"       \ 'class': '',
+"       \ 'interface': '',
+"       \ 'module': '',
+"       \ 'property': '',
+"       \ 'unit': 'unit',
+"       \ 'value': 'val',
+"       \ 'enum': '',
+"       \ 'keyword': 'keyword',
+"       \ 'snippet': '',
+"       \ 'color': 'color',
+"       \ 'file': '',
+"       \ 'reference': 'ref',
+"       \ 'folder': '',
+"       \ 'enum member': '',
+"       \ 'constant': '',
+"       \ 'struct': '',
+"       \ 'event': 'event',
+"       \ 'operator': '',
+"       \ 'type_parameter': 'type param',
+"       \ '<default>': 'v'
+"       \ }
+" " let g:ale_completion_enabled = 1
+" let g:ale_hover_to_floating_preview = 1
+" " }}}
+
+let g:gruvbox_italic=1
+colorscheme gruvbox
