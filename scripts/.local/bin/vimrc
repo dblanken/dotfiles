@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# Finds first occurrence of a vim file
+find_config() {
+	for config in ~/.vim/vimrc ~/.vimrc; do
+		if test -f "$config"; then
+			echo "$config"
+			return 0
+		fi
+	done
+}
+
+function vimrc() {
+    local vimrc_location
+    vimrc_location=~/.vimrc
+
+    if test -f ~/.vim/vimrc; then
+        vimrc_location=~/.vim/vimrc
+    fi
+
+    exec ${EDITOR:-vim} "$vimrc_location"
+}
+
+exec ${EDITOR=-vim} "$(find_config)" "$@"

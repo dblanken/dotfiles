@@ -1,6 +1,0 @@
-#!/bin/sh
-
-mkdir ~/.config/ 2>/dev/null
-rm -rf ~/.config/karabiner 2>/dev/null
-ln -s "$PWD" "$HOME/.config/karabiner"
-ls -l $HOME/.config/karabiner

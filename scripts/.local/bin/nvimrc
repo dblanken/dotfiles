@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Finds first occurrence of a vim file
+find_config() {
+	for config in ~/.config/nvim/init.lua ~/.config/nvim/init.vim ~/.vimrc; do
+		if test -f "$config"; then
+			echo "$config"
+			return 0
+		fi
+	done
+}
+exec nvim "$(find_config)" "$@"

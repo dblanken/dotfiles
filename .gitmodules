@@ -1,0 +1,12 @@
+[submodule "base16-shell"]
+	path = base16/.config/base16-shell
+	url = http://github.com/chriskempson/base16-shell
+[submodule "ohmyzsh"]
+	path = omz/.oh-my-zsh
+	url = http://github.com/ohmyzsh/ohmyzsh
+[submodule "zsh-autosuggestions"]
+	path = omz/.config/omz/custom/plugins/zsh-autosuggestions
+	url = http://github.com/zsh-users/zsh-autosuggestions
+[submodule "zsh-syntax-highlighting"]
+	path = omz/.config/omz/custom/plugins/zsh-syntax-highlighting
+	url = http://github.com/zsh-users/zsh-syntax-highlighting

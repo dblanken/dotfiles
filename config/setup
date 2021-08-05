@@ -1,9 +1,0 @@
-#!/bin/sh
-set -e
-test -n "$BASH_DASHX" && set -x
-
-mkdir -p $HOME/.config
-
-for i in $(ls); do
-  ln -s "$PWD/$i" "$HOME/.config/$i"
-done
