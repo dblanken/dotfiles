@@ -189,6 +189,14 @@ return require("packer").startup(function()
   use {
     'shaunsingh/nord.nvim',
     event = "VimEnter",
+    -- config = function()
+    --   require "theme"
+    -- end
+  }
+
+  use {
+    'morhetz/gruvbox',
+    event = "VimEnter",
     config = function()
       require "theme"
     end

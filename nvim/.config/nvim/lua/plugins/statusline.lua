@@ -8,20 +8,38 @@ local gls = gl.section
 
 gl.short_line_list = {" "}
 
+-- nord
+-- local colors = {
+--   bg = "NONE",
+--   white = "#ECEFF4",
+--   fg = "#E5E9F0",
+--   yellow = "#EBCB8B",
+--   cyan = "#A3BE8C",
+--   darkblue = "#81A1C1",
+--   green = "#8FBCBB",
+--   orange = "#D08770",
+--   purple = "#B48EAD",
+--   magenta = "#BF616A",
+--   gray = "#616E88",
+--   blue = "#5E81AC",
+--   red = "#BF616A"
+-- }
+
+-- gruvbox
 local colors = {
   bg = "NONE",
-  white = "#ECEFF4",
-  fg = "#E5E9F0",
-  yellow = "#EBCB8B",
-  cyan = "#A3BE8C",
-  darkblue = "#81A1C1",
-  green = "#8FBCBB",
-  orange = "#D08770",
-  purple = "#B48EAD",
-  magenta = "#BF616A",
-  gray = "#616E88",
-  blue = "#5E81AC",
-  red = "#BF616A"
+  white = "#EBDBB2",
+  fg = "##FBF1C7",
+  yellow = "#FABD2F",
+  cyan = "#8EC07C",
+  darkblue = "#458588",
+  green = "#B8BB26",
+  orange = "#FE8019",
+  purple = "#D3869B",
+  magenta = "#B16286",
+  gray = "#928374",
+  blue = "#83A598",
+  red = "#FB4934"
 }
 
 gls.left[1] = {
