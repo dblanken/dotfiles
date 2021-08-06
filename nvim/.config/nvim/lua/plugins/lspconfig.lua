@@ -42,36 +42,25 @@ capabilities.textDocument.completion.completionItem.snippetSupport = true
 local function setup_servers()
   lspinstall.setup()
   local servers = lspinstall.installed_servers()
-  local special_servers = {"lua", "ruby"}
-
-  local function contains(table, val)
-    for key,_ in pairs(table) do
-      if key == val then
-        return true
-      end
-    end
-    return false
-  end
-
   for _, lang in pairs(servers) do
-    if lang == "ruby" then
-      -- Use custom command since default solargraph does not respect
-      -- rubocop extensions
-      lspconfig[lang].setup {
-        cmd = {vim.fn.expand("~/.asdf/shims/solargraph")},
-        on_attach = on_attach,
-        capabilities = capabilities,
-        root_dir = vim.loop.cwd,
-        settings = {
-          solargraph = {
-            diagnostics = true
-          }
-        },
-        flags = {
-          debounce_text_changes = 150,
-        }
-      }
-    elseif lang == "lua" then
+    -- if lang == "ruby" then
+    --   -- Use custom command since default solargraph does not respect
+    --   -- rubocop extensions
+    --   lspconfig[lang].setup {
+    --     cmd = {vim.fn.expand("~/.asdf/shims/solargraph")},
+    --     on_attach = on_attach,
+    --     capabilities = capabilities,
+    --     root_dir = vim.loop.cwd,
+    --     settings = {
+    --       solargraph = {
+    --         diagnostics = true
+    --       }
+    --     },
+    --     flags = {
+    --       debounce_text_changes = 150,
+    --     }
+    --   }
+    if lang == "lua" then
       lspconfig[lang].setup {
         root_dir = vim.loop.cwd,
         flags = {
@@ -108,23 +97,9 @@ local function setup_servers()
           "toml",
           "pandoc",
           "text",
-          "ruby",
         },
         init_options = {
           linters = {
-            brakeman = {
-              command = "brakeman",
-              debounce = 500,
-              args = {"-q", "-f", "json", "--no-pager", "-p", vim.fn.getcwd()},
-              sourceName = "brakeman",
-              parseJson = {
-                errorsRoot = "warnings",
-                sourceName = "file",
-                sourceNameFilter = "true",
-                line = "line",
-                message = "${warning_type} ${message} ${check_name}",
-              }
-            },
             reek = {
               command = "reek",
               debounce = 100,
@@ -194,7 +169,7 @@ local function setup_servers()
           sh = "shellcheck",
           markdown = {"markdownlint"},
           text = "languagetool",
-          ruby = "reek",
+          -- ruby = "reek",
           -- ruby = "brakeman",
           -- ruby = {"reek", "brakeman"},
         },

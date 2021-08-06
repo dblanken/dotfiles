@@ -3,8 +3,10 @@
 let mapleader="\<Space>"
 
 " {{{1 Settings
-unlet! skip_defaults_vim
-source $VIMRUNTIME/defaults.vim
+if !has('nvim')
+	unlet! skip_defaults_vim
+	source $VIMRUNTIME/defaults.vim
+endif
 
 " Save our packages in a different location outside of our dotfiles
 let g:config = expand('~/.local/share/vim')
@@ -69,38 +71,38 @@ set updatetime=50
 " {{{1 Plugins
 let s:minpac_dir = g:config . '/pack/minpac/opt/minpac'
 if !isdirectory(s:minpac_dir)
-  silent! execute printf('!git clone https://github.com/k-takata/minpac.git %s', s:minpac_dir)
+	silent! execute printf('!git clone https://github.com/k-takata/minpac.git %s', s:minpac_dir)
 end
 
 function! PackInit() abort
-  packadd minpac
+	packadd minpac
 
-  call minpac#init()
-  call minpac#add('k-takata/minpac', {'type': 'opt'})
+	call minpac#init()
+	call minpac#add('k-takata/minpac', {'type': 'opt'})
 
-  call minpac#add('chriskempson/base16-vim')
-  call minpac#add('christoomey/vim-tmux-navigator')
-  call minpac#add('machakann/vim-highlightedyank')
-  call minpac#add('tpope/vim-commentary')
-  call minpac#add('tpope/vim-dispatch')
-  call minpac#add('tpope/vim-endwise')
-  call minpac#add('tpope/vim-eunuch')
-  call minpac#add('tpope/vim-flagship')
-  call minpac#add('tpope/vim-fugitive')
-  call minpac#add('tpope/vim-projectionist')
-  call minpac#add('tpope/vim-rails')
-  call minpac#add('tpope/vim-repeat')
-  call minpac#add('tpope/vim-sensible')
-  call minpac#add('tpope/vim-sleuth')
-  call minpac#add('tpope/vim-surround')
-  call minpac#add('tpope/vim-unimpaired')
-  call minpac#add('tpope/vim-vinegar')
-  call minpac#add('tweekmonster/startuptime.vim')
-  call minpac#add('vim-test/vim-test')
-  call minpac#add('junegunn/fzf.vim')
-  call minpac#add('junegunn/fzf', { 'do': '!./install --bin' })
-  call minpac#add('SirVer/ultisnips')
-  call minpac#add('honza/vim-snippets')
+	call minpac#add('chriskempson/base16-vim')
+	call minpac#add('christoomey/vim-tmux-navigator')
+	call minpac#add('machakann/vim-highlightedyank')
+	call minpac#add('tpope/vim-commentary')
+	call minpac#add('tpope/vim-dispatch')
+	call minpac#add('tpope/vim-endwise')
+	call minpac#add('tpope/vim-eunuch')
+	call minpac#add('tpope/vim-flagship')
+	call minpac#add('tpope/vim-fugitive')
+	call minpac#add('tpope/vim-projectionist')
+	call minpac#add('tpope/vim-rails')
+	call minpac#add('tpope/vim-repeat')
+	call minpac#add('tpope/vim-sensible')
+	call minpac#add('tpope/vim-sleuth')
+	call minpac#add('tpope/vim-surround')
+	call minpac#add('tpope/vim-unimpaired')
+	call minpac#add('tpope/vim-vinegar')
+	call minpac#add('tweekmonster/startuptime.vim')
+	call minpac#add('vim-test/vim-test')
+	call minpac#add('junegunn/fzf.vim')
+	call minpac#add('junegunn/fzf', { 'do': '!./install --bin' })
+	call minpac#add('SirVer/ultisnips')
+	call minpac#add('honza/vim-snippets')
 
 endfunction
 
@@ -112,32 +114,32 @@ command PackInstall PackUpdate
 
 " {{{1 autogroups
 augroup events
-  autocmd!
+	autocmd!
 
-  " When resized, resize the windows inside
-  autocmd VimResized * execute "normal! \<c-w>="
+	" When resized, resize the windows inside
+	autocmd VimResized * execute "normal! \<c-w>="
 
-  " Nest source on changes to vimrc
-  autocmd BufWritePost .vimrc,init.vim,vimrc nested source %
+	" Nest source on changes to vimrc
+	autocmd BufWritePost .vimrc,init.vim,vimrc nested source %
 
-  autocmd BufEnter,BufNewFile .zshrc,zshrc setlocal filetype=zsh
+	autocmd BufEnter,BufNewFile .zshrc,zshrc setlocal filetype=zsh
 
-  autocmd BufWritePre * :call whitespace#trim()
+	autocmd BufWritePre * :call whitespace#trim()
 augroup end
 
 augroup filetypes
-  autocmd!
+	autocmd!
 
-  autocmd FileType * setlocal nolinebreak
-  autocmd FileType sh,zsh,csh,tcsh setlocal fo-=t
-  autocmd FileType liquid,markdown,text,txt setlocal tw=78 linebreak keywordprg=dict
-  autocmd FileType ruby,eruby,yaml setlocal iskeyword+=?
+	autocmd FileType * setlocal nolinebreak
+	autocmd FileType sh,zsh,csh,tcsh setlocal fo-=t
+	autocmd FileType liquid,markdown,text,txt setlocal tw=78 linebreak keywordprg=dict
+	autocmd FileType ruby,eruby,yaml setlocal iskeyword+=?
 augroup END
 
 " }}}
 " {{{1 rg/grep
 if executable('rg')
-  set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case
+	set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case
 endif
 " }}}
 " {{{1 spelling

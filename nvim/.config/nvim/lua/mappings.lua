@@ -109,6 +109,12 @@ function _G.completions()
   map("n", "<Leader>fh", [[<Cmd>lua require('telescope.builtin').help_tags()<CR>]],          opt)
   map("n", "<Leader>fn", [[<Cmd>lua require('plugins.telescope_custom').edit_neovim()<CR>]], opt)
 
+  -- vim-test
+  map('n', '<Leader>t', ':TestNearest<CR>', { noremap = false })
+  map('n', '<Leader>T', ':TestFile<CR>', { noremap = false })
+  map('n', '<Leader>a', ':TestSuite<CR>', { noremap = false })
+  map('n', '<Leader>l', ':TestLast<CR>', { noremap = false })
+
   -- Packer commands till because we are not loading it at startup
   cmd("silent! command PackerCompile lua require 'plugins' require('packer').compile()")
   cmd("silent! command PackerInstall lua require 'plugins' require('packer').install()")
