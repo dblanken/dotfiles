@@ -4,6 +4,7 @@ local dblanken_modules = {
   "options",
   "globals",
   "mappings",
+  "autocmds",
   "utils",
 }
 

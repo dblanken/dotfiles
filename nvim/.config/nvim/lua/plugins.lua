@@ -197,13 +197,13 @@ return require("packer").startup(function()
   -- Quickly convert to SnakeCase, etc.
   use {
     'tpope/vim-abolish',
-    event = "BufEnter",
+    event = {"CursorHold", "CursorHoldI"},
   }
 
   -- Git integration
   use {
     'tpope/vim-fugitive',
-    event = "BufEnter",
+    cmd = {"G", "Gstatus", "Glog", "Gblame", "Gpush", "Gpull"},
   }
 
   -- Easy tree navigation if I ever need it

@@ -94,19 +94,19 @@ function _G.completions()
   end
 
   --  compe mappings
-  map("i", "<Tab>", "v:lua.tab_complete()", {expr = true})
-  map("s", "<Tab>", "v:lua.tab_complete()", {expr = true})
-  map("i", "<S-Tab>", "v:lua.s_tab_complete()", {expr = true})
-  map("s", "<S-Tab>", "v:lua.s_tab_complete()", {expr = true})
-  map("i", "<CR>", "v:lua.completions()", {expr = true})
+  map("i", "<Tab>", "v:lua.tab_complete()",                 {expr = true})
+  map("s", "<Tab>", "v:lua.tab_complete()",                 {expr = true})
+  map("i", "<S-Tab>", "v:lua.s_tab_complete()",             {expr = true})
+  map("s", "<S-Tab>", "v:lua.s_tab_complete()",             {expr = true})
+  map("i", "<CR>", "v:lua.completions()",                   {expr = true})
   map("i", "<C-j>", "v:lua.jump_or_expand_if_can('<C-j>')", {expr = true})
-  map("i", "<C-k>", "v:lua.jump_back('<C-k>')", {expr = true})
+  map("i", "<C-k>", "v:lua.jump_back('<C-k>')",             {expr = true})
 
   -- Telescope
-  map("n", "<Leader>ff", [[<Cmd>lua require('telescope.builtin').find_files() <CR>]],                                 opt)
-  map("n", "<Leader>fg", [[<Cmd>lua require('telescope.builtin').live_grep()<CR>]],                                    opt)
-  map("n", "<Leader>fb", [[<Cmd>lua require('telescope.builtin').buffers()<CR>]],                                     opt)
-  map("n", "<Leader>fh", [[<Cmd>lua require('telescope.builtin').help_tags()<CR>]],                                   opt)
+  map("n", "<Leader>ff", [[<Cmd>lua require('telescope.builtin').find_files() <CR>]],        opt)
+  map("n", "<Leader>fg", [[<Cmd>lua require('telescope.builtin').live_grep()<CR>]],          opt)
+  map("n", "<Leader>fb", [[<Cmd>lua require('telescope.builtin').buffers()<CR>]],            opt)
+  map("n", "<Leader>fh", [[<Cmd>lua require('telescope.builtin').help_tags()<CR>]],          opt)
   map("n", "<Leader>fn", [[<Cmd>lua require('plugins.telescope_custom').edit_neovim()<CR>]], opt)
 
   -- Packer commands till because we are not loading it at startup

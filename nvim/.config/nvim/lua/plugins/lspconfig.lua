@@ -54,20 +54,11 @@ local function setup_servers()
   end
 
   for _, lang in pairs(servers) do
-    if not contains(special_servers, lang) then
-      lspconfig[lang].setup {
-        on_attach = on_attach,
-        capabilities = capabilities,
-        root_dir = vim.loop.cwd,
-        flags = {
-          debounce_text_changes = 150,
-        }
-      }
-    elseif lang == "ruby" then
+    if lang == "ruby" then
       -- Use custom command since default solargraph does not respect
       -- rubocop extensions
       lspconfig[lang].setup {
-        cmd = vim.fn.expand("~/.asdf/shims/solargraph"),
+        cmd = {vim.fn.expand("~/.asdf/shims/solargraph")},
         on_attach = on_attach,
         capabilities = capabilities,
         root_dir = vim.loop.cwd,
@@ -105,8 +96,140 @@ local function setup_servers()
           }
         }
       }
-    end
+    elseif lang == "diagnosticls" then
+      vim.lsp.set_log_level("debug")
+      lspconfig[lang].setup {
+        on_attach = on_attach,
+        cmd = {"diagnostic-languageserver", "--stdio", "--log-level", "4"},
+        filetypes = {
+          "sh",
+          "markdown",
+          "yaml",
+          "toml",
+          "pandoc",
+          "text",
+          "ruby",
+        },
+        init_options = {
+          linters = {
+            brakeman = {
+              command = "brakeman",
+              debounce = 500,
+              args = {"-q", "-f", "json", "--no-pager", "-p", vim.fn.getcwd()},
+              sourceName = "brakeman",
+              parseJson = {
+                errorsRoot = "warnings",
+                sourceName = "file",
+                sourceNameFilter = "true",
+                line = "line",
+                message = "${warning_type} ${message} ${check_name}",
+              }
+            },
+            reek = {
+              command = "reek",
+              debounce = 100,
+              args = {"--format", "json", "%file"},
+              sourceName = "reek",
+              parseJson = {
+                line = "lines[0]",
+                message = "${message} [${smell_type}]",
+              }
+            },
+            languagetool = {
+              command = 'languagetool',
+              args = {'--language', 'en-US', '%file'},
+              debounce = 200,
+              offsetLine = 0,
+              offsetColumn = 1,
+              sourceName = 'languagetool',
+              formatLines = 2,
+              formatPattern = { "^\\d+?\\.\\)\\s+Line\\s+(\\d+),\\s+column\\s+(\\d+),\\s+([^\\n]+)\nMessage:\\s+(.*)$",
+              {
+                line = 1,
+                column = 2,
+                message = { 4, 3 }
+              }
+            },
+          },
+          shellcheck = {
+            command = "shellcheck",
+            debounce = 100,
+            args = {"--format", "json", "-"},
+            sourceName = "shellcheck",
+            parseJson = {
+              line = "line",
+              column = "column",
+              endLine = "endLine",
+              endColumn = "endColumn",
+              message = "${message} [${code}]",
+              security = "level"
+            },
+            securities = {
+              error = "error",
+              warning = "warning",
+              info = "info",
+              style = "hint"
+            }
+          },
+          markdownlint = {
+            command = "markdownlint",
+            isStderr = true,
+            debounce = 100,
+            args = {"--stdin"},
+            offsetLine = 0,
+            offsetColumn = 0,
+            sourceName = "markdownlint",
+            formatLines = 1,
+            formatPattern = {
+              "^.*?:\\s?(\\d+)(:(\\d+)?)?\\s(MD\\d{3}\\/[A-Za-z0-9-/]+)\\s(.*)$",
+              {
+                line = 1,
+                column = 3,
+                message = {4}
+              }
+            }
+          }
+        },
+        filetypes = {
+          sh = "shellcheck",
+          markdown = {"markdownlint", "languagetool"},
+          text = "languagetool",
+          ruby = "reek",
+          -- ruby = "brakeman",
+          -- ruby = {"reek", "brakeman"},
+        },
+        formatters = {
+          shfmt = {
+            command = "shfmt",
+            args = {"-i", "2", "-bn", "-ci", "-sr"}
+          },
+          prettier = {
+            command = "prettier",
+            args = {"--stdin-filepath", "%filepath"},
+          }
+        },
+        formatFiletypes = {
+          sh = "shfmt",
+          json = "prettier",
+          yaml = "prettier",
+          toml = "prettier",
+          markdown = "prettier",
+          lua = "prettier",
+          pandoc = "prettier"
+        }
+      }
+    }
+  else
+    lspconfig[lang].setup {
+      on_attach = on_attach,
+      capabilities = capabilities,
+      root_dir = vim.loop.cwd,
+      flags = {
+        debounce_text_changes = 150,
+      }
+    }
   end
+end
 end
 
 setup_servers()
