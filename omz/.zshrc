@@ -110,8 +110,8 @@ export KN="$HOME/code"
 export GITUSER="dblanken"
 
 export EDITOR='nvim'
-alias vim=nvim
-alias vi=nvim
+# alias vim=nvim
+# alias vi=nvim
 alias mysqld='mysqld --datadir="$DATADIR"'
 
 autoload -U add-zsh-hook
@@ -130,6 +130,7 @@ add-zsh-hook chpwd -auto-ls-after-cd
 export PATH="$HOME/.local/bin:$PATH"
 export CDPATH=.:~/code:~
 export DATADIR="$HOME/.mysql_data"
+export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --glob '!.git'"
 
 # Base16 Shell
 BASE16_SHELL="$HOME/.config/base16-shell/"

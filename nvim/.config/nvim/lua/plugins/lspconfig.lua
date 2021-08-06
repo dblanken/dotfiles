@@ -100,7 +100,7 @@ local function setup_servers()
       vim.lsp.set_log_level("debug")
       lspconfig[lang].setup {
         on_attach = on_attach,
-        cmd = {"diagnostic-languageserver", "--stdio", "--log-level", "4"},
+        cmd = {"diagnostic-languageserver", "--stdio"},
         filetypes = {
           "sh",
           "markdown",
@@ -192,7 +192,7 @@ local function setup_servers()
         },
         filetypes = {
           sh = "shellcheck",
-          markdown = {"markdownlint", "languagetool"},
+          markdown = {"markdownlint"},
           text = "languagetool",
           ruby = "reek",
           -- ruby = "brakeman",
