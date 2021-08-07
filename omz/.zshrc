@@ -110,8 +110,8 @@ export KN="$HOME/code"
 export GITUSER="dblanken"
 
 export EDITOR='nvim'
-# alias vim=nvim
-# alias vi=nvim
+alias vim=nvim
+alias vi=nvim
 alias mysqld='mysqld --datadir="$DATADIR"'
 
 autoload -U add-zsh-hook
@@ -131,6 +131,17 @@ export PATH="$HOME/.local/bin:$PATH"
 export CDPATH=.:~/code:~
 export DATADIR="$HOME/.mysql_data"
 export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --glob '!.git'"
+
+# Make CTRL-Z background things and unbackground them.
+function fg-bg() {
+  if [[ $#BUFFER -eq 0 ]]; then
+    fg
+  else
+    zle push-input
+  fi
+}
+zle -N fg-bg
+bindkey '^Z' fg-bg
 
 # Base16 Shell
 BASE16_SHELL="$HOME/.config/base16-shell/"

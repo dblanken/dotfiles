@@ -240,4 +240,10 @@ return require("packer").startup(function()
     'glepnir/lspsaga.nvim',
     module = {"lspsaga.diagnostic", "lspsaga.rename", "lspsaga.hover"},
   }
+
+  -- Test start time
+  use {
+    'tweekmonster/startuptime.vim',
+    cmd = "StartupTime"
+  }
 end)

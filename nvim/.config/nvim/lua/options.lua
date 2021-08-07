@@ -3,6 +3,7 @@ vim.opt.shadafile = "NONE"
 
 local home = vim.env.HOME
 local config = home .. '/.config/nvim'
+local data = home .. '/.local/nvim'
 local root = vim.env.USER == 'root'
 local vi = vim.v.progname == 'vi'
 
@@ -10,7 +11,7 @@ vim.opt.autoindent     = true                              -- maintain indent of
 vim.opt.backspace      = 'indent,start,eol'                -- allow unrestricted backspacing in insert mode
 vim.opt.backup         = false                             -- don't make backups before writing
 vim.opt.backupcopy     = 'yes'                             -- overwrite files to update, instead of renaming + rewriting
-vim.opt.backupdir      = config .. '/backup//'             -- keep backup files out of the way (ie. if 'backup' is ever set)
+vim.opt.backupdir      = data .. '/backup//'             -- keep backup files out of the way (ie. if 'backup' is ever set)
 vim.opt.backupdir      = vim.opt.backupdir + '.'           -- fallback
 vim.opt.backupskip     = vim.opt.backupskip + '*.re,*.rei' -- prevent bsb's watch mode from getting confused (if 'backup' is ever set)
 vim.opt.belloff        = 'all'                             -- never ring the bell for any reason
@@ -18,7 +19,7 @@ vim.opt.completeopt    = 'menuone'                         -- show menu even if 
 vim.opt.completeopt    = vim.opt.completeopt + 'noselect'  -- don't automatically select canditate (for nvim-compe)
 vim.opt.cursorline     = true                              -- highlight current line
 vim.opt.diffopt        = vim.opt.diffopt + 'foldcolumn:0'  -- don't show fold column in diff view
-vim.opt.directory      = config .. '/swap//'          -- keep swap files out of the way
+vim.opt.directory      = data .. '/swap//'          -- keep swap files out of the way
 vim.opt.directory      = vim.opt.directory + '.'           -- fallback
 vim.opt.emoji          = false                             -- don't assume all emoji are double width
 vim.opt.expandtab      = true                              -- always use spaces instead of tabs
@@ -30,10 +31,9 @@ vim.opt.fillchars      = {
 }
 vim.opt.foldlevelstart = 99                                -- start unfolded
 vim.opt.foldmethod     = 'indent'                          -- not as cool as syntax, but faster
-vim.opt.foldtext       = 'v:lua.wincent.foldtext()'
 vim.opt.formatoptions  = vim.opt.formatoptions + 'j'       -- remove comment leader when joining comment lines
 vim.opt.formatoptions  = vim.opt.formatoptions + 'n'       -- smart auto-indenting inside numbered lists
-vim.opt.guifont        = 'SaurceCodePro NerdFont Light:h13'
+vim.opt.guifont        = 'SauceCodePro Nerd Font Light:h13'
 vim.opt.hidden         = true                              -- allows you to hide buffers with unsaved changes without being prompted
 vim.opt.inccommand     = 'split'                           -- live preview of :s results
 vim.opt.joinspaces     = false                             -- don't autoinsert two spaces after '.', '?', '!' for join command
@@ -78,7 +78,7 @@ else
   -- - f0 don't store file marks
   -- - n: store in ~/.config/nvim/
   --
-  vim.opt.shada = "'0,<0,f0,n~/.config/nvim/shada"
+  vim.opt.shada = "'0,<0,f0,n~/.local/share/nvim/shada"
 end
 
 vim.opt.shell         = 'sh'                    -- shell to use for `!`, `:!`, `system()` etc.
@@ -117,14 +117,14 @@ vim.opt.textwidth     = 80                      -- automatically hard wrap at 80
 if root then
   vim.opt.undofile = false -- don't create root-owned files
 else
-  vim.opt.undodir  = config .. '/undo//'   -- keep undo files out of the way
+  vim.opt.undodir  = data .. '/undo//'   -- keep undo files out of the way
   vim.opt.undodir  = vim.opt.undodir + '.' -- fallback
   vim.opt.undofile = true                  -- actually use undo files
 end
 
 vim.opt.updatetime  = 2000                                  -- CursorHold interval
 vim.opt.updatecount = 0                                     -- update swapfiles every 80 typed chars
-vim.opt.viewdir     = config .. '/view'                     -- where to store files for :mkview
+vim.opt.viewdir     = data .. '/view'                     -- where to store files for :mkview
 vim.opt.viewoptions = 'cursor,folds'                        -- save/restore just these (with `:{mk,load}view`)
 vim.opt.virtualedit = 'block'                               -- allow cursor to move where there is no text in visual block mode
 vim.opt.visualbell  = true                                  -- stop annoying beeping for non-error errors
