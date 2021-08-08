@@ -6,7 +6,7 @@ end
 
 -- Use an on_attach function to only map the following keys
 -- after the language server attaches to the current buffer
-local on_attach = function(_client, bufnr)
+local on_attach = function(_, bufnr)
   local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
   local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
 
@@ -63,6 +63,7 @@ local function setup_servers()
     if lang == "lua" then
       lspconfig[lang].setup {
         root_dir = vim.loop.cwd,
+        on_attach = on_attach,
         flags = {
           debounce_text_changes = 150,
         },
@@ -238,7 +239,7 @@ vim.lsp.diagnostic.on_publish_diagnostics,
 )
 
 -- suppress error messages from lang servers
-vim.notify = function(msg, log_level, _opts)
+vim.notify = function(msg, log_level, _)
   if msg:match("exit code") then
     return
   end

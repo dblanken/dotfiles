@@ -2,7 +2,6 @@
 vim.opt.shadafile = "NONE"
 
 local home = vim.env.HOME
-local config = home .. '/.config/nvim'
 local data = home .. '/.local/nvim'
 local root = vim.env.USER == 'root'
 local vi = vim.v.progname == 'vi'
@@ -76,7 +75,7 @@ else
   -- - '0 store marks for 0 files
   -- - <0 don't save registers
   -- - f0 don't store file marks
-  -- - n: store in ~/.config/nvim/
+  -- - n: store in ~/.local/share/nvim/
   --
   vim.opt.shada = "'0,<0,f0,n~/.local/share/nvim/shada"
 end

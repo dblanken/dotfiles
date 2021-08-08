@@ -174,24 +174,31 @@ return require("packer").startup(function()
   -- Status line configuration
   use {
     "glepnir/galaxyline.nvim",
-    after = "nord.nvim",
+    after = "gruvbox",
     config = function()
       require "plugins.statusline"
     end
   }
 
   use {
-    "kyazdani42/nvim-web-devicons",
-    after = "nord.nvim",
-  }
-
-  use {
-    "shaunsingh/nord.nvim",
-    event = "VimEnter",
+    'morhetz/gruvbox',
     config = function()
       require "theme"
     end
   }
+
+  use {
+    "kyazdani42/nvim-web-devicons",
+    after = "gruvbox",
+  }
+
+  -- use {
+  --   "shaunsingh/nord.nvim",
+  --   event = "VimEnter",
+  --   config = function()
+  --     require "theme"
+  --   end
+  -- }
 
   -- Quickly convert to SnakeCase, etc.
   use {
@@ -245,5 +252,10 @@ return require("packer").startup(function()
   use {
     'tweekmonster/startuptime.vim',
     cmd = "StartupTime"
+  }
+
+  use {
+    'tribela/vim-transparent',
+    after = 'gruvbox'
   }
 end)
