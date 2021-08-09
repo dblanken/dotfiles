@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec find ./ -type f -name '*~' -exec rm -f '{}' \; 

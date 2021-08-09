@@ -131,6 +131,7 @@ export PATH="$HOME/.local/bin:$PATH"
 export CDPATH=.:~/code:~
 export DATADIR="$HOME/.mysql_data"
 export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --glob '!.git'"
+export SCRIPTS="~/.dotfiles/scripts/.local/bin"
 
 # Make CTRL-Z background things and unbackground them.
 function fg-bg() {
@@ -148,3 +149,5 @@ BASE16_SHELL="$HOME/.config/base16-shell/"
 [ -n "$PS1" ] && \
     [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
         eval "$("$BASE16_SHELL/profile_helper.sh")"
+
+alias newv='\vim -u ~/.vimrc.new'

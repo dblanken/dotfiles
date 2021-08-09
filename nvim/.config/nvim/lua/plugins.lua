@@ -258,4 +258,13 @@ return require("packer").startup(function()
     'tribela/vim-transparent',
     after = 'gruvbox'
   }
+
+  use {
+    'henriquehbr/nvim-startup.lua',
+    config = function()
+      require 'nvim-startup'.setup {
+        startup_file = '/tmp/nvim-startuptime'
+      }
+    end
+  }
 end)
