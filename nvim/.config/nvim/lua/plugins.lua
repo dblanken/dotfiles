@@ -248,23 +248,15 @@ return require("packer").startup(function()
     module = {"lspsaga.diagnostic", "lspsaga.rename", "lspsaga.hover"},
   }
 
-  -- Test start time
-  use {
-    'tweekmonster/startuptime.vim',
-    cmd = "StartupTime"
-  }
-
+  -- Always be transparent
   use {
     'tribela/vim-transparent',
     after = 'gruvbox'
   }
 
+  -- Ruby refactoring
   use {
-    'henriquehbr/nvim-startup.lua',
-    config = function()
-      require 'nvim-startup'.setup {
-        startup_file = '/tmp/nvim-startuptime'
-      }
-    end
+    'ecomba/vim-ruby-refactoring',
+    ft = 'ruby'
   }
 end)

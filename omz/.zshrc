@@ -109,10 +109,13 @@ source $ZSH/oh-my-zsh.sh
 export KN="$HOME/code"
 export GITUSER="dblanken"
 
-export EDITOR='nvim'
-alias vim=nvim
-alias vi=nvim
+export EDITOR='vim'
+# alias vim=nvim
+# alias vi=nvim
 alias mysqld='mysqld --datadir="$DATADIR"'
+alias '?'=duck
+alias '??'=google
+alias '???'=bing
 
 autoload -U add-zsh-hook
 
@@ -145,9 +148,7 @@ zle -N fg-bg
 bindkey '^Z' fg-bg
 
 # Base16 Shell
-BASE16_SHELL="$HOME/.config/base16-shell/"
-[ -n "$PS1" ] && \
-    [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
-        eval "$("$BASE16_SHELL/profile_helper.sh")"
-
-alias newv='\vim -u ~/.vimrc.new'
+# BASE16_SHELL="$HOME/.config/base16-shell/"
+# [ -n "$PS1" ] && \
+#     [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
+#         eval "$("$BASE16_SHELL/profile_helper.sh")"

@@ -1,6 +1,19 @@
 #!/bin/sh
+EXE="${EDITOR:-vim}"
 
-rm "/tmp/vim.log" 2>/dev/null
-"${EDITOR:-vim}" --startuptime "/tmp/vim.log" "$@" +qa
-echo "\n"
-tail -n 1 "/tmp/vim.log" | awk '{ print $1 }'
+if test -n "$1"; then
+  if ! test "$1" == "--"; then
+    EXE="$1"
+  fi
+  shift
+fi
+
+if test "$1" == "--"; then
+  shift
+fi
+
+rm "/tmp/$EXE.log" 2>/dev/null
+echo "using: $EXE" --startuptime "/tmp/$EXE.log" "$@" +qa
+"$EXE" --startuptime "/tmp/$EXE.log" "$@" +qa
+printf '\n'
+tail -n 1 "/tmp/$EXE.log" | awk '{ print $1 }'
