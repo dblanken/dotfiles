@@ -1,147 +1,63 @@
-vim.cmd [[packadd packer.nvim]]
+return require('packer').startup(function()
+  use 'wbthomason/packer.nvim'
 
-return require("packer").startup(function()
-  use { "wbthomason/packer.nvim", opt = true }
+  use 'tpope/vim-bundler'
+  use 'tpope/vim-commentary'
+  use 'tpope/vim-dispatch'
+  use 'tpope/vim-endwise'
+  use 'tpope/vim-eunuch'
+  use 'tpope/vim-fugitive'
+  use 'tpope/vim-git'
+  use 'tpope/vim-jdaddy'
+  use 'tpope/vim-markdown'
+  use 'tpope/vim-projectionist'
+  use 'tpope/vim-ragtag'
+  use 'tpope/vim-rails'
+  use 'tpope/vim-rake'
+  use 'tpope/vim-repeat'
+  use 'tpope/vim-rhubarb'
+  use 'tpope/vim-sleuth'
+  use 'tpope/vim-surround'
+  use 'tpope/vim-unimpaired'
+  use 'tpope/vim-vinegar'
+  use 'tpope/vim-vividchalk'
 
-  -- Should be built in
-  use {
-    'tpope/vim-surround',
-    event = "VimEnter"
-  }
+  use 'christoomey/vim-tmux-navigator'
+  use 'bkad/CamelCaseMotion'
 
-  -- Commenting
-  use {
-    'tpope/vim-commentary',
-    event = "VimEnter"
-  }
-
-  -- Rails development
-  use {
-    'tpope/vim-rails', 
-    event = "VimEnter",
-    config = function()
-      require('plugins.vim-rails')
-    end
-  }
-  use {
-    'tpope/vim-bundler',
-    event = "VimEnter"
-  }
-  use {
-    'tpope/vim-rake',
-    event = "VimEnter"
-  }
-
-  -- Async make
-  use {
-    'tpope/vim-dispatch',
-    cmd = {'Dispatch', 'Make', 'Focus', 'Start'}
-  }
-
-  -- Easy testing
   use {
     'vim-test/vim-test',
-    after = "vim-dispatch",
-    cmd = {'TestNearest', 'TestFile', 'TestSuite', 'TestLast'},
     config = function()
-      require('plugins.vim-test')
-    end
-  }
-
-  -- Tmux integration
-  use {
-    'christoomey/vim-tmux-navigator',
-    event = "VimEnter",
-  }
-
-  -- Shell commands
-  use {
-    'tpope/vim-eunuch',
-    event = "VimEnter",
-  }
-
-  -- Plugin repeat
-  use {
-    'tpope/vim-repeat',
-    event = "VimEnter",
-  }
-
-  -- Easy bracket mappings
-  use {
-    'tpope/vim-unimpaired',
-    event = "VimEnter",
-  }
-
-  -- For custom text objects
-  use {
-    'kana/vim-textobj-user',
-    event = "VimEnter",
-  }
-
-  -- Ruby block text objects
-  use {
-    'nelstrom/vim-textobj-rubyblock',
-    after = 'vim-textobj-user'
-  }
-
-  -- Work-based traversal over Camel/Snake-case
-  use {
-    'bkad/CamelCaseMotion',
-    after = 'vim-textobj-user'
-  }
-
-  -- Lsp setup
-  use {
-    "kabouzeid/nvim-lspinstall",
-    event = "BufRead"
-  }
-
-  use {
-    "neovim/nvim-lspconfig",
-    after = "nvim-lspinstall",
-    config = function()
-      require('plugins.lspconfig')
+      require('vim-test')
     end
   }
 
   use {
-    "nvim-lua/plenary.nvim",
-    event = "BufRead"
-  }
-  use {
-    "nvim-lua/popup.nvim",
-    after = "plenary.nvim"
-  }
-
-  -- Fuzzy finding
-  use {
-    "nvim-telescope/telescope.nvim",
-    module = {"telescope.builtin", "plugins.telescope_custom", "telescope"},
-    requires = {
-      {
-        "nvim-telescope/telescope-fzf-native.nvim",
-        run = "make",
-      },
-      {
-        "nvim-telescope/telescope-media-files.nvim",
-      }
-    },
+    'neovim/nvim-lspconfig',
+    requires = { { 'kabouzeid/nvim-lspinstall' }, { 'glepnir/lspsaga.nvim' } },
     config = function()
-      require "plugins.telescope"
+      require('lsp')
+    end
+  }
+  use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
+
+  use { 
+    'nvim-telescope/telescope.nvim',
+    requires = { { 'nvim-lua/plenary.nvim' } },
+    config = function()
+      require('dblanken.telescope')
     end
   }
 
-  -- Treesitter
   use {
-    'nvim-treesitter/nvim-treesitter',
-    run = ':TSUpdate',
-    event = "BufRead"
+  'glepnir/galaxyline.nvim',
+    branch = 'main',
+    config = function() require'statusline' end,
+    requires = {'kyazdani42/nvim-web-devicons', opt = true}
   }
 
-  -- Completion
   use {
     "hrsh7th/nvim-compe",
-    event = "InsertEnter",
     config = function()
       require "plugins.compe"
     end,
@@ -150,19 +66,16 @@ return require("packer").startup(function()
       {
         "L3MON4D3/LuaSnip",
         wants = "friendly-snippets",
-        event = "InsertCharPre",
         config = function()
           require "plugins.luasnip"
         end
       },
       {
         "rafamadriz/friendly-snippets",
-        event = "InsertCharPre"
       }
     },
   }
 
-  -- Complete common pairings in code
   use {
     "windwp/nvim-autopairs",
     after = "nvim-compe",
@@ -171,92 +84,24 @@ return require("packer").startup(function()
     end
   }
 
-  -- Status line configuration
   use {
-    "glepnir/galaxyline.nvim",
-    after = "gruvbox",
-    config = function()
-      require "plugins.statusline"
-    end
+    'nelstrom/vim-textobj-rubyblock',
+    requires = { { 'kana/vim-textobj-user' } },
+    ft = 'ruby'
   }
 
-  use {
-    'morhetz/gruvbox',
-    config = function()
-      require "theme"
-    end
-  }
-
-  use {
-    "kyazdani42/nvim-web-devicons",
-    after = "gruvbox",
-  }
-
-  -- use {
-  --   "shaunsingh/nord.nvim",
-  --   event = "VimEnter",
-  --   config = function()
-  --     require "theme"
-  --   end
-  -- }
-
-  -- Quickly convert to SnakeCase, etc.
-  use {
-    'tpope/vim-abolish',
-    event = {"CursorHold", "CursorHoldI"},
-  }
-
-  -- Git integration
-  use {
-    'tpope/vim-fugitive',
-    cmd = {"G", "Gstatus", "Glog", "Gblame", "Gpush", "Gpull"},
-  }
-
-  -- Easy tree navigation if I ever need it
-  use {
-    'tpope/vim-vinegar',
-    event = "VimEnter",
-  }
-
-  -- dae
-  use {
-    'kana/vim-textobj-entire',
-    after = "vim-textobj-user"
-  }
-
-  -- dai
-  use {
-    'kana/vim-textobj-indent',
-    after = "vim-textobj-user"
-  }
-
-  -- das
-  use {
-    'kana/vim-textobj-syntax',
-    after = "vim-textobj-user"
-  }
-
-  -- dal
-  use {
-    'kana/vim-textobj-line',
-    after = "vim-textobj-user"
-  }
-
-  -- Prettier lsp display
-  use {
-    'glepnir/lspsaga.nvim',
-    module = {"lspsaga.diagnostic", "lspsaga.rename", "lspsaga.hover"},
-  }
-
-  -- Always be transparent
-  use {
-    'tribela/vim-transparent',
-    after = 'gruvbox'
-  }
-
-  -- Ruby refactoring
   use {
     'ecomba/vim-ruby-refactoring',
     ft = 'ruby'
   }
+
+  use {
+    "npxbr/gruvbox.nvim",
+    requires = {"rktjmp/lush.nvim"},
+    config = function()
+      require 'colorscheme'
+    end
+  }
+
+  use {"npxbr/glow.nvim", run = "GlowInstall"}
 end)
