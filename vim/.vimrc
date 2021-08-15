@@ -130,9 +130,8 @@ Plug 'saihoooooooo/vim-textobj-space'
 Plug 'dense-analysis/ale'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-endwise'
-Plug 'junegunn/fzf'
-Plug 'junegunn/fzf.vim', { 'do': { -> fzf#install()  } }
-Plug 'neoclide/coc.nvim', {'branch': 'release', 'for': []}
+Plug 'junegunn/fzf', { 'do': { -> fzf#install()  } }
+Plug 'junegunn/fzf.vim'
 Plug 'Shougo/deoplete.nvim'
 Plug 'roxma/nvim-yarp'
 Plug 'roxma/vim-hug-neovim-rpc'
