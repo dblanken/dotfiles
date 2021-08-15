@@ -6,9 +6,7 @@ let mapleader="\<Space>"
 unlet! skip_defaults_vim
 source $VIMRUNTIME/defaults.vim
 
-" My attempt to get as close to a nvim setup for vim as I can
-" Referenced :h defaults in neovim
-" set smarttab
+set smarttab
 set autoindent
 set autoread
 set background=dark
@@ -71,7 +69,6 @@ set updatetime=50
 let g:polyglot_disabled = ["ruby", "mason"]
 " }}}
 " {{{1 Plugins
-" Note: { 'for': [] } makes it an optional plugin
 call plug#begin('~/.local/share/vim/plugins')
 
 Plug 'chriskempson/base16-vim'
@@ -89,7 +86,7 @@ Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-dotenv'
 Plug 'tpope/vim-eunuch'
 Plug 'tpope/vim-fireplace'
-Plug 'tpope/vim-flagship' " Using airline right now, but who knows
+Plug 'tpope/vim-flagship'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-git'
 Plug 'tpope/vim-jdaddy'
@@ -115,8 +112,6 @@ Plug 'vuciv/vim-bujo'
 Plug 'wincent/loupe'
 Plug 'wincent/terminus'
 Plug 'sheerun/vim-polyglot'
-Plug 'vim-airline/vim-airline', { 'for': [] }
-Plug 'vim-airline/vim-airline-themes', { 'for': [] }
 Plug 'AndrewRadev/splitjoin.vim'
 Plug 'airblade/vim-gitgutter'
 Plug 'nathanaelkane/vim-indent-guides'
@@ -138,6 +133,11 @@ Plug 'tpope/vim-endwise'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim', { 'do': { -> fzf#install()  } }
 Plug 'neoclide/coc.nvim', {'branch': 'release', 'for': []}
+Plug 'Shougo/deoplete.nvim'
+Plug 'roxma/nvim-yarp'
+Plug 'roxma/vim-hug-neovim-rpc'
+Plug 'honza/vim-snippets'
+Plug 'SirVer/ultisnips'
 
 Plug 'gruvbox-community/gruvbox'
 
@@ -157,13 +157,20 @@ if has_key(plugs, 'ale')
     nmap <buffer><silent> ]D <Plug>(ale_last)<Plug>(ale_detail)
     nmap <buffer><silent> ]d <Plug>(ale_next)<Plug>(ale_detail)
 
+    nmap <buffer><silent> K <Plug>(ale_hover)
     nmap <buffer><silent> gd <Plug>(ale_go_to_definition)
     nmap <buffer><silent> gr <Plug>(ale_find_references)
     nmap <buffer><silent> <Leader>rn <Plug>(ale_rename)
     nmap <buffer><silent> <Leader>f <Plug>(ale_fix)
     nmap <buffer><silent> <Leader>e <Plug>(ale_detail)
+    nmap <buffer><silent> <Leader>ss <Plug>(ale_symbol_search)
+    nmap <buffer><silent> <Leader>ca <Plug>(ale_code_action)
 
     setlocal omnifunc=ale#completion#OmniFunc
+
+    " For right clicking on code actions
+    set mouse=a
+    set mousemodel=popup_setpos
   endfunction
 
   augroup ales
@@ -173,6 +180,9 @@ if has_key(plugs, 'ale')
 
   " Always show sign column
   let g:ale_sign_column_always = 1
+
+  " Allow LSP to show hints/suggestions
+  let g:ale_lsp_suggestions = 1
 
   " Set to show which linter says there is an issue
   let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
@@ -187,6 +197,9 @@ if has_key(plugs, 'ale')
   let g:ale_hover_to_floating_preview = 1
   let g:ale_hover_to_detail = 1
   let g:ale_floating_preview = 1
+
+  " Open preview window when cursor on a line with issues
+  let g:ale_cursor_detail = 1
 
   let g:ale_linters = {
         \ "ruby": [ "brakeman", "rails_best_practices", "reek", "solargraph" ]
@@ -245,7 +258,7 @@ if has_key(plugs, 'ale')
         \ 'type_parameter': 'type param',
         \ '<default>': 'v'
         \ }
-  let g:ale_completion_enabled = 1
+  " let g:ale_completion_enabled = 1
 endif
 " }}}
 " {{{1 autogroups
@@ -296,7 +309,13 @@ let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
 
 let $FZF_DEFAULT_OPTS='--reverse --preview "bat --style=numbers --color=always --line-range :500 {}"'
 nnoremap <C-p> :Files<CR>
-nnoremap <Leader>ez :Files $HOME/code/dotfiles<CR>
+nnoremap <Leader>ff :Files<CR>
+nnoremap <Leader>fg :Rg<Space>
+nnoremap <Leader>fb :Buffers<CR>
+nnoremap <Leader>fl :Lines<Space>
+nnoremap <Leader>fj :BLines<Space>
+nnoremap <Leader>fc :Commits<CR>
+nnoremap <Leader>ez :Files $HOME/.dotfiles<CR>
 
 augroup fzf_overrides
   autocmd!
@@ -391,18 +410,85 @@ let test#strategy = 'dispatch'
 " {{{1 camelCaseMotion
 let g:camelcasemotion_key = '<leader>'
 " }}}
+" {{{1 Completion
+if has_key(plugs, 'deoplete.nvim') && has_key(plugs, 'ultisnips')
+  " Must set trigger to no-op so we can handle it
+  let g:UltiSnipsExpandTrigger = "<nop>"
+  let g:UltiSnipsJumpForwardTrigger = "<Tab>"
+  let g:UltiSnipsJumpBackwardTrigger = "<S-Tab>"
+  " This is a variable that ultisnips will set when
+  " UltiSnips#ExpandSnippetOrJump() is called.
+  "   1 = It expanded or jumped
+  "   0 = It did nothing
+  let g:ulti_expand_or_jump_res = 0
+
+  " We define our own function that attemps the expand or jump, and if nothing
+  " happened, we return just a regular return.
+  function ExpandSnippetOrCarriageReturn()
+    let snippet = UltiSnips#ExpandSnippetOrJump()
+    if g:ulti_expand_or_jump_res > 0
+      return snippet
+    else
+      return "\<CR>"
+    endif
+  endfunction
+  " Make sure we don't allow endwise to do its own magic to CR.
+  let g:endwise_no_mappings = 1
+  let g:AutoPairsMapCR = 0
+
+  " Obligitory check last character was space function
+  " get the column number before the current
+  " if col is zero, return 1 so we know it was a space
+  " if col is not zero, get the character before and return 1 if it's a space
+  function! s:check_last_char_was_space() abort
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~ '\s'
+  endfunction
+
+  " If tab is pressed:
+  "    and pull up menu is visible:
+  "      C-n to traverse list
+  "    else
+  "      if we are at the beginning of the line or the character before is a space,
+  "      then allow a tab (no autocomplete needed)
+  "      if we are not at the beginning of the line and the character before is not
+  "        a space, attempt a deoplete completion.
+  inoremap <silent><expr> <TAB> pumvisible() ? "\<C-n>" : <SID>check_last_char_was_space() ? "\<TAB>" : deoplete#mappings#manual_complete()
+  inoremap <expr>   <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"| " Shift-Tab is previous entry if completion menu open.
+
+  if has_key(plugs, 'vim-endwise') && has_key(plugs, 'auto-pairs')
+    " If CR is pressed:
+    "  if the pull up menu is visible
+    "    We attempt to expand the snippet or jump
+    "  otherwise
+    "    We CR with our own endwise call
+    inoremap <expr> <CR> pumvisible() ? "\<C-R>=ExpandSnippetOrCarriageReturn()\<CR>" : "\<CR>\<C-R>=EndwiseDiscretionary()\<CR>\<C-R>=AutoPairsReturn()\<CR>"
+  else
+    inoremap <expr> <CR> pumvisible() ? "\<C-R>=ExpandSnippetOrCarriageReturn()\<CR>" : "\<CR>\<C-R>=EndwiseDiscretionary()\<CR>\<C-R>=AutoPairsReturn()\<CR>"
+  endif
+
+  let g:deoplete#enable_at_startup = 0
+  augroup deopleteness
+    autocmd!
+    autocmd InsertEnter * ++once call deoplete#enable()
+  augroup END
+endif
+" }}}
 " {{{1 transparency
 augroup coloroverride
   au!
   autocmd ColorScheme * hi Normal ctermbg=NONE guibg=NONE
+  autocmd ColorScheme * hi Folded ctermbg=NONE guibg=NONE
+  autocmd ColorScheme * hi SignColumn ctermbg=NONE guibg=NONE
 augroup END
 " }}}
 " {{{1 base16-vim
-" if has_key(plugs, 'base16-vim')
-"   if filereadable(expand("~/.vimrc_background"))
-"     let base16colorspace=256
-"     silent! source ~/.vimrc_background
-"   endif
-" endif
-colorscheme gruvbox
+if has_key(plugs, 'base16-vim')
+  if filereadable(expand("~/.vimrc_background"))
+    let base16colorspace=256
+    silent! source ~/.vimrc_background
+  else
+    colorscheme gruvbox
+  endif
+endif
 " }}}
