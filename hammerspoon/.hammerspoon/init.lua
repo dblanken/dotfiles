@@ -6,6 +6,7 @@ hs.window.animationDuration = 0 -- disable animations
 local events = require 'events'
 local log = require 'log'
 local timer = require("hs.timer")
+local reloader = require 'reloader'
 
 -- Forward function declarations.
 local activate = nil
@@ -351,6 +352,11 @@ hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'f2', (function()
 end))
 
 hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'f3', (function()
+  hs.alert('Three-monitor layout')
+  activateLayout(3)
+end))
+
+hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'f3', (function()
   hs.console.alpha(.75)
   hs.toggleConsole()
 end))
@@ -362,6 +368,27 @@ hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'f4', (function()
     'Press ⌃⌥⌘F3 to reveal the console.'
   )
   reloader.reload()
+end))
+
+hs.hotkey.bind({'cmd'}, '1', (function()
+  local an_app = hs.appfinder.appFromName('Terminal')
+  if an_app ~= nil then
+    an_app:activate()
+  end
+end))
+
+hs.hotkey.bind({'cmd'}, '2', (function()
+  local an_app = hs.appfinder.appFromName('Safari')
+  if an_app ~= nil then
+    an_app:activate()
+  end
+end))
+
+hs.hotkey.bind({'cmd'}, '3', (function()
+  local an_app = hs.appfinder.appFromName('Skype for Business')
+  if an_app ~= nil then
+    an_app:activate()
+  end
 end))
 
 -- Ignore some stuff for warnings

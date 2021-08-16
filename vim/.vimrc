@@ -2,6 +2,8 @@
 
 let mapleader="\<Space>"
 
+let g:has_async = v:version >= 800 || has('nvim')
+
 " {{{1 Settings
 unlet! skip_defaults_vim
 source $VIMRUNTIME/defaults.vim
@@ -66,7 +68,7 @@ set updatetime=50
 " }}}
 " {{{1 vim-polyglot
 " States that it must be set before loading the plugin
-let g:polyglot_disabled = ["ruby", "mason"]
+let g:polyglot_disabled = ["ruby", "mason", "javascript"]
 " }}}
 " {{{1 Plugins
 call plug#begin('~/.local/share/vim/plugins')
@@ -126,6 +128,8 @@ Plug 'Julian/vim-textobj-variable-segment'
 Plug 'bkad/CamelCaseMotion'
 Plug 'b4winckler/vim-angry'
 Plug 'saihoooooooo/vim-textobj-space'
+Plug 'vim-ruby/vim-ruby'
+Plug 'pangloss/vim-javascript'
 
 Plug 'dense-analysis/ale'
 Plug 'jiangmiao/auto-pairs'
@@ -137,6 +141,7 @@ Plug 'roxma/nvim-yarp'
 Plug 'roxma/vim-hug-neovim-rpc'
 Plug 'honza/vim-snippets'
 Plug 'SirVer/ultisnips'
+Plug 'pbrisbin/vim-mkdir'
 
 Plug 'gruvbox-community/gruvbox'
 
@@ -175,6 +180,23 @@ if has_key(plugs, 'ale')
   augroup ales
     autocmd!
     autocmd FileType ruby,eruby call OnAttachAle()
+  augroup END
+
+  " ALE linting events
+  augroup ale
+    autocmd!
+
+    if g:has_async
+      autocmd VimEnter *
+            \ set updatetime=1000 |
+            \ let g:ale_lint_on_text_changed = 0
+      autocmd CursorHold * call ale#Queue(0)
+      autocmd CursorHoldI * call ale#Queue(0)
+      autocmd InsertEnter * call ale#Queue(0)
+      autocmd InsertLeave * call ale#Queue(0)
+    else
+      echoerr "The thoughtbot dotfiles require NeoVim or Vim 8"
+    endif
   augroup END
 
   " Always show sign column
@@ -386,6 +408,7 @@ let g:rails_projections = {
       \      "end"]
       \   }
       \ }
+nnoremap <Leader><Leader> :A<CR>
 " }}}
 " {{{1 vim-rhubarb
 let g:github_enterprise_urls = ['https://github.iu.edu']
