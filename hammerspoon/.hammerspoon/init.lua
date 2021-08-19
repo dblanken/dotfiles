@@ -51,8 +51,25 @@ local grid = {
 hs.loadSpoon("ReloadConfiguration")
 spoon.ReloadConfiguration:start()
 
+local activate_app = function(name)
+  local passthrough_apps = { "Safari" }
+  local an_app = hs.appfinder.appFromName(name)
+  local current_application = hs.application.frontmostApplication()
+
+  if an_app ~= nil then
+    for _,key in pairs(passthrough_apps) do
+      if current_application:name() == key then
+        return
+      end
+    end
+
+    an_app:activate()
+  end
+end
+
+
 local layoutConfig = {
-    _before_ = (function()
+  _before_ = (function()
     hide('com.spotify.client')
   end),
 
@@ -161,7 +178,7 @@ canManageWindow = (function(window)
   -- Special handling for iTerm: windows without title bars are
   -- non-standard.
   return window:isStandard() or
-    bundleID == 'com.googlecode.iterm2'
+  bundleID == 'com.googlecode.iterm2'
 end)
 
 local macBookPro16_2019 = '3072x1920'
@@ -218,7 +235,7 @@ handleWindowEvent = (function(window)
     -- have a bundle ID associated
     -- An example of this launching mpv
     if bundleID == nil then
-      for key in nilBundles do
+      for _,key in pairs(nilBundles) do
         nilApp = hs.application.find(key)
         if not(nilApp == nil) then
           bundleID = key
@@ -285,115 +302,94 @@ chain = (function(movements)
       lastSeenChain ~= movements or
       lastSeenAt < now - chainResetInterval or
       lastSeenWindow ~= id
-    then
-      sequenceNumber = 1
-      lastSeenChain = movements
-    elseif (sequenceNumber == 1) then
-      -- At end of chain, restart chain on next screen.
-      screen = screen:next()
+      then
+        sequenceNumber = 1
+        lastSeenChain = movements
+      elseif (sequenceNumber == 1) then
+        -- At end of chain, restart chain on next screen.
+        screen = screen:next()
+      end
+      lastSeenAt = now
+      lastSeenWindow = id
+
+      hs.grid.set(win, movements[sequenceNumber], screen)
+      sequenceNumber = sequenceNumber % cycleLength + 1
     end
-    lastSeenAt = now
-    lastSeenWindow = id
+  end)
 
-    hs.grid.set(win, movements[sequenceNumber], screen)
-    sequenceNumber = sequenceNumber % cycleLength + 1
-  end
-end)
+  --
+  -- Key bindings.
+  --
 
---
--- Key bindings.
---
+  hs.hotkey.bind({'ctrl', 'alt'}, 'up', chain({
+    grid.topHalf,
+    grid.topThird,
+    grid.topTwoThirds,
+  }))
 
-hs.hotkey.bind({'ctrl', 'alt'}, 'up', chain({
-  grid.topHalf,
-  grid.topThird,
-  grid.topTwoThirds,
-}))
+  hs.hotkey.bind({'ctrl', 'alt'}, 'right', chain({
+    grid.rightHalf,
+    grid.rightThird,
+    grid.rightTwoThirds,
+  }))
 
-hs.hotkey.bind({'ctrl', 'alt'}, 'right', chain({
-  grid.rightHalf,
-  grid.rightThird,
-  grid.rightTwoThirds,
-}))
+  hs.hotkey.bind({'ctrl', 'alt'}, 'down', chain({
+    grid.bottomHalf,
+    grid.bottomThird,
+    grid.bottomTwoThirds,
+  }))
 
-hs.hotkey.bind({'ctrl', 'alt'}, 'down', chain({
-  grid.bottomHalf,
-  grid.bottomThird,
-  grid.bottomTwoThirds,
-}))
+  hs.hotkey.bind({'ctrl', 'alt'}, 'left', chain({
+    grid.leftHalf,
+    grid.leftThird,
+    grid.leftTwoThirds,
+  }))
 
-hs.hotkey.bind({'ctrl', 'alt'}, 'left', chain({
-  grid.leftHalf,
-  grid.leftThird,
-  grid.leftTwoThirds,
-}))
+  hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'up', chain({
+    grid.topLeft,
+    grid.topRight,
+    grid.bottomRight,
+    grid.bottomLeft,
+  }))
 
-hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'up', chain({
-  grid.topLeft,
-  grid.topRight,
-  grid.bottomRight,
-  grid.bottomLeft,
-}))
+  hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'down', chain({
+    grid.fullScreen,
+    grid.centeredBig,
+    grid.centeredSmall,
+  }))
 
-hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'down', chain({
-  grid.fullScreen,
-  grid.centeredBig,
-  grid.centeredSmall,
-}))
+  hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'f1', (function()
+    hs.alert('One-monitor layout')
+    activateLayout(1)
+  end))
 
-hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'f1', (function()
-  hs.alert('One-monitor layout')
-  activateLayout(1)
-end))
+  hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'f2', (function()
+    hs.alert('Two-monitor layout')
+    activateLayout(2)
+  end))
 
-hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'f2', (function()
-  hs.alert('Two-monitor layout')
-  activateLayout(2)
-end))
+  hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'f3', (function()
+    hs.alert('Three-monitor layout')
+    activateLayout(3)
+  end))
 
-hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'f3', (function()
-  hs.alert('Three-monitor layout')
-  activateLayout(3)
-end))
-
-hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'f3', (function()
-  hs.console.alpha(.75)
-  hs.toggleConsole()
-end))
-
-hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'f4', (function()
-  hs.notify.show(
+  hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'f4', (function()
+    hs.notify.show(
     'Hammerspoon',
     'Reloaded in the background',
-    'Press ⌃⌥⌘F3 to reveal the console.'
-  )
-  reloader.reload()
-end))
+    'Press ⌃⌥⌘F5 to reveal the console.'
+    )
+    reloader.reload()
+  end))
 
-hs.hotkey.bind({'cmd'}, '1', (function()
-  local an_app = hs.appfinder.appFromName('Terminal')
-  if an_app ~= nil then
-    an_app:activate()
-  end
-end))
+  hs.hotkey.bind({'ctrl', 'alt', 'cmd'}, 'f5', (function()
+    hs.console.alpha(.75)
+    hs.toggleConsole()
+  end))
 
-hs.hotkey.bind({'cmd'}, '2', (function()
-  local an_app = hs.appfinder.appFromName('Safari')
-  if an_app ~= nil then
-    an_app:activate()
-  end
-end))
+  -- Ignore some stuff for warnings
+  hs.window.filter.ignoreAlways['Mail Networking'] = true
+  hs.window.filter.ignoreAlways['com.apple.hiservices-xpcservice'] = true
+  hs.window.filter.ignoreAlways['iTunes Networking'] = true
 
-hs.hotkey.bind({'cmd'}, '3', (function()
-  local an_app = hs.appfinder.appFromName('Skype for Business')
-  if an_app ~= nil then
-    an_app:activate()
-  end
-end))
-
--- Ignore some stuff for warnings
-hs.window.filter.ignoreAlways['Mail Networking'] = true
-hs.window.filter.ignoreAlways['com.apple.hiservices-xpcservice'] = true
-hs.window.filter.ignoreAlways['iTunes Networking'] = true
-
-log.i('Config loaded')
+  log.i('Config loaded')

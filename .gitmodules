@@ -10,3 +10,6 @@
 [submodule "zsh-syntax-highlighting"]
 	path = omz/.config/omz/custom/plugins/zsh-syntax-highlighting
 	url = http://github.com/zsh-users/zsh-syntax-highlighting
+[submodule "sumneko"]
+	path = nvim/.local/share/nvim/lua-language-server
+	url = http://github.com/sumneko/lua-language-server

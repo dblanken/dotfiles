@@ -109,7 +109,7 @@ source $ZSH/oh-my-zsh.sh
 export KN="$HOME/code"
 export GITUSER="dblanken"
 
-export EDITOR='vim'
+export EDITOR='nvim'
 # alias vim=nvim
 # alias vi=nvim
 alias mysqld='mysqld --datadir="$DATADIR"'
@@ -146,6 +146,9 @@ function fg-bg() {
 }
 zle -N fg-bg
 bindkey '^Z' fg-bg
+
+# From https://www.youtube.com/watch?v=bdumjiHabhQ
+# bindkey -s ^f "tmux-sessionizer\n"
 
 # Base16 Shell
 BASE16_SHELL="$HOME/.config/base16-shell/"

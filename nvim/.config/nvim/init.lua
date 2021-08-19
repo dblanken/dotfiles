@@ -1,3 +1,4 @@
+local vim = vim
 require('first_load')
 
 -- Options {{{1
@@ -11,7 +12,7 @@ vim.opt.autoindent     = true                              -- maintain indent of
 vim.opt.backspace      = 'indent,start,eol'                -- allow unrestricted backspacing in insert mode
 vim.opt.backup         = false                             -- don't make backups before writing
 vim.opt.backupcopy     = 'yes'                             -- overwrite files to update, instead of renaming + rewriting
-vim.opt.backupdir      = data .. '/backup//'             -- keep backup files out of the way (ie. if 'backup' is ever set)
+vim.opt.backupdir      = data .. '/backup//'               -- keep backup files out of the way (ie. if 'backup' is ever set)
 vim.opt.backupdir      = vim.opt.backupdir + '.'           -- fallback
 vim.opt.backupskip     = vim.opt.backupskip + '*.re,*.rei' -- prevent bsb's watch mode from getting confused (if 'backup' is ever set)
 vim.opt.belloff        = 'all'                             -- never ring the bell for any reason
@@ -19,7 +20,7 @@ vim.opt.completeopt    = 'menuone'                         -- show menu even if 
 vim.opt.completeopt    = vim.opt.completeopt + 'noselect'  -- don't automatically select canditate (for nvim-compe)
 vim.opt.cursorline     = true                              -- highlight current line
 vim.opt.diffopt        = vim.opt.diffopt + 'foldcolumn:0'  -- don't show fold column in diff view
-vim.opt.directory      = data .. '/swap//'          -- keep swap files out of the way
+vim.opt.directory      = data .. '/swap//'                 -- keep swap files out of the way
 vim.opt.directory      = vim.opt.directory + '.'           -- fallback
 vim.opt.emoji          = false                             -- don't assume all emoji are double width
 vim.opt.expandtab      = true                              -- always use spaces instead of tabs
@@ -124,7 +125,7 @@ end
 
 vim.opt.updatetime  = 2000                                  -- CursorHold interval
 vim.opt.updatecount = 0                                     -- update swapfiles every 80 typed chars
-vim.opt.viewdir     = data .. '/view'                     -- where to store files for :mkview
+vim.opt.viewdir     = data .. '/view'                       -- where to store files for :mkview
 vim.opt.viewoptions = 'cursor,folds'                        -- save/restore just these (with `:{mk,load}view`)
 vim.opt.virtualedit = 'block'                               -- allow cursor to move where there is no text in visual block mode
 vim.opt.visualbell  = true                                  -- stop annoying beeping for non-error errors
@@ -176,8 +177,28 @@ vim.g.perl_host_prog = vim.fn.expand('~/.asdf/shims/perl')
 vim.g.mapleader = ' '
 vim.g.maplocalleader = '\\'
 
--- Plugins
-require('plugins')
+vim.api.nvim_set_keymap('n', 'Q', '@q', { noremap = true })
+vim.api.nvim_set_keymap('n', '<Leader>=', 'migg=G`i', { noremap = true })
+vim.api.nvim_set_keymap('n', 'Y', 'y$', { noremap = true })
+vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { noremap = true })
+vim.api.nvim_set_keymap('n', '<Leader>s', ':s/\\(<C-r>=expand("<cword>")<CR>\\)/', { noremap = true })
+vim.cmd [[command! Vimrc vsp ~/.config/nvim/init.lua]]
+vim.api.nvim_set_keymap('v', '<Leader>p', '"_dP', { noremap = true })
+vim.api.nvim_set_keymap('n', '<Leader>\\', ':vsplit<CR>', { noremap = true })
+vim.api.nvim_set_keymap('n', '<Leader>-', ':split<CR>', { noremap = true })
+
+-- Corpus
+
+vim.g.CorpusDirectories = {
+  ['~/Documents/Corpus'] = {
+    autocmmit = true,
+    autoreference = 1,
+    autotitle = 1,
+    base = './',
+    transform = 'local',
+  }
+}
+-- vim.g.CorpusPreviewWinhighlight = "EndOfBuffer:LineNr,FoldColumn:StatusLine,Normal:LineNr"
 
 -- Modeline {{{1
 
