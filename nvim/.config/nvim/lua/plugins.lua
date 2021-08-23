@@ -1,5 +1,8 @@
 vim.cmd [[ packadd packer.nvim ]]
 local use = require('packer').use
+local is_rails = function()
+  return vim.fn.filereadable('Gemfile') > 0 or vim.fn.filereadable('config.ru') > 0
+end
 
 return require('packer').startup(function()
   use {
@@ -21,7 +24,7 @@ return require('packer').startup(function()
 
   use {
     'tpope/vim-bundler',
-    ft = "ruby",
+    cond = is_rails,
   }
 
   use 'tpope/vim-commentary'
@@ -99,14 +102,12 @@ return require('packer').startup(function()
 
   use {
     'tpope/vim-rails',
-    cond = function()
-      return vim.fn.filereadable('Gemfile') > 0 or vim.fn.filereadable('config.ru') > 0
-    end,
+    cond = is_rails,
   }
 
   use {
     'tpope/vim-rake',
-    ft = "ruby",
+    cond = is_rails
   }
   use 'tpope/vim-repeat'
   use {
@@ -207,7 +208,8 @@ return require('packer').startup(function()
     keys = {
       {"", "<C-p>"},
       {"", "<Leader>ff"},
-      {"", "<Leader>fg"}
+      {"", "<Leader>fg"},
+      {"", "<Leader>en"},
     },
     config = function()
       require('dblanken.telescope')
@@ -293,8 +295,14 @@ return require('packer').startup(function()
     run = "GlowInstall"
   }
 
-  use { 
+  use {
     'sotte/presenting.vim',
     cmd = "StartPresenting"
   }
+
+  use {
+    'kchmck/vim-coffee-script',
+    ft = 'coffee'
+  }
+
 end)
