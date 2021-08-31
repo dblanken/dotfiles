@@ -3,39 +3,45 @@
 let mapleader="\<Space>"
 
 " {{{1 Plugins
-packadd! vim-commentary        " For commenting
-packadd! vim-eunuch            " Shell file operations
-packadd! vim-sleuth            " Don't worry about tabs/spacing
-packadd! vim-dispatch          " Async test running
-packadd! vim-fugitive          " Git
-packadd! vim-projectionist     " Easy project traversal
-packadd! vim-rails             " Rails
-packadd! vim-rake              " Rake
-packadd! vim-repeat            " Make plugins repeatable
-packadd! vim-ruby              " Ruby
-packadd! vim-surround          " Surround mappings
-packadd! vim-test              " Testing
-packadd! vim-unimpaired        " [/] mappings
-packadd! vim-vinegar           " File tree navigation
-packadd! ale                   " linting
-packadd! vim-tmux-navigator    " Tmux integration
-packadd! vim-endwise           " Endings
-packadd! auto-pairs            " { } pairing
-packadd! splitjoin.vim         " Splitting/Joining blocks
-packadd! vim-textobj-user      " Needed for rubyblock
-packadd! vim-textobj-rubyblock " ir,ar                               "
-packadd! CamelCaseMotion       " Traverse CamelCaseWords (<Leader>w)
-packadd! emmet-vim             " Easy HTML
-packadd! sideways.vim          " Argument swapping
-packadd! tabular               " Easy tabbed formatting
-packadd! fzf.vim
+call plug#begin(expand('~/.local/share/vim/plugins'))
+
+Plug 'AndrewRadev/sideways.vim'       " Argument swapping
+Plug 'AndrewRadev/splitjoin.vim'      " Splitting/Joining blocks
+Plug 'bkad/CamelCaseMotion'           " Traverse CamelCaseWords (<Leader>w)
+Plug 'christoomey/vim-tmux-navigator' " Tmux integration
+Plug 'dense-analysis/ale'             " linting
+Plug 'godlygeek/tabular'              " Easy tabbed formatting
+Plug 'jiangmiao/auto-pairs'           " { } pairing
+Plug 'junegunn/fzf.vim'               " Fuzzy finding
+Plug 'kana/vim-textobj-user'          " Needed for rubyblock
+Plug 'mattn/emmet-vim'                " Easy HTML
+Plug 'morhetz/gruvbox'                " The best colorscheme
+Plug 'nelstrom/vim-textobj-rubyblock' " ir,ar                               "
+Plug 'tpope/vim-commentary'           " For commenting
+Plug 'tpope/vim-dispatch'             " Async test running
+Plug 'tpope/vim-endwise'              " Endings
+Plug 'tpope/vim-eunuch'               " Shell file operations
+Plug 'tpope/vim-fugitive'             " Git
+Plug 'tpope/vim-projectionist'        " Easy project traversal
+Plug 'tpope/vim-rails'                " Rails
+Plug 'tpope/vim-rake'                 " Rake
+Plug 'tpope/vim-repeat'               " Make plugins repeatable
+Plug 'tpope/vim-sleuth'               " Don't worry about tabs/spacing
+Plug 'tpope/vim-surround'             " Surround mappings
+Plug 'tpope/vim-unimpaired'           " [/] mappings
+Plug 'tpope/vim-vinegar'              " File tree navigation
+Plug 'vim-ruby/vim-ruby'              " Ruby
+Plug 'vim-test/vim-test'              " Testing
+
 if isdirectory('/usr/local/opt/fzf')
   set rtp+=/usr/local/opt/fzf
 elseif isdirectory('$HOME/.fzf')
   set rtp+=~/.fzf
 else
-  packadd! fzf
+  Plug 'junegunn/fzf'
 endif
+
+call plug#end()
 " }}}
 " {{{1 Settings
 unlet! skip_defaults_vim
