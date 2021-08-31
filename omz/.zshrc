@@ -1,3 +1,5 @@
+export EDITOR='vim'
+
 # For new dotfiles installs, ohmz might not be there, so let me know
 if test ! -d ~/.oh-my-zsh; then
 	echo "Don't forget to install oh-my-zsh; exiting"
@@ -106,16 +108,32 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
+export GPG_TTY=$(tty)
 export KN="$HOME/code"
 export GITUSER="dblanken"
+export DOTFILES="$HOME/.dotfiles"
+if test "$EDITOR" != "vim"; then
+  alias vim="$EDITOR"
+  alias vi="$EDITOR"
+fi
 
-export EDITOR='nvim'
-# alias vim=nvim
-# alias vi=nvim
+export THOR_MERGE='$EDITOR -d'
+export LESSOPEN="|/usr/local/bin/lesspipe.sh %s" LESS_ADVANCED_PREPROCESSOR=1
+
 alias mysqld='mysqld --datadir="$DATADIR"'
 alias '?'=duck
 alias '??'=google
 alias '???'=bing
+alias lock='pmset displaysleepnow'
+alias top='htop'
+alias df='df -h'
+alias free='free -h'
+alias chmox='chmod +x'
+alias view='vi -R'
+alias clear='printf "\e[H\e[2J"'
+alias snippets='cd $SNIPPETS'
+alias dot='cd $DOTFILES'
+alias x='exit'
 
 autoload -U add-zsh-hook
 
@@ -150,8 +168,9 @@ bindkey '^Z' fg-bg
 # From https://www.youtube.com/watch?v=bdumjiHabhQ
 # bindkey -s ^f "tmux-sessionizer\n"
 
+
 # Base16 Shell
-BASE16_SHELL="$HOME/.config/base16-shell/"
-[ -n "$PS1" ] && \
-    [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
-        eval "$("$BASE16_SHELL/profile_helper.sh")"
+# BASE16_SHELL="$HOME/.config/base16-shell/"
+# [ -n "$PS1" ] && \
+#     [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
+#         eval "$("$BASE16_SHELL/profile_helper.sh")"

@@ -67,51 +67,55 @@ function()
     }
   }
 
-  use {
-    'hrsh7th/nvim-compe',
-    event = "InsertEnter",
-    config = function()
-      require 'plugins.compe'
-    end,
-    wants = "vim-vsnip",
-    requires = {
-      {
-        'hrsh7th/vim-vsnip',
-        wants = "friendly-snippets",
-        event = "InsertCharPre",
-      },
-      {
-        'rafamadriz/friendly-snippets',
-        event = "InsertCharPre",
-      },
-      {
-        'onsails/lspkind-nvim',
-        event = "BufRead",
-        config = function()
-          require('plugins.lspkind')
-        end
-      },
-    }
-  }
+  -- use {
+  --   'hrsh7th/nvim-compe',
+  --   event = "InsertEnter",
+  --   config = function()
+  --     require 'plugins.compe'
+  --   end,
+  --   wants = "vim-vsnip",
+  --   requires = {
+  --     {
+  --       'hrsh7th/vim-vsnip',
+  --       wants = "friendly-snippets",
+  --       event = "InsertCharPre",
+  --     },
+  --     {
+  --       'rafamadriz/friendly-snippets',
+  --       event = "InsertCharPre",
+  --     },
+  --     {
+  --       'onsails/lspkind-nvim',
+  --       event = "BufRead",
+  --       config = function()
+  --         require('plugins.lspkind')
+  --       end
+  --     },
+  --   }
+  -- }
 
-  use {
-    'windwp/nvim-autopairs',
-    after = "nvim-compe",
-    config = function()
-      require 'plugins.autopairs'
-    end
-  }
+  -- use {
+  --   'windwp/nvim-autopairs',
+  --   after = "nvim-compe",
+  --   config = function()
+  --     require 'plugins.autopairs'
+  --   end
+  -- }
 
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
-
-  use 'AndrewRadev/splitjoin.vim'
-  use 'AndrewRadev/sideways.vim'
 
   use {
     'gruvbox-community/gruvbox',
     after = "packer.nvim",
     config = function()
       require 'theme'
+    end
+  }
+
+  use {
+    'bkad/CamelCaseMotion',
+    config = function()
+      require 'plugins.camelcasemotion'
     end
   }
 end

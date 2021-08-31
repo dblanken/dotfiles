@@ -3,35 +3,38 @@
 let mapleader="\<Space>"
 
 " {{{1 Plugins
-packadd! vim-commentary 		" For commenting
-packadd! vim-eunuch 			" Shell file operations
-packadd! vim-sleuth 			" Don't worry about tabs/spacing
-packadd! vim-dispatch 			" Async test running
-packadd! vim-fugitive 			" Git
-packadd! vim-projectionist 		" Easy project traversal
-packadd! vim-rails 			" Rails
-packadd! vim-rake 			" Rake
-packadd! vim-repeat 			" Make plugins repeatable
-packadd! vim-ruby			" Ruby
-packadd! vim-surround 			" Surround mappings
-packadd! vim-test 			" Testing
-packadd! vim-unimpaired			" [/] mappings
-packadd! vim-vinegar			" File tree navigation
-packadd! ale 				" linting
-packadd! vim-tmux-navigator 		" Tmux integration
-packadd! vim-endwise 			" Endings
-packadd! auto-pairs			" { } pairing
-packadd! splitjoin.vim 			" Splitting/Joining blocks
-packadd vim-textobj-user
-packadd! vim-textobj-rubyblock
-packadd! CamelCaseMotion
+packadd! vim-commentary        " For commenting
+packadd! vim-eunuch            " Shell file operations
+packadd! vim-sleuth            " Don't worry about tabs/spacing
+packadd! vim-dispatch          " Async test running
+packadd! vim-fugitive          " Git
+packadd! vim-projectionist     " Easy project traversal
+packadd! vim-rails             " Rails
+packadd! vim-rake              " Rake
+packadd! vim-repeat            " Make plugins repeatable
+packadd! vim-ruby              " Ruby
+packadd! vim-surround          " Surround mappings
+packadd! vim-test              " Testing
+packadd! vim-unimpaired        " [/] mappings
+packadd! vim-vinegar           " File tree navigation
+packadd! ale                   " linting
+packadd! vim-tmux-navigator    " Tmux integration
+packadd! vim-endwise           " Endings
+packadd! auto-pairs            " { } pairing
+packadd! splitjoin.vim         " Splitting/Joining blocks
+packadd! vim-textobj-user      " Needed for rubyblock
+packadd! vim-textobj-rubyblock " ir,ar                               "
+packadd! CamelCaseMotion       " Traverse CamelCaseWords (<Leader>w)
+packadd! emmet-vim             " Easy HTML
+packadd! sideways.vim          " Argument swapping
+packadd! tabular               " Easy tabbed formatting
 packadd! fzf.vim
 if isdirectory('/usr/local/opt/fzf')
-	set rtp+=/usr/local/opt/fzf
+  set rtp+=/usr/local/opt/fzf
 elseif isdirectory('$HOME/.fzf')
-	set rtp+=~/.fzf
+  set rtp+=~/.fzf
 else
-	packadd! fzf
+  packadd! fzf
 endif
 " }}}
 " {{{1 Settings
@@ -98,39 +101,39 @@ set updatetime=50
 " }}}
 " {{{1 autogroups
 augroup misc
-	autocmd!
+  autocmd!
 
-	" When resized, resize the windows inside
-	autocmd VimResized * execute "normal! \<c-w>="
+  " When resized, resize the windows inside
+  autocmd VimResized * execute "normal! \<c-w>="
 
-	" Nest source on changes to vimrc
-	autocmd BufWritePost .vimrc,init.vim,vimrc nested source %
+  " Nest source on changes to vimrc
+  autocmd BufWritePost .vimrc,init.vim,vimrc nested source %
 
-	autocmd BufEnter,BufNewFile .zshrc,zshrc setlocal filetype=zsh
+  autocmd BufEnter,BufNewFile .zshrc,zshrc setlocal filetype=zsh
 
-	autocmd BufWritePre * :call whitespace#trim()
+  autocmd BufWritePre * :call whitespace#trim()
 augroup end
 
 augroup ruby
-	autocmd!
-	" Make ? part of a keyword
-	autocmd FileType ruby,eruby,yaml setlocal iskeyword+=?
+  autocmd!
+  " Make ? part of a keyword
+  autocmd FileType ruby,eruby,yaml setlocal iskeyword+=?
 augroup end
 
 augroup dblanken_filetypes
-	autocmd FileType * setlocal nolinebreak
-	autocmd FileType xml,xsd,xslt,javascript setlocal ts=2
-	autocmd FileType mail,gitcommit setlocal tw=72
-	autocmd FileType sh,zsh,csh,tcsh setlocal fo-=t|
-				\ inoremap <silent> <buffer> <C-X>! #!/bin/<C-R>=&ft<CR>
-	autocmd FileType perl,python,ruby,tcl
-				\ inoremap <silent> <buffer> <C-X>! #!/usr/bin/env<Space><C-R>=&ft<CR>
-	autocmd FileType javascript
-				\ inoremap <silent> <buffer> <C-X>! #!/usr/bin/env<Space>node
-	autocmd FileType help setlocal ai formatoptions+=2n
-	autocmd FileType ruby setlocal comments=:#\ tw=78
-	autocmd FileType liquid,markdown,text,txt setlocal tw=78 linebreak keywordprg=dict
-	autocmd FileType markdown call SetBujoMappings()
+  autocmd FileType * setlocal nolinebreak
+  autocmd FileType xml,xsd,xslt,javascript setlocal ts=2
+  autocmd FileType mail,gitcommit setlocal tw=72
+  autocmd FileType sh,zsh,csh,tcsh setlocal fo-=t|
+        \ inoremap <silent> <buffer> <C-X>! #!/bin/<C-R>=&ft<CR>
+  autocmd FileType perl,python,ruby,tcl
+        \ inoremap <silent> <buffer> <C-X>! #!/usr/bin/env<Space><C-R>=&ft<CR>
+  autocmd FileType javascript
+        \ inoremap <silent> <buffer> <C-X>! #!/usr/bin/env<Space>node
+  autocmd FileType help setlocal ai formatoptions+=2n
+  autocmd FileType ruby setlocal comments=:#\ tw=78
+  autocmd FileType liquid,markdown,text,txt setlocal tw=78 linebreak keywordprg=dict
+  autocmd FileType markdown call SetBujoMappings()
 augroup END
 " }}}
 " {{{1 Mappings
@@ -139,7 +142,7 @@ nnoremap <Leader>= migg=G`i
 nnoremap Y y$
 nnoremap <Leader>g :grep!<Space>
 if exists(':tnoremap')
-	tnoremap <Esc> <C-\><C-n>
+  tnoremap <Esc> <C-\><C-n>
 endif
 
 nnoremap <Leader>s :s/\(<C-r>=expand("<cword>")<CR>\)/
@@ -160,26 +163,28 @@ let g:netrw_winsize = 25
 " }}}
 " {{{1 rg/grep
 if executable('rg')
-	set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case
+  set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case
 endif
 " }}}
 " {{{1 spelling
 if has('spell')
-	setglobal spelllang=en_us
-	setglobal spellfile=~/.vim/spell/en.utf-8.add
-	let g:spellfile_URL = 'http://ftp.vim.org/vim/runtime/spell'
-	autocmd FileType gitcommit setlocal spell
-	autocmd FileType help if &buftype ==# 'help' | setlocal nospell | endif
+  setglobal spelllang=en_us
+  setglobal spellfile=~/.vim/spell/en.utf-8.add
+  let g:spellfile_URL = 'http://ftp.vim.org/vim/runtime/spell'
+  autocmd FileType gitcommit setlocal spell
+  autocmd FileType help if &buftype ==# 'help' | setlocal nospell | endif
 endif
 
 " }}}
 
+" Vim-Test
 nmap <silent> <leader>t :TestNearest<CR>
 nmap <silent> <leader>T :TestFile<CR>
 nmap <silent> <leader>a :TestSuite<CR>
 nmap <silent> <leader>l :TestLast<CR>
 let g:test#strategy = 'dispatch'
 
+" ALE
 nmap <silent> ]d         <Plug>(ale_next_wrap)
 nmap <silent> [d         <Plug>(ale_previous_wrap)
 nmap <silent> gd         <Plug>(ale_go_to_definition)
@@ -196,7 +201,11 @@ let g:ale_sign_error = ' '
 let g:ale_sign_info = ' '
 let g:ale_sign_warning = ' '
 
+set omnifunc=ale#completion#OmniFunc
+
+call camelcasemotion#CreateMotionMappings('<leader>')
+
 nnoremap <silent> <C-p> :Files<CR>
 
 call transparency#enable()
-colorscheme gruvbox8
+colorscheme gruvbox
