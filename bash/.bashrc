@@ -18,14 +18,9 @@ export HRULEWIDTH=73
 export EDITOR=vi
 export VISUAL=vi
 export EDITOR_PREFIX=vi
+export GPG_TTY=$(tty)
 
 test -d ~/.vim/spell && export VIMSPELL=(~/.vim/spell/*.add)
-
-export GOPRIVATE="github.com/$GITUSER/*,gitlab.com/$GITUSER/*"
-export GOPATH=~/.local/share/go
-export GOBIN=~/.local/bin
-export GOPROXY=direct
-export CGO_ENABLED=0
 
 # ------------------------------- os detection -----------------------
 
@@ -228,10 +223,6 @@ __ps1() {
 
 PROMPT_COMMAND="__ps1"
 
-# ----------------------------- keyboard -----------------------------
-
-test -n "$DISPLAY" && setxkbmap -option caps:escape &>/dev/null
-
 # ------------- source external dependencies / completion ------------
 
 if type brew &>/dev/null; then
@@ -291,35 +282,15 @@ b() { build "$@"; } && export -f b
 d() { docker "$@"; } && export -f d
 k() { kubectl "$@"; } && export -f k
 
-envx() {
-  local envfile="$1"
-  if test ! -e "$envfile" ; then
-    if test ! -e ~/.env ; then
-      echo "file not found: $envfile"
-      return
-    fi
-    envfile=~/.env
+##
+## TMUX auto attach
+##
+if [[ -z "$TMUX" ]] ;then                   # do not allow "tmux in tmux"
+  ID="$( tmux ls | grep -vm1 attached | cut -d: -f1 )"    # get the id of a deattached session
+  if [[ -z "$ID" ]] ;then                                 # if not available create a new one
+    tmux new-session
+  else
+    tmux attach-session -t "$ID"                    # if available, attach to it
   fi
-  while IFS= read -r line; do
-    name=${line%%=*}
-    value=${line#*=}
-    if [[ -z "${name}" || $name =~ ^# ]]; then
-      continue
-    fi
-    export "$name"="$value"
-  done <"${envfile}"
-} && export -f envx
-
-test -e ~/.env && envx ~/.env
-
-# -------------------- personalized configuration --------------------
-
-test -r ~/.bash_personal && source ~/.bash_personal
-test -r ~/.bash_private && source ~/.bash_private
-test -r ~/.bash_work && source ~/.bash_work
-
-# Base16 Shell
-BASE16_SHELL="$HOME/.config/base16-shell/"
-[ -n "$PS1" ] && \
-    [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
-        eval "$("$BASE16_SHELL/profile_helper.sh")"
+  exit
+fi
