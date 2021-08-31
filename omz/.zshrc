@@ -10,7 +10,7 @@ fi
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/Users/dblanken/.oh-my-zsh"
+export ZSH="$HOME/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -153,6 +153,10 @@ export CDPATH=.:~/code:~
 export DATADIR="$HOME/.mysql_data"
 export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --glob '!.git'"
 export SCRIPTS="~/.dotfiles/scripts/.local/bin"
+
+if [ -d "/home/linuxbrew" ]; then
+  export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+fi
 
 # Make CTRL-Z background things and unbackground them.
 function fg-bg() {

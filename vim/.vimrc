@@ -16,7 +16,7 @@ Plug 'junegunn/fzf.vim'               " Fuzzy finding
 Plug 'kana/vim-textobj-user'          " Needed for rubyblock
 Plug 'mattn/emmet-vim'                " Easy HTML
 Plug 'morhetz/gruvbox'                " The best colorscheme
-Plug 'nelstrom/vim-textobj-rubyblock' " ir,ar                               "
+Plug 'nelstrom/vim-textobj-rubyblock' " ir,ar
 Plug 'tpope/vim-commentary'           " For commenting
 Plug 'tpope/vim-dispatch'             " Async test running
 Plug 'tpope/vim-endwise'              " Endings
