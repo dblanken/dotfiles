@@ -10,15 +10,15 @@ find_config() {
 	done
 }
 
-function vimrc() {
-    local vimrc_location
-    vimrc_location=~/.vimrc
+# function vimrc() {
+#     local vimrc_location
+#     vimrc_location=~/.vimrc
 
-    if test -f ~/.vim/vimrc; then
-        vimrc_location=~/.vim/vimrc
-    fi
+#     if test -f ~/.vim/vimrc; then
+#         vimrc_location=~/.vim/vimrc
+#     fi
 
-    exec ${EDITOR:-vim} "$vimrc_location"
-}
+#     exec ${EDITOR:-vim} "$vimrc_location"
+# }
 
 exec ${EDITOR=-vim} "$(find_config)" "$@"
