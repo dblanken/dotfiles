@@ -107,6 +107,12 @@ _G.packer_plugins = {
     loaded = true,
     path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/nvim-treesitter"
   },
+  ["nvim-ts-context-commentstring"] = {
+    config = { "\27LJ\2\nE\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0*plugins/nvim-ts-context-commentstring\frequire\0" },
+    loaded = true,
+    needs_bufread = false,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/opt/nvim-ts-context-commentstring"
+  },
   ["packer.nvim"] = {
     after = { "gruvbox" },
     loaded = false,
@@ -245,8 +251,8 @@ vim.cmd [[augroup packer_load_aucmds]]
 vim.cmd [[au!]]
   -- Event lazy-loads
 time([[Defining lazy-load event autocommands]], true)
-vim.cmd [[au BufRead * ++once lua require("packer.load")({'lspsaga.nvim'}, { event = "BufRead *" }, _G.packer_plugins)]]
 vim.cmd [[au VimEnter * ++once lua require("packer.load")({'nvim-lspinstall', 'packer.nvim'}, { event = "VimEnter *" }, _G.packer_plugins)]]
+vim.cmd [[au BufRead * ++once lua require("packer.load")({'lspsaga.nvim'}, { event = "BufRead *" }, _G.packer_plugins)]]
 time([[Defining lazy-load event autocommands]], false)
 vim.cmd("augroup END")
 if should_profile then save_profiles() end

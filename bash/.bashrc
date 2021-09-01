@@ -15,9 +15,9 @@ export KN=$GHREPOS
 
 export TERM=xterm-256color
 export HRULEWIDTH=73
-export EDITOR=vi
+export EDITOR=nvim
 export VISUAL=vi
-export EDITOR_PREFIX=vi
+export EDITOR_PREFIX=nvim
 export GPG_TTY=$(tty)
 
 test -d ~/.vim/spell && export VIMSPELL=(~/.vim/spell/*.add)

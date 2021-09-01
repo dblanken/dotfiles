@@ -1,4 +1,4 @@
-export EDITOR='vim'
+export EDITOR='nvim'
 
 # For new dotfiles installs, ohmz might not be there, so let me know
 if test ! -d ~/.oh-my-zsh; then

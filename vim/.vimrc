@@ -16,7 +16,7 @@ Plug 'junegunn/fzf.vim'               " Fuzzy finding
 Plug 'kana/vim-textobj-user'          " Needed for rubyblock
 Plug 'mattn/emmet-vim'                " Easy HTML
 Plug 'morhetz/gruvbox'                " The best colorscheme
-Plug 'nelstrom/vim-textobj-rubyblock' " ir,ar                               "
+Plug 'nelstrom/vim-textobj-rubyblock' " ir and ar
 Plug 'tpope/vim-commentary'           " For commenting
 Plug 'tpope/vim-dispatch'             " Async test running
 Plug 'tpope/vim-endwise'              " Endings
@@ -207,7 +207,10 @@ let g:ale_sign_error = ' '
 let g:ale_sign_info = ' '
 let g:ale_sign_warning = ' '
 
-set omnifunc=ale#completion#OmniFunc
+augroup AleOmni
+  au!
+  autocmd FileType ruby setlocal omnifunc=ale#completion#OmniFunc
+augroup END
 
 call camelcasemotion#CreateMotionMappings('<leader>')
 

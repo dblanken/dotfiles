@@ -41,6 +41,14 @@ function()
   use 'AndrewRadev/sideways.vim'
 
   use {
+    'JoosepAlviste/nvim-ts-context-commentstring',
+    after = 'nvim-treesitter',
+    config = function()
+      require 'plugins/nvim-ts-context-commentstring'
+    end
+  }
+
+  use {
     'kabouzeid/nvim-lspinstall',
     event = "VimEnter"
   }
