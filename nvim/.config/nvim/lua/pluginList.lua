@@ -70,45 +70,54 @@ function()
   use {
     'nvim-telescope/telescope.nvim',
     module = "telescope.builtin",
+    cmd = "Telescope",
     requires = {
       {'nvim-lua/plenary.nvim'}
     }
   }
+  use {
+   'nvim-telescope/telescope-fzf-native.nvim',
+   run = 'make',
+   after = "telescope.nvim",
+   config = function()
+     require 'plugins.telescope-fzf-native'
+   end
+ }
 
-  -- use {
-  --   'hrsh7th/nvim-compe',
-  --   event = "InsertEnter",
-  --   config = function()
-  --     require 'plugins.compe'
-  --   end,
-  --   wants = "vim-vsnip",
-  --   requires = {
-  --     {
-  --       'hrsh7th/vim-vsnip',
-  --       wants = "friendly-snippets",
-  --       event = "InsertCharPre",
-  --     },
-  --     {
-  --       'rafamadriz/friendly-snippets',
-  --       event = "InsertCharPre",
-  --     },
-  --     {
-  --       'onsails/lspkind-nvim',
-  --       event = "BufRead",
-  --       config = function()
-  --         require('plugins.lspkind')
-  --       end
-  --     },
-  --   }
-  -- }
+  use {
+    'hrsh7th/nvim-compe',
+    event = "InsertEnter",
+    config = function()
+      require 'plugins.compe'
+    end,
+    wants = "vim-vsnip",
+    requires = {
+      {
+        'hrsh7th/vim-vsnip',
+        wants = "friendly-snippets",
+        event = "InsertCharPre",
+      },
+      {
+        'rafamadriz/friendly-snippets',
+        event = "InsertCharPre",
+      },
+      {
+        'onsails/lspkind-nvim',
+        event = "BufRead",
+        config = function()
+          require('plugins.lspkind')
+        end
+      },
+    }
+  }
 
-  -- use {
-  --   'windwp/nvim-autopairs',
-  --   after = "nvim-compe",
-  --   config = function()
-  --     require 'plugins.autopairs'
-  --   end
-  -- }
+  use {
+    'windwp/nvim-autopairs',
+    after = "nvim-compe",
+    config = function()
+      require 'plugins.autopairs'
+    end
+  }
 
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
 
@@ -125,6 +134,18 @@ function()
     config = function()
       require 'plugins.camelcasemotion'
     end
+  }
+
+  use 'godlygeek/tabular'
+
+  use {'iamcco/markdown-preview.nvim', run = 'cd app && yarn install'}
+
+  use 'vim-pandoc/vim-pandoc'
+  use 'vim-pandoc/vim-pandoc-syntax'
+  use {
+    'nelstrom/vim-textobj-rubyblock',
+    requires = { { 'kana/vim-textobj-user'} },
+    ft = "ruby"
   }
 end
 )

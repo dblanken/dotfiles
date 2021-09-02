@@ -45,6 +45,12 @@ dblanken_precmd() {
 	vcs_info
 }
 
+dblanken_ruby() {
+  if [[ -a config.ru ]]; then
+    echo "%F{blue}%f $(asdf current ruby | awk '{print $2}') "
+  fi
+}
+
 autoload -U add-zsh-hook
 add-zsh-hook precmd dblanken_precmd
 
@@ -52,7 +58,7 @@ add-zsh-hook precmd dblanken_precmd
 # PROMPT+=' %{$fg[cyan]%}%c%{$reset_color%} ${vcs_info_msg_0_}'
 # PROMPT+=' %{$fg[cyan]%}%c%{$reset_color%} $(git_prompt_info)'
 
-RPROMPT_BASE="\${vcs_info_msg_0_}%F{blue}%~%f"
+RPROMPT_BASE="\$(dblanken_ruby)\${vcs_info_msg_0_}%F{blue}%~%f"
 setopt PROMPT_SUBST
 
 # Anonymous function to avoid leaking variables.

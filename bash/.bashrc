@@ -7,9 +7,7 @@ esac
 #                           (also see envx)
 
 export GITUSER="$USER"
-export DOTFILES="$HOME/code/dotfiles"
-export SNIPPETS="$HOME/code/dotfiles/snippets"
-export SCRIPTS="$HOME/code/dotfiles/scripts"
+export DOTFILES="$HOME/.dotfiles"
 export GHREPOS="$HOME/code"
 export KN=$GHREPOS
 
@@ -19,6 +17,9 @@ export EDITOR=nvim
 export VISUAL=vi
 export EDITOR_PREFIX=nvim
 export GPG_TTY=$(tty)
+export THOR_MERGE='$EDITOR -d'
+export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --glob '!.git'"
+export SCRIPTS="~/.dotfiles/scripts/.local/bin"
 
 test -d ~/.vim/spell && export VIMSPELL=(~/.vim/spell/*.add)
 
@@ -152,33 +153,18 @@ PROMPT_MAX=95
 __ps1() {
   local P='$'
 
-  if test -n "${ZSH_VERSION}"; then
-    local r='%F{red}'
-    local g='%F{black}'
-    local h='%F{blue}'
-    local u='%F{yellow}'
-    local p='%F{yellow}'
-    local w='%F{magenta}'
-    local b='%F{cyan}'
-    local x='%f'
-  else
-    local r='\[\e[31m\]'
-    local g='\[\e[0m\]'
-    local h='\[\e[34m\]'
-    local u='\[\e[33m\]'
-    local p='\[\e[33m\]'
-    local w='\[\e[35m\]'
-    local b='\[\e[36m\]'
-    local x='\[\e[0m\]'
-  fi
+  local r='\[\e[31m\]'
+  local g='\[\e[0m\]'
+  local h='\[\e[34m\]'
+  local u='\[\e[33m\]'
+  local p='\[\e[33m\]'
+  local w='\[\e[35m\]'
+  local b='\[\e[36m\]'
+  local x='\[\e[0m\]'
 
   if test "${EUID}" == 0; then
     P='#'
-    if test -n "${ZSH_VERSION}"; then
-      u='$F{red}'
-    else
-      u=$r
-    fi
+    u=$r
     p=$u
   fi
 
@@ -198,27 +184,14 @@ __ps1() {
 
   local B=$(git branch --show-current 2>/dev/null)
   test "$dir" = "$B" && B='.'
-  local countme="$USER@$(hostname):$dir($B)\$ "
 
   test -n "$B" && B="$g[$b$B$g]"
 
-  if test -n "${ZSH_VERSION}"; then
-    local short="$u%n$g@$h%m$g:$w$dir$B$p$P$x "
-    local long="$g╔ $u%n$g@%m\h$g:$w$dir$B\n$g╚ $p$P$x "
-    local double="$g╔ $u%n$g@%m\h$g:$w$dir\n$g║ $B\n$g╚ $p$P$x "
-  else
-    local short="$u\u$g@$h\h$g $w$dir$B$p$P$x "
-    local long="$g╔ $u\u$g@$h\h$g:$w$dir$B\n$g╚ $p$P$x "
-    local double="$g╔ $u\u$g@$h\h$g:$w$dir\n$g║ $B\n$g╚ $p$P$x "
-  fi
+  local short="$u\u$g@$h\h$g $w$dir$B$p$P$x "
+  local long="$g╔ $u\u$g@$h\h$g:$w$dir$B\n$g╚ $p$P$x "
+  local double="$g╔ $u\u$g@$h\h$g:$w$dir\n$g║ $B\n$g╚ $p$P$x "
 
-  if test ${#countme} -gt "${PROMPT_MAX}"; then
-    PS1="$double"
-  elif test ${#countme} -gt "${PROMPT_LONG}"; then
-    PS1="$long"
-  else
-    PS1="$short"
-  fi
+  PS1="$short"
 }
 
 PROMPT_COMMAND="__ps1"
@@ -267,30 +240,45 @@ alias top=htop
 alias chmox='chmod +x'
 alias temp='cd $(mktemp -d)'
 alias view='vi -R' # which is usually linked to vim
-alias c='printf "\e[H\e[2J"'
 alias clear='printf "\e[H\e[2J"'
-alias snippets='cd $SNIPPETS'
+alias dot='cd $DOTFILES'
 alias lock='pmset displaysleepnow'
 
-which vim &>/dev/null && alias vi=vim
-# which nvim &>/dev/null && alias vi=nvim
+if [[ "$EDITOR" == "vim" ]]; then
+  alias vi=vim
+elif [[ "$EDITOR" == "nvim" ]]; then
+  alias vi=nvim
+fi
 
 # ----------------------------- functions ----------------------------
 
-build() { ./build "$@"; } && export -f build
-b() { build "$@"; } && export -f b
 d() { docker "$@"; } && export -f d
-k() { kubectl "$@"; } && export -f k
 
-##
-## TMUX auto attach
-##
-if [[ -z "$TMUX" ]] ;then                   # do not allow "tmux in tmux"
-  ID="$( tmux ls | grep -vm1 attached | cut -d: -f1 )"    # get the id of a deattached session
-  if [[ -z "$ID" ]] ;then                                 # if not available create a new one
+# Use c to quickly go to a codebase
+c() { cd "$HOME/code/$1"; }
+_c()
+{
+  local curr_arg;
+
+  if [[ -n ${COMP_WORDS} ]]; then
+    curr_arg=${COMP_WORDS[COMP_CWORD]}
+  else
+    curr_arg=""
+  fi
+
+  COMPREPLY=($(ls -ld $HOME/code/${curr_arg}* | grep ^d | sed s/^.*\\/\//))
+}
+
+complete -F _c c
+
+# ----------------------------- tmux auto attach ---------------------
+
+if [[ -z "$TMUX" ]] ;then                              # do not allow "tmux in tmux"
+  ID="$( tmux ls | grep -vm1 attached | cut -d: -f1 )" # get the id of a deattached session
+  if [[ -z "$ID" ]] ;then                              # if not available create a new one
     tmux new-session
   else
-    tmux attach-session -t "$ID"                    # if available, attach to it
+    tmux attach-session -t "$ID"                       # if available, attach to it
   fi
   exit
 fi

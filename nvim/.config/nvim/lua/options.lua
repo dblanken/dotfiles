@@ -104,7 +104,7 @@ g.python_host_prog = home .. '/.asdf/shims/python2'
 g.python3_host_prog = home .. '/.asdf/shims/python3'
 g.ruby_host_prog = home .. '/.asdf/shims/neovim-ruby-host'
 g.node_host_prog = home .. '/.config/yarn/global/node_modules/neovim/bin/cli.js'
-g.perl_host_prog = home .. '/.asdf/.shims/perl'
+g.perl_host_prog = home .. '/.asdf/shims/perl'
 
 -- Disable built-in plugins
 local disabled_built_ins = {

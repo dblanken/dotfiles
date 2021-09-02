@@ -72,7 +72,12 @@ _G.packer_plugins = {
   CamelCaseMotion = {
     config = { "\27LJ\2\n7\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\28plugins.camelcasemotion\frequire\0" },
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/CamelCaseMotion"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/CamelCaseMotion"
+  },
+  ["friendly-snippets"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/opt/friendly-snippets"
   },
   gruvbox = {
     config = { "\27LJ\2\n%\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\ntheme\frequire\0" },
@@ -81,12 +86,40 @@ _G.packer_plugins = {
     },
     loaded = false,
     needs_bufread = false,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/opt/gruvbox"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/opt/gruvbox"
+  },
+  ["lspkind-nvim"] = {
+    config = { "\27LJ\2\n/\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\20plugins.lspkind\frequire\0" },
+    loaded = false,
+    needs_bufread = false,
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/opt/lspkind-nvim"
   },
   ["lspsaga.nvim"] = {
     loaded = false,
     needs_bufread = false,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/opt/lspsaga.nvim"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/opt/lspsaga.nvim"
+  },
+  ["markdown-preview.nvim"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/markdown-preview.nvim"
+  },
+  ["nvim-autopairs"] = {
+    config = { "\27LJ\2\n1\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\22plugins.autopairs\frequire\0" },
+    load_after = {
+      ["nvim-compe"] = true
+    },
+    loaded = false,
+    needs_bufread = false,
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/opt/nvim-autopairs"
+  },
+  ["nvim-compe"] = {
+    after = { "nvim-autopairs" },
+    after_files = { "/Users/dblanken/.local/nvim/site/pack/packer/opt/nvim-compe/after/plugin/compe.vim" },
+    config = { "\27LJ\2\n-\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\18plugins.compe\frequire\0" },
+    loaded = false,
+    needs_bufread = false,
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/opt/nvim-compe",
+    wants = { "vim-vsnip" }
   },
   ["nvim-lspconfig"] = {
     config = { "\27LJ\2\n1\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\22plugins.lspconfig\frequire\0" },
@@ -95,122 +128,160 @@ _G.packer_plugins = {
     },
     loaded = false,
     needs_bufread = false,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/opt/nvim-lspconfig"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/opt/nvim-lspconfig"
   },
   ["nvim-lspinstall"] = {
     after = { "nvim-lspconfig" },
     loaded = false,
     needs_bufread = false,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/opt/nvim-lspinstall"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/opt/nvim-lspinstall"
   },
   ["nvim-treesitter"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/nvim-treesitter"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/nvim-treesitter"
   },
   ["nvim-ts-context-commentstring"] = {
     config = { "\27LJ\2\nE\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0*plugins/nvim-ts-context-commentstring\frequire\0" },
     loaded = true,
     needs_bufread = false,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/opt/nvim-ts-context-commentstring"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/opt/nvim-ts-context-commentstring"
   },
   ["packer.nvim"] = {
     after = { "gruvbox" },
     loaded = false,
     needs_bufread = false,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/opt/packer.nvim"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/opt/packer.nvim"
   },
   ["plenary.nvim"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/plenary.nvim"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/plenary.nvim"
   },
   ["sideways.vim"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/sideways.vim"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/sideways.vim"
   },
   ["splitjoin.vim"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/splitjoin.vim"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/splitjoin.vim"
+  },
+  tabular = {
+    loaded = true,
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/tabular"
+  },
+  ["telescope-fzf-native.nvim"] = {
+    config = { "\27LJ\2\n<\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0!plugins.telescope-fzf-native\frequire\0" },
+    load_after = {
+      ["telescope.nvim"] = true
+    },
+    loaded = false,
+    needs_bufread = false,
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/opt/telescope-fzf-native.nvim"
   },
   ["telescope.nvim"] = {
+    after = { "telescope-fzf-native.nvim" },
+    commands = { "Telescope" },
     loaded = false,
     needs_bufread = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/opt/telescope.nvim"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/opt/telescope.nvim"
   },
   ["vim-bundler"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-bundler"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-bundler"
   },
   ["vim-commentary"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-commentary"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-commentary"
   },
   ["vim-dispatch"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-dispatch"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-dispatch"
   },
   ["vim-eunuch"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-eunuch"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-eunuch"
   },
   ["vim-fugitive"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-fugitive"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-fugitive"
   },
   ["vim-git"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-git"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-git"
   },
   ["vim-markdown"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-markdown"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-markdown"
+  },
+  ["vim-pandoc"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-pandoc"
+  },
+  ["vim-pandoc-syntax"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-pandoc-syntax"
   },
   ["vim-projectionist"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-projectionist"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-projectionist"
   },
   ["vim-ragtag"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-ragtag"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-ragtag"
   },
   ["vim-rails"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-rails"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-rails"
   },
   ["vim-rake"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-rake"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-rake"
   },
   ["vim-repeat"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-repeat"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-repeat"
   },
   ["vim-rhubarb"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-rhubarb"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-rhubarb"
   },
   ["vim-ruby"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-ruby"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-ruby"
   },
   ["vim-surround"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-surround"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-surround"
   },
   ["vim-test"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-test"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-test"
+  },
+  ["vim-textobj-rubyblock"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/opt/vim-textobj-rubyblock"
+  },
+  ["vim-textobj-user"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-textobj-user"
   },
   ["vim-tmux-navigator"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-tmux-navigator"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-tmux-navigator"
   },
   ["vim-unimpaired"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-unimpaired"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-unimpaired"
   },
   ["vim-vinegar"] = {
     loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-vinegar"
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/start/vim-vinegar"
+  },
+  ["vim-vsnip"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/Users/dblanken/.local/nvim/site/pack/packer/opt/vim-vsnip",
+    wants = { "friendly-snippets" }
   }
 }
 
@@ -247,12 +318,24 @@ end
 time([[Config for CamelCaseMotion]], true)
 try_loadstring("\27LJ\2\n7\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\28plugins.camelcasemotion\frequire\0", "config", "CamelCaseMotion")
 time([[Config for CamelCaseMotion]], false)
+
+-- Command lazy-loads
+time([[Defining lazy-load commands]], true)
+pcall(vim.cmd, [[command -nargs=* -range -bang -complete=file Telescope lua require("packer.load")({'telescope.nvim'}, { cmd = "Telescope", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args> }, _G.packer_plugins)]])
+time([[Defining lazy-load commands]], false)
+
 vim.cmd [[augroup packer_load_aucmds]]
 vim.cmd [[au!]]
+  -- Filetype lazy-loads
+time([[Defining lazy-load filetype autocommands]], true)
+vim.cmd [[au FileType ruby ++once lua require("packer.load")({'vim-textobj-rubyblock'}, { ft = "ruby" }, _G.packer_plugins)]]
+time([[Defining lazy-load filetype autocommands]], false)
   -- Event lazy-loads
 time([[Defining lazy-load event autocommands]], true)
-vim.cmd [[au VimEnter * ++once lua require("packer.load")({'nvim-lspinstall', 'packer.nvim'}, { event = "VimEnter *" }, _G.packer_plugins)]]
-vim.cmd [[au BufRead * ++once lua require("packer.load")({'lspsaga.nvim'}, { event = "BufRead *" }, _G.packer_plugins)]]
+vim.cmd [[au InsertCharPre * ++once lua require("packer.load")({'friendly-snippets', 'vim-vsnip'}, { event = "InsertCharPre *" }, _G.packer_plugins)]]
+vim.cmd [[au BufRead * ++once lua require("packer.load")({'lspkind-nvim', 'lspsaga.nvim'}, { event = "BufRead *" }, _G.packer_plugins)]]
+vim.cmd [[au VimEnter * ++once lua require("packer.load")({'packer.nvim', 'nvim-lspinstall'}, { event = "VimEnter *" }, _G.packer_plugins)]]
+vim.cmd [[au InsertEnter * ++once lua require("packer.load")({'nvim-compe'}, { event = "InsertEnter *" }, _G.packer_plugins)]]
 time([[Defining lazy-load event autocommands]], false)
 vim.cmd("augroup END")
 if should_profile then save_profiles() end
