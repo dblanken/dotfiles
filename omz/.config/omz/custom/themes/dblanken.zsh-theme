@@ -46,8 +46,8 @@ dblanken_precmd() {
 }
 
 dblanken_ruby() {
-  if [[ -a config.ru ]]; then
-    echo "%F{blue}%f $(asdf current ruby | awk '{print $2}') "
+  if [[ -a config.ru || -a Gemfile ]]; then
+    echo "%F{red}%f $(asdf current ruby | awk '{print $2}')%f "
   fi
 }
 

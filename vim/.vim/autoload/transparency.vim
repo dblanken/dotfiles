@@ -7,6 +7,7 @@ function! transparency#enable()
   augroup transparency
     autocmd!
     autocmd ColorScheme * hi Normal guibg=NONE ctermbg=NONE
+    autocmd ColorScheme jellybeans hi NonText guibg=NONE ctermbg=NONE
   augroup END
   doautocmd ColorScheme
 endfunction

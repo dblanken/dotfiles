@@ -12,6 +12,7 @@ opt.shadafile = "NONE"                                 -- don't write on startup
 opt.backup         = false                             -- don't make backups before writing
 opt.backupcopy     = 'yes'                             -- overwrite files to update, instead of renaming + rewriting
 opt.backupdir      = data .. '/backup//'               -- keep backup files out of the way (ie. if 'backup' is ever set)
+opt.colorcolumn    = "81"                              -- be mindful of 80 character lines
 opt.completeopt    = 'menuone,noselect'                -- show menu even if there is only one candidate (for nvim-compe)
 opt.cursorline     = true                              -- highlight current line
 opt.diffopt        = opt.diffopt + 'foldcolumn:0'      -- don't show fold column in diff view

@@ -1,0 +1,13 @@
+require:
+  - rubocop-performance
+  - rubocop-rails
+  - rubocop-minitest
+
+AllCops:
+  NewCops: enable
+  Exclude:
+    - 'db/**/*'
+    - 'config/**/*'
+    - 'script/**/*'
+    - 'bin/**/*'
+    - !ruby/regexp /\.old\.rb$/

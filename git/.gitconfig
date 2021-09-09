@@ -46,5 +46,3 @@
     host = github.iu.edu
 [core]
     autocrlf = input
-[commit]
-    gpgsign = true

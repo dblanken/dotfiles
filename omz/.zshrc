@@ -112,9 +112,22 @@ export GPG_TTY=$(tty)
 export KN="$HOME/code"
 export GITUSER="dblanken"
 export DOTFILES="$HOME/.dotfiles"
+
+if test "$EDITOR" = "nvim"; then
+  if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
+    if [ -x "$(command -v nvr)" ]; then
+      alias nvim=nvr
+      export VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+    else
+      alias nvim='echo "No nesting!"'
+    fi
+  fi
+fi
+
 if test "$EDITOR" != "vim"; then
   alias vim="$EDITOR"
   alias vi="$EDITOR"
+  export VISUAL="$EDITOR"
 fi
 
 export THOR_MERGE='$EDITOR -d'

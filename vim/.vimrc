@@ -32,6 +32,8 @@ Plug 'tpope/vim-unimpaired'           " [/] mappings
 Plug 'tpope/vim-vinegar'              " File tree navigation
 Plug 'vim-ruby/vim-ruby'              " Ruby
 Plug 'vim-test/vim-test'              " Testing
+Plug 'SirVer/ultisnips'               " Snippet manager
+Plug 'honza/vim-snippets'             " Snippet repository
 
 if isdirectory('/usr/local/opt/fzf')
   set rtp+=/usr/local/opt/fzf
@@ -206,6 +208,40 @@ let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
 let g:ale_sign_error = ' '
 let g:ale_sign_info = ' '
 let g:ale_sign_warning = ' '
+let g:ale_fixers = {'ruby': ['rubocop']}
+let g:ale_fix_on_save = 1
+let g:ale_floating_preview = 1
+let g:ale_cursor_detail = 1
+let g:ale_completion_enabled = 1
+set omnifunc=ale#completion#OmniFunc
+let g:ale_completion_symbols = {
+      \ 'text': '',
+      \ 'method': '',
+      \ 'function': '',
+      \ 'constructor': '',
+      \ 'field': '',
+      \ 'variable': '',
+      \ 'class': '',
+      \ 'interface': '',
+      \ 'module': '',
+      \ 'property': '',
+      \ 'unit': 'unit',
+      \ 'value': 'val',
+      \ 'enum': '',
+      \ 'keyword': 'keyword',
+      \ 'snippet': '',
+      \ 'color': 'color',
+      \ 'file': '',
+      \ 'reference': 'ref',
+      \ 'folder': '',
+      \ 'enum member': '',
+      \ 'constant': '',
+      \ 'struct': '',
+      \ 'event': 'event',
+      \ 'operator': '',
+      \ 'type_parameter': 'type param',
+      \ '<default>': 'v'
+      \ }
 
 augroup AleOmni
   au!

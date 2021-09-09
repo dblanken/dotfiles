@@ -63,6 +63,12 @@ function()
       {
         'glepnir/lspsaga.nvim',
         event = "BufRead",
+      },
+      {
+        "ray-x/lsp_signature.nvim",
+        config = function()
+          require 'lsp_signature'.setup()
+        end
       }
     }
   }
@@ -146,6 +152,22 @@ function()
     'nelstrom/vim-textobj-rubyblock',
     requires = { { 'kana/vim-textobj-user'} },
     ft = "ruby"
+  }
+
+  use {
+    'wincent/corpus',
+    setup = function()
+      require 'plugins.corpus'
+    end
+  }
+
+  use {
+    'ojroques/nvim-hardline',
+    config = function()
+      require('hardline').setup {
+        theme = 'gruvbox'
+      }
+    end
   }
 end
 )
