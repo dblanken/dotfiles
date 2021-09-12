@@ -107,6 +107,7 @@ ZSH_TMUX_FIXTERM=false
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
+setopt HIST_IGNORE_SPACE
 
 export GPG_TTY=$(tty)
 export KN="$HOME/code"

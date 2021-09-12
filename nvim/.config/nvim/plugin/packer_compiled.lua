@@ -93,11 +93,6 @@ _G.packer_plugins = {
     needs_bufread = false,
     path = "/Users/dblanken/.local/share/nvim/site/pack/packer/opt/gruvbox"
   },
-  ["lsp_signature.nvim"] = {
-    config = { "\27LJ\2\n;\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\18lsp_signature\frequire\0" },
-    loaded = true,
-    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/lsp_signature.nvim"
-  },
   ["lspkind-nvim"] = {
     config = { "\27LJ\2\n/\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\20plugins.lspkind\frequire\0" },
     loaded = false,
@@ -336,10 +331,6 @@ time([[Setup for corpus]], false)
 time([[packadd for corpus]], true)
 vim.cmd [[packadd corpus]]
 time([[packadd for corpus]], false)
--- Config for: lsp_signature.nvim
-time([[Config for lsp_signature.nvim]], true)
-try_loadstring("\27LJ\2\n;\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\18lsp_signature\frequire\0", "config", "lsp_signature.nvim")
-time([[Config for lsp_signature.nvim]], false)
 -- Config for: nvim-hardline
 time([[Config for nvim-hardline]], true)
 try_loadstring("\27LJ\2\nK\0\0\3\0\4\0\a6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\3\0B\0\2\1K\0\1\0\1\0\1\ntheme\fgruvbox\nsetup\rhardline\frequire\0", "config", "nvim-hardline")
@@ -362,9 +353,9 @@ vim.cmd [[au FileType ruby ++once lua require("packer.load")({'vim-textobj-rubyb
 time([[Defining lazy-load filetype autocommands]], false)
   -- Event lazy-loads
 time([[Defining lazy-load event autocommands]], true)
+vim.cmd [[au BufRead * ++once lua require("packer.load")({'lspkind-nvim', 'lspsaga.nvim'}, { event = "BufRead *" }, _G.packer_plugins)]]
 vim.cmd [[au InsertEnter * ++once lua require("packer.load")({'nvim-compe'}, { event = "InsertEnter *" }, _G.packer_plugins)]]
 vim.cmd [[au InsertCharPre * ++once lua require("packer.load")({'friendly-snippets', 'vim-vsnip'}, { event = "InsertCharPre *" }, _G.packer_plugins)]]
-vim.cmd [[au BufRead * ++once lua require("packer.load")({'lspkind-nvim', 'lspsaga.nvim'}, { event = "BufRead *" }, _G.packer_plugins)]]
 vim.cmd [[au VimEnter * ++once lua require("packer.load")({'nvim-lspinstall', 'packer.nvim'}, { event = "VimEnter *" }, _G.packer_plugins)]]
 time([[Defining lazy-load event autocommands]], false)
 vim.cmd("augroup END")

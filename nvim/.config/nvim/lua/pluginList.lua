@@ -49,81 +49,101 @@ function()
   }
 
   use {
-    'kabouzeid/nvim-lspinstall',
-    event = "VimEnter"
-  }
-
-  use {
-    'neovim/nvim-lspconfig',
-    after = "nvim-lspinstall",
-    config = function()
-      require 'plugins.lspconfig'
-    end,
-    requires = {
-      {
-        'glepnir/lspsaga.nvim',
-        event = "BufRead",
-      },
-      {
-        "ray-x/lsp_signature.nvim",
-        config = function()
-          require 'lsp_signature'.setup()
-        end
-      }
-    }
-  }
-
-  use {
     'nvim-telescope/telescope.nvim',
     module = "telescope.builtin",
     cmd = "Telescope",
     requires = {
-      {'nvim-lua/plenary.nvim'}
-    }
-  }
-  use {
-   'nvim-telescope/telescope-fzf-native.nvim',
-   run = 'make',
-   after = "telescope.nvim",
-   config = function()
-     require 'plugins.telescope-fzf-native'
-   end
- }
-
-  use {
-    'hrsh7th/nvim-compe',
-    event = "InsertEnter",
-    config = function()
-      require 'plugins.compe'
-    end,
-    wants = "vim-vsnip",
-    requires = {
-      {
-        'hrsh7th/vim-vsnip',
-        wants = "friendly-snippets",
-        event = "InsertCharPre",
-      },
-      {
-        'rafamadriz/friendly-snippets',
-        event = "InsertCharPre",
-      },
-      {
-        'onsails/lspkind-nvim',
-        event = "BufRead",
-        config = function()
-          require('plugins.lspkind')
-        end
-      },
+      {'nvim-lua/plenary.nvim'},
     }
   }
 
-  use {
-    'windwp/nvim-autopairs',
-    after = "nvim-compe",
-    config = function()
-      require 'plugins.autopairs'
-    end
-  }
+  if CurrentLSP == LSPS["builtin"] then
+    use {
+      'kabouzeid/nvim-lspinstall',
+      event = "VimEnter"
+    }
+
+    use {
+      'neovim/nvim-lspconfig',
+      after = "nvim-lspinstall",
+      config = function()
+        require 'plugins.lspconfig'
+      end,
+      requires = {
+        {
+          'glepnir/lspsaga.nvim',
+          event = "BufRead",
+        },
+      }
+    }
+
+    use {
+      'nvim-telescope/telescope-fzf-native.nvim',
+      run = 'make',
+      after = "telescope.nvim",
+      config = function()
+        require 'plugins.telescope-fzf-native'
+      end
+    }
+
+    use {
+      'hrsh7th/nvim-compe',
+      event = "InsertEnter",
+      config = function()
+        require 'plugins.compe'
+      end,
+      wants = "vim-vsnip",
+      requires = {
+        {
+          'hrsh7th/vim-vsnip',
+          wants = "friendly-snippets",
+          event = "InsertCharPre",
+        },
+        {
+          'rafamadriz/friendly-snippets',
+          event = "InsertCharPre",
+        },
+        {
+          'onsails/lspkind-nvim',
+          event = "BufRead",
+          config = function()
+            require('plugins.lspkind')
+          end
+        },
+      }
+    }
+
+    use {
+      'windwp/nvim-autopairs',
+      after = "nvim-compe",
+      config = function()
+        require 'plugins.autopairs'
+      end
+    }
+
+  end
+
+  if CurrentLSP == LSPS["coc"] then
+    use {
+      'neoclide/coc.nvim', branch = 'release', config = function()
+        require 'plugins.coc'
+      end
+    }
+    use {
+      'SirVer/ultisnips'
+    }
+    use {
+      'honza/vim-snippets'
+    }
+
+    use {
+      'fannheyward/telescope-coc.nvim',
+      after = 'telescope.nvim',
+      config = function()
+        require('telescope').load_extension('coc')
+      end
+    }
+  end
 
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
 

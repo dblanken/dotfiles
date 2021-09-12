@@ -1,0 +1,5 @@
+gem "rubocop-rails", "~> 2.11"
+gem "rubocop-performance", "~> 1.11"
+gem "rubocop-minitest", "~> 0.15.0"
+gem "standard"
+gem "solargraph-standardrb"

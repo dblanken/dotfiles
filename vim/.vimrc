@@ -1,7 +1,3 @@
-" vim: nowrap fdm=marker
-
-let mapleader="\<Space>"
-
 " {{{1 Plugins
 call plug#begin(expand('~/.local/share/vim/plugins'))
 
@@ -44,8 +40,9 @@ else
 endif
 
 call plug#end()
-" }}}
 " {{{1 Settings
+let mapleader="\<Space>"
+
 unlet! skip_defaults_vim
 source $VIMRUNTIME/defaults.vim
 
@@ -54,8 +51,10 @@ set autoindent
 set autoread
 set background=dark
 set belloff=all
+set complete+=kspell
 set cscopeverbose
 set directory=$HOME/.local/share/vim/swap//
+set diffopt+=vertical
 set encoding=utf8
 set fileencoding=utf8
 set fillchars="vert:│,fold:·"
@@ -71,6 +70,8 @@ set shortmess+=F
 set shortmess-=S
 set sidescroll=1
 set signcolumn=yes
+set splitbelow
+set splitright
 set tabpagemax=50
 set ttimeoutlen=50
 set undodir=$HOME/.local/share/vim/undo
@@ -91,7 +92,8 @@ let g:loaded_zipPlugin = 1
 " set shiftwidth=2
 " set softtabstop=2
 set clipboard=unnamedplus,unnamed
-set colorcolumn=81
+set textwidth=80
+set colorcolumn=+1
 set formatoptions-=cro
 set guioptions-=e
 set hidden
@@ -101,12 +103,13 @@ set noerrorbells
 set noswapfile
 set nowrap
 set number
+set numberwidth=5
 set relativenumber
 set showtabline=2
 set smartcase
 set undofile
 set updatetime=50
-" }}}
+
 " {{{1 autogroups
 augroup misc
   autocmd!
@@ -120,6 +123,14 @@ augroup misc
   autocmd BufEnter,BufNewFile .zshrc,zshrc setlocal filetype=zsh
 
   autocmd BufWritePre * :call whitespace#trim()
+
+  " When editing a file, always jump to the last known cursor position.
+  " Don't do it for commit messages, when the position is invalid, or when
+  " inside an event handler (happens when dropping a file on gvim).
+  autocmd BufReadPost *
+        \ if &ft != 'gitcommit' && line("'\"") > 0 && line("'\"") <= line("$") |
+        \   exe "normal g`\"" |
+        \ endif
 augroup end
 
 augroup ruby
@@ -143,7 +154,7 @@ augroup dblanken_filetypes
   autocmd FileType liquid,markdown,text,txt setlocal tw=78 linebreak keywordprg=dict
   autocmd FileType markdown call SetBujoMappings()
 augroup END
-" }}}
+
 " {{{1 Mappings
 nnoremap Q @q
 nnoremap <Leader>= migg=G`i
@@ -163,17 +174,47 @@ nnoremap <Leader>- :split<CR>
 " Delete what you have highlighted to the void register and paste what you
 " wanted.  It does not replace what you've copied previously.  Actual delete.
 vnoremap <Leader>p "_dP
-" }}}
+
+" Tab completion
+" will insert tab at beginning of line,
+" will use completion if not at beginning
+set wildmode=list:longest,list:full
+function! InsertTabWrapper()
+    let col = col('.') - 1
+    if !col || getline('.')[col - 1] !~ '\k'
+        return "\<Tab>"
+    else
+        return "\<C-p>"
+    endif
+endfunction
+inoremap <Tab> <C-r>=InsertTabWrapper()<CR>
+inoremap <S-Tab> <C-n>
+
+" Switch between the last two files
+nnoremap <Leader><Leader> <C-^>
+
 " {{{1 netrw config
 let g:netrw_browse_split = 2
 let g:netrw_banner = 0
 let g:netrw_winsize = 25
-" }}}
+
 " {{{1 rg/grep
 if executable('rg')
   set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case
+  " Use The Silver Searcher https://github.com/ggreer/the_silver_searcher
+elseif executable('ag')
+  " Use Ag over Grep
+  set grepprg=ag\ --nogroup\ --nocolor
+
+  " Use ag in fzf for listing files. Lightning fast and respects .gitignore
+  let $FZF_DEFAULT_COMMAND = 'ag --literal --files-with-matches --nocolor --hidden -g ""'
+
+  if !exists(":Ag")
+    command -nargs=+ -complete=file -bar Ag silent! grep! <args>|cwindow|redraw!
+    nnoremap \ :Ag<SPACE>
+  endif
 endif
-" }}}
+
 " {{{1 spelling
 if has('spell')
   setglobal spelllang=en_us
@@ -183,16 +224,17 @@ if has('spell')
   autocmd FileType help if &buftype ==# 'help' | setlocal nospell | endif
 endif
 
-" }}}
+" {{{1 Ultisnips
+let g:UltiSnipsExpandTrigger = '<c-j>'
 
-" Vim-Test
+" {{{1 Vim-Test
 nmap <silent> <leader>t :TestNearest<CR>
 nmap <silent> <leader>T :TestFile<CR>
 nmap <silent> <leader>a :TestSuite<CR>
 nmap <silent> <leader>l :TestLast<CR>
 let g:test#strategy = 'dispatch'
 
-" ALE
+" {{{1 ALE
 nmap <silent> ]d         <Plug>(ale_next_wrap)
 nmap <silent> [d         <Plug>(ale_previous_wrap)
 nmap <silent> gd         <Plug>(ale_go_to_definition)
@@ -246,11 +288,34 @@ let g:ale_completion_symbols = {
 augroup AleOmni
   au!
   autocmd FileType ruby setlocal omnifunc=ale#completion#OmniFunc
+  autocmd VimEnter *
+        \ set updatetime=1000 |
+        \ let g:ale_lint_on_text_changed = 0
+  autocmd CursorHold * call ale#Queue(0)
+  autocmd CursorHoldI * call ale#Queue(0)
+  autocmd InsertEnter * call ale#Queue(0)
+  autocmd InsertLeave * call ale#Queue(0)
 augroup END
+
+" {{{ Misc
+" When the type of shell script is /bin/sh, assume a POSIX-compatible
+" shell for syntax highlighting purposes.
+let g:is_posix = 1
 
 call camelcasemotion#CreateMotionMappings('<leader>')
 
 nnoremap <silent> <C-p> :Files<CR>
 
+" Treat <li> and <p> tags like the block tags they are
+let g:html_indent_tags = 'li\|p'
+
+" {{{1 Colorscheme
+let g:gruvbox_italic = 1
+let g:gruvbox_transparent_bg = 1
+let g:gruvbox_contrast_dark = 'hard'
+let g:gruvbox_italicize_strings = 1
 call transparency#enable()
 colorscheme gruvbox
+
+" {{{ Modeline
+" vim: nowrap fdm=marker

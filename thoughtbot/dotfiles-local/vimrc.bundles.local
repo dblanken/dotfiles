@@ -1,0 +1,18 @@
+UnPlug 'tComment'
+UnPlug 'vim-go'
+UnPlug 'vim-slim'
+
+Plug 'AndrewRadev/sideways.vim'       " Argument swapping
+Plug 'AndrewRadev/splitjoin.vim'      " Splitting/Joining blocks
+Plug 'jiangmiao/auto-pairs'           " { } pairing
+Plug 'bkad/CamelCaseMotion'           " Traverse CamelCaseWords (<Leader>w)
+Plug 'godlygeek/tabular'              " Easy tabbed formatting
+Plug 'kana/vim-textobj-user'          " Needed for rubyblock
+Plug 'morhetz/gruvbox'                " The best colorscheme
+Plug 'nelstrom/vim-textobj-rubyblock' " ir and ar
+Plug 'tpope/vim-commentary'           " For commenting
+Plug 'tpope/vim-dispatch'             " Async test running
+Plug 'tpope/vim-unimpaired'           " [/] mappings
+Plug 'SirVer/ultisnips'               " Snippet manager
+Plug 'honza/vim-snippets'             " Snippet repository
+Plug 'christoomey/vim-tmux-navigator' " Tmux/Vim navigation

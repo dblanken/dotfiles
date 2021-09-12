@@ -2,12 +2,12 @@
 
 # Finds first occurrence of a vim file
 find_config() {
-	for config in ~/.vim/vimrc ~/.vimrc; do
-		if test -f "$config"; then
-			echo "$config"
-			return 0
-		fi
-	done
+  for config in ~/.vimrc.local ~/.vim/vimrc ~/.vimrc; do
+    if test -f "$config"; then
+      echo "$config"
+      return 0
+    fi
+  done
 }
 
 # function vimrc() {

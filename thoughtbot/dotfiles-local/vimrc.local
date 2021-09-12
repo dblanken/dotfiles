@@ -1,0 +1,86 @@
+set relativenumber
+
+augroup misc
+  autocmd!
+
+  " When resized, resize the windows inside
+  autocmd VimResized * execute "normal! \<c-w>="
+
+  " Nest source on changes to vimrc
+  autocmd BufWritePost .vimrc,.vimrc.local,init.vim,vimrc nested source %
+augroup end
+
+augroup ruby
+  autocmd!
+  " Make ? part of a keyword
+  autocmd FileType ruby,eruby,yaml setlocal iskeyword+=?
+augroup end
+
+nnoremap Q @q
+nnoremap <Leader>= migg=G`i
+nnoremap Y y$
+nnoremap <Leader>g :grep!<Space>
+if exists(':tnoremap')
+  tnoremap <Esc> <C-\><C-n>
+endif
+
+nmap <silent> <leader>t :TestNearest<CR>
+nmap <silent> <leader>T :TestFile<CR>
+nmap <silent> <leader>a :TestSuite<CR>
+nmap <silent> <leader>l :TestLast<CR>
+let g:test#strategy = 'dispatch'
+
+nmap <silent> ]d         <Plug>(ale_next_wrap)
+nmap <silent> [d         <Plug>(ale_previous_wrap)
+nmap <silent> gd         <Plug>(ale_go_to_definition)
+nmap <silent> gr         <Plug>(ale_find_references)
+nmap <silent> K          <Plug>(ale_hover)
+nmap <silent> <leader>e  <Plug>(ale_detail)
+nmap <silent> <leader>rn <Plug>(ale_rename)
+nmap <silent> <leader>f  <Plug>(ale_fix)
+
+" Set to show which linter says there is an issue
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+" Custom images for issues
+let g:ale_sign_error = ' '
+let g:ale_sign_info = ' '
+let g:ale_sign_warning = ' '
+let g:ale_fixers = {'ruby': ['rubocop']}
+let g:ale_fix_on_save = 1
+let g:ale_floating_preview = 1
+let g:ale_cursor_detail = 1
+let g:ale_completion_enabled = 1
+set omnifunc=ale#completion#OmniFunc
+let g:ale_completion_symbols = {
+      \ 'text': '',
+      \ 'method': '',
+      \ 'function': '',
+      \ 'constructor': '',
+      \ 'field': '',
+      \ 'variable': '',
+      \ 'class': '',
+      \ 'interface': '',
+      \ 'module': '',
+      \ 'property': '',
+      \ 'unit': 'unit',
+      \ 'value': 'val',
+      \ 'enum': '',
+      \ 'keyword': 'keyword',
+      \ 'snippet': '',
+      \ 'color': 'color',
+      \ 'file': '',
+      \ 'reference': 'ref',
+      \ 'folder': '',
+      \ 'enum member': '',
+      \ 'constant': '',
+      \ 'struct': '',
+      \ 'event': 'event',
+      \ 'operator': '',
+      \ 'type_parameter': 'type param',
+      \ '<default>': 'v'
+      \ }
+
+call camelcasemotion#CreateMotionMappings('<leader>')
+
+set background=dark
+colorscheme gruvbox
