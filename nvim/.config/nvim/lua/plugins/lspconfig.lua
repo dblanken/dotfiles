@@ -43,19 +43,35 @@ local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 
 -- lspInstall + lspconfig stuff
+-- vim.lsp.set_log_level("debug")
 
 local function setup_servers()
     lspinstall.setup()
     local servers = lspinstall.installed_servers()
 
     for _, lang in pairs(servers) do
-        if lang ~= "lua" then
+        if lang ~= "lua" and lang ~= "ruby" then
             lspconfig[lang].setup {
                 on_attach = on_attach,
                 capabilities = capabilities,
                 root_dir = vim.loop.cwd,
                 flags = {
                   debounce_text_changes = 150,
+                }
+            }
+        elseif lang == "ruby" then
+            lspconfig[lang].setup {
+                on_attach = on_attach,
+                capabilities = capabilities,
+                root_dir = vim.loop.cwd,
+                flags = {
+                  debounce_text_changes = 150,
+                },
+                settings = {
+                  solargraph = {
+                    useBundler = true,
+                    diagnostics = true,
+                  }
                 }
             }
         elseif lang == "lua" then

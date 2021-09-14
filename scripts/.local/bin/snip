@@ -1,8 +1,20 @@
 #!/usr/local/bin/bash
 
-[[ -z $SNIPPETS ]] && echo "SNIPPETS directory undefined" && exit 1
+[[ -z "$SNIPPETS" ]] && echo "SNIPPETS directory undefined" && exit 1
+
+snippet() {
+  > "$SNIPPETS/last"
+  while IFS= read -r line; do
+    echo "$line"
+    echo "$line" >> "$SNIPPETS/last"
+  done
+}
 
 snip() {
+  if (( $# == 0 ));then
+    snippet "$@"
+    return $?
+  fi
   local name="$1"
   shift
   local path="$SNIPPETS/$name"
@@ -29,8 +41,7 @@ snip() {
       done
       echo "$buf"
     else
-      IFS=$'\n'
-      for argline in $in; do
+      while IFS=$'\n' read -r argline; do
         if [[ -n $argline ]]; then
           IFS=" " snip $name $argline
         fi
@@ -39,25 +50,5 @@ snip() {
 
   fi
 }
-
-snip_completion() {
-  local possibilities=$(find $SNIPPETS -type f)
-  if [[ -n $2 ]]; then
-    for c in ${possibilities[@]}; do
-      local truncated_possibility="${c##${SNIPPETS}\/}"
-      [[ ${truncated_possibility:0:${#2}} == $2 ]] && echo "$truncated_possibility"
-    done
-  else
-    for c in ${possibilities[@]}; do
-      printf "${c##${SNIPPETS}\/}\n"
-    done
-  fi
-  exit
-}
-
-# complete -C snip snip
-if [[ -n $COMP_LINE ]]; then
-  snip_completion "$@"
-fi
 
 snip "$@"

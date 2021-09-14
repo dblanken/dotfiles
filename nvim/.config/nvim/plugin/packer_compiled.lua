@@ -218,6 +218,10 @@ _G.packer_plugins = {
     loaded = true,
     path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-git"
   },
+  ["vim-go"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-go"
+  },
   ["vim-markdown"] = {
     loaded = true,
     path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-markdown"
@@ -253,6 +257,10 @@ _G.packer_plugins = {
   ["vim-rhubarb"] = {
     loaded = true,
     path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-rhubarb"
+  },
+  ["vim-rspec"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-rspec"
   },
   ["vim-ruby"] = {
     loaded = true,
@@ -331,14 +339,14 @@ time([[Setup for corpus]], false)
 time([[packadd for corpus]], true)
 vim.cmd [[packadd corpus]]
 time([[packadd for corpus]], false)
--- Config for: nvim-hardline
-time([[Config for nvim-hardline]], true)
-try_loadstring("\27LJ\2\nK\0\0\3\0\4\0\a6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\3\0B\0\2\1K\0\1\0\1\0\1\ntheme\fgruvbox\nsetup\rhardline\frequire\0", "config", "nvim-hardline")
-time([[Config for nvim-hardline]], false)
 -- Config for: CamelCaseMotion
 time([[Config for CamelCaseMotion]], true)
 try_loadstring("\27LJ\2\n7\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\28plugins.camelcasemotion\frequire\0", "config", "CamelCaseMotion")
 time([[Config for CamelCaseMotion]], false)
+-- Config for: nvim-hardline
+time([[Config for nvim-hardline]], true)
+try_loadstring("\27LJ\2\nK\0\0\3\0\4\0\a6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\3\0B\0\2\1K\0\1\0\1\0\1\ntheme\fgruvbox\nsetup\rhardline\frequire\0", "config", "nvim-hardline")
+time([[Config for nvim-hardline]], false)
 
 -- Command lazy-loads
 time([[Defining lazy-load commands]], true)
@@ -353,9 +361,9 @@ vim.cmd [[au FileType ruby ++once lua require("packer.load")({'vim-textobj-rubyb
 time([[Defining lazy-load filetype autocommands]], false)
   -- Event lazy-loads
 time([[Defining lazy-load event autocommands]], true)
-vim.cmd [[au BufRead * ++once lua require("packer.load")({'lspkind-nvim', 'lspsaga.nvim'}, { event = "BufRead *" }, _G.packer_plugins)]]
 vim.cmd [[au InsertEnter * ++once lua require("packer.load")({'nvim-compe'}, { event = "InsertEnter *" }, _G.packer_plugins)]]
-vim.cmd [[au InsertCharPre * ++once lua require("packer.load")({'friendly-snippets', 'vim-vsnip'}, { event = "InsertCharPre *" }, _G.packer_plugins)]]
+vim.cmd [[au BufRead * ++once lua require("packer.load")({'lspkind-nvim', 'lspsaga.nvim'}, { event = "BufRead *" }, _G.packer_plugins)]]
+vim.cmd [[au InsertCharPre * ++once lua require("packer.load")({'vim-vsnip', 'friendly-snippets'}, { event = "InsertCharPre *" }, _G.packer_plugins)]]
 vim.cmd [[au VimEnter * ++once lua require("packer.load")({'nvim-lspinstall', 'packer.nvim'}, { event = "VimEnter *" }, _G.packer_plugins)]]
 time([[Defining lazy-load event autocommands]], false)
 vim.cmd("augroup END")

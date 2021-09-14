@@ -1,0 +1,10 @@
+require "test_helper"
+
+module {1}
+  class {2}Test < ActiveSupport::TestCase
+    test "something" do
+      skip("Do something")
+    end
+  end
+end
+

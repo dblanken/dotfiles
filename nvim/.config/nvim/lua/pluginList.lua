@@ -33,6 +33,8 @@ function()
   use 'tpope/vim-unimpaired'
   use 'tpope/vim-vinegar'
 
+  use 'thoughtbot/vim-rspec'
+
   use 'christoomey/vim-tmux-navigator'
   use 'vim-ruby/vim-ruby'
   use 'vim-test/vim-test'
@@ -188,6 +190,11 @@ function()
         theme = 'gruvbox'
       }
     end
+  }
+
+  use {
+    "fatih/vim-go",
+    run = ":GoUpdateBinaries"
   }
 end
 )

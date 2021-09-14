@@ -2,8 +2,8 @@ export EDITOR='nvim'
 
 # For new dotfiles installs, ohmz might not be there, so let me know
 if test ! -d ~/.oh-my-zsh; then
-	echo "Don't forget to install oh-my-zsh; exiting"
-	return
+  echo "Don't forget to install oh-my-zsh; exiting"
+  return
 fi
 
 # If you come from bash you might have to change your $PATH.
@@ -79,27 +79,27 @@ ZSH_CUSTOM=~/.config/omz/custom
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-	asdf
-	bundler
-	capistrano
-	colored-man-pages
-	common-aliases
-	dblanken
-	docker
-	extract
-	git
-	github
-	gitignore
-	history-substring-search
-	rails
-	rake
-	ripgrep
-	thefuck
-	tmux
-	vi-mode
-	yarn
-	zsh-autosuggestions
-	zsh-syntax-highlighting
+  asdf
+  bundler
+  capistrano
+  colored-man-pages
+  common-aliases
+  dblanken
+  docker
+  extract
+  git
+  github
+  gitignore
+  history-substring-search
+  rails
+  rake
+  ripgrep
+  thefuck
+  tmux
+  vi-mode
+  yarn
+  zsh-autosuggestions
+  zsh-syntax-highlighting
 )
 
 ZSH_TMUX_AUTOSTART=true
@@ -113,6 +113,7 @@ export GPG_TTY=$(tty)
 export KN="$HOME/code"
 export GITUSER="dblanken"
 export DOTFILES="$HOME/.dotfiles"
+export SNIPPETS="$HOME/.local/snippets"
 
 if test "$EDITOR" = "nvim"; then
   if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
@@ -152,12 +153,12 @@ alias x='exit'
 autoload -U add-zsh-hook
 
 function -auto-ls-after-cd() {
-  emulate -L zsh
-  # Only in response to a user-initiated `cd`, not indirectly (eg. via another
-  # function).
-  if [ "$ZSH_EVAL_CONTEXT" = "toplevel:shfunc" ]; then
-    ls -a
-  fi
+emulate -L zsh
+# Only in response to a user-initiated `cd`, not indirectly (eg. via another
+# function).
+if [ "$ZSH_EVAL_CONTEXT" = "toplevel:shfunc" ]; then
+  ls -a
+fi
 }
 
 add-zsh-hook chpwd -auto-ls-after-cd
@@ -174,11 +175,11 @@ fi
 
 # Make CTRL-Z background things and unbackground them.
 function fg-bg() {
-  if [[ $#BUFFER -eq 0 ]]; then
-    fg
-  else
-    zle push-input
-  fi
+if [[ $#BUFFER -eq 0 ]]; then
+  fg
+else
+  zle push-input
+fi
 }
 zle -N fg-bg
 bindkey '^Z' fg-bg
