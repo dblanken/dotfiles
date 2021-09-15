@@ -27,6 +27,7 @@ function! PackInit() abort
   call minpac#add('tpope/vim-rails')                " Rails
   call minpac#add('tpope/vim-rake')                 " Rake
   call minpac#add('tpope/vim-repeat')               " Make plugins repeatable
+  call minpac#add('tpope/vim-sensible')             " I prefer these defaults
   call minpac#add('tpope/vim-sleuth')               " Don't worry about tabs/spacing
   call minpac#add('tpope/vim-surround')             " Surround mappings
   call minpac#add('tpope/vim-unimpaired')           " [/] mappings
@@ -58,6 +59,8 @@ let mapleader="\<Space>"
 if !has('nvim')
   unlet! skip_defaults_vim
   source $VIMRUNTIME/defaults.vim
+else
+  let g:loaded_sensible = 1
 end
 
 set autoindent
@@ -353,7 +356,7 @@ augroup AleOmni
   autocmd InsertLeave * call ale#Queue(0)
 augroup END
 
-" {{{ Misc
+" {{{1 Misc
 " When the type of shell script is /bin/sh, assume a POSIX-compatible
 " shell for syntax highlighting purposes.
 let g:is_posix = 1
@@ -369,6 +372,12 @@ nnoremap <silent> <C-p> :Files<CR>
 
 " Treat <li> and <p> tags like the block tags they are
 let g:html_indent_tags = 'li\|p'
+
+let g:rubycomplete_rails = 1
+
+iabbrev inc include
+iabbrev req require
+iabbrev eac each
 
 " {{{1 Status line
 set statusline=%<%f\ %h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)\ %P
