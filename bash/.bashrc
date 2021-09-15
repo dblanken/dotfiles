@@ -8,14 +8,15 @@ esac
 
 export GITUSER="$USER"
 export DOTFILES="$HOME/.dotfiles"
+export SNIPPETS="$DOTFILES/snippets/.local/snippets"
 export GHREPOS="$HOME/code"
 export KN=$GHREPOS
 
 export TERM=xterm-256color
 export HRULEWIDTH=73
-export EDITOR=nvim
-export VISUAL=vi
-export EDITOR_PREFIX=nvim
+export EDITOR=vim
+export VISUAL=vim
+export EDITOR_PREFIX=vim
 export GPG_TTY=$(tty)
 export THOR_MERGE='$EDITOR -d'
 export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --glob '!.git'"
@@ -147,8 +148,9 @@ shopt -s histappend
 
 # --------------------------- smart prompt ---------------------------
 
-PROMPT_LONG=50
-PROMPT_MAX=95
+current_branch() {
+  git branch --show-current 2>/dev/null
+}
 
 __ps1() {
   local P='$'
@@ -182,14 +184,12 @@ __ps1() {
     fi
   fi
 
-  local B=$(git branch --show-current 2>/dev/null)
+  local B=$(current_branch)
   test "$dir" = "$B" && B='.'
 
   test -n "$B" && B="$g[$b$B$g]"
 
   local short="$u\u$g@$h\h$g $w$dir$B$p$P$x "
-  local long="$g╔ $u\u$g@$h\h$g:$w$dir$B\n$g╚ $p$P$x "
-  local double="$g╔ $u\u$g@$h\h$g:$w$dir\n$g║ $B\n$g╚ $p$P$x "
 
   PS1="$short"
 }
@@ -215,7 +215,13 @@ else
   type pandoc &>/dev/null && . <(pandoc --bash-completion)
   type yq &>/dev/null && . <(yq shell-completion bash)
 fi
-type asdf &>/dev/null && test -d /usr/local/opt/asdf && . /usr/local/opt/asdf/asdf.sh
+
+# ASDF
+if type asdf &>/dev/null; then
+  test -d /usr/local/opt/asdf && . /usr/local/opt/asdf/asdf.sh
+elif test -f "$HOME/.asdf/asdf.sh"; then
+  . "$HOME/.asdf/asdf.sh"
+fi
 
 # ------------------------------ aliases -----------------------------
 
@@ -266,7 +272,7 @@ _c()
     curr_arg=""
   fi
 
-  COMPREPLY=($(ls -ld $HOME/code/${curr_arg}* | grep ^d | sed s/^.*\\/\//))
+  COMPREPLY=($(ls -ld $HOME/code/${curr_arg}*/ | grep ^d | sed s/^.*\\/\//))
 }
 
 complete -F _c c
