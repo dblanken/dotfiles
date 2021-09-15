@@ -1,80 +1,115 @@
 " {{{1 Plugins
-call plug#begin(expand('~/.local/share/vim/plugins'))
+set packpath^=~/.local/share/vim
+function! PackInit() abort
+  packadd minpac
 
-Plug 'AndrewRadev/sideways.vim'       " Argument swapping
-Plug 'AndrewRadev/splitjoin.vim'      " Splitting/Joining blocks
-Plug 'bkad/CamelCaseMotion'           " Traverse CamelCaseWords (<Leader>w)
-Plug 'christoomey/vim-tmux-navigator' " Tmux integration
-Plug 'dense-analysis/ale'             " linting
-Plug 'godlygeek/tabular'              " Easy tabbed formatting
-Plug 'jiangmiao/auto-pairs'           " { } pairing
-Plug 'junegunn/fzf.vim'               " Fuzzy finding
-Plug 'kana/vim-textobj-user'          " Needed for rubyblock
-Plug 'mattn/emmet-vim'                " Easy HTML
-Plug 'morhetz/gruvbox'                " The best colorscheme
-Plug 'nelstrom/vim-textobj-rubyblock' " ir and ar
-Plug 'tpope/vim-commentary'           " For commenting
-Plug 'tpope/vim-dispatch'             " Async test running
-Plug 'tpope/vim-endwise'              " Endings
-Plug 'tpope/vim-eunuch'               " Shell file operations
-Plug 'tpope/vim-fugitive'             " Git
-Plug 'tpope/vim-projectionist'        " Easy project traversal
-Plug 'tpope/vim-rails'                " Rails
-Plug 'tpope/vim-rake'                 " Rake
-Plug 'tpope/vim-repeat'               " Make plugins repeatable
-Plug 'tpope/vim-sleuth'               " Don't worry about tabs/spacing
-Plug 'tpope/vim-surround'             " Surround mappings
-Plug 'tpope/vim-unimpaired'           " [/] mappings
-Plug 'tpope/vim-vinegar'              " File tree navigation
-Plug 'vim-ruby/vim-ruby'              " Ruby
-Plug 'vim-test/vim-test'              " Testing
-Plug 'SirVer/ultisnips'               " Snippet manager
-Plug 'honza/vim-snippets'             " Snippet repository
+  call minpac#init()
+  call minpac#add('k-takata/minpac', {'type': 'opt'})
 
-if isdirectory('/usr/local/opt/fzf')
-  set rtp+=/usr/local/opt/fzf
-elseif isdirectory('$HOME/.fzf')
-  set rtp+=~/.fzf
-else
-  Plug 'junegunn/fzf'
-endif
+  call minpac#add('AndrewRadev/sideways.vim')       " Argument swapping
+  call minpac#add('AndrewRadev/splitjoin.vim')      " Splitting/Joining blocks
+  call minpac#add('bkad/CamelCaseMotion')           " Traverse CamelCaseWords (<Leader>w)
+  call minpac#add('christoomey/vim-tmux-navigator') " Tmux integration
+  call minpac#add('dense-analysis/ale')             " linting
+  call minpac#add('godlygeek/tabular')              " Easy tabbed formatting
+  call minpac#add('jiangmiao/auto-pairs')           " { } pairing
+  call minpac#add('junegunn/fzf.vim')               " Fuzzy finding
+  call minpac#add('kana/vim-textobj-user')          " Needed for rubyblock
+  call minpac#add('mattn/emmet-vim')                " Easy HTML
+  call minpac#add('morhetz/gruvbox')                " The best colorscheme
+  call minpac#add('nelstrom/vim-textobj-rubyblock') " ir and ar
+  call minpac#add('tpope/vim-commentary')           " For commenting
+  call minpac#add('tpope/vim-dispatch')             " Async test running
+  call minpac#add('tpope/vim-endwise')              " Endings
+  call minpac#add('tpope/vim-eunuch')               " Shell file operations
+  call minpac#add('tpope/vim-fugitive')             " Git
+  call minpac#add('tpope/vim-projectionist')        " Easy project traversal
+  call minpac#add('tpope/vim-rails')                " Rails
+  call minpac#add('tpope/vim-rake')                 " Rake
+  call minpac#add('tpope/vim-repeat')               " Make plugins repeatable
+  call minpac#add('tpope/vim-sleuth')               " Don't worry about tabs/spacing
+  call minpac#add('tpope/vim-surround')             " Surround mappings
+  call minpac#add('tpope/vim-unimpaired')           " [/] mappings
+  call minpac#add('tpope/vim-vinegar')              " File tree navigation
+  call minpac#add('vim-ruby/vim-ruby')              " Ruby
+  call minpac#add('vim-test/vim-test')              " Testing
+  call minpac#add('SirVer/ultisnips')               " Snippet manager
+  call minpac#add('honza/vim-snippets')             " Snippet repository
 
-call plug#end()
+  if isdirectory('/usr/local/opt/fzf')
+    set rtp+=/usr/local/opt/fzf
+  elseif isdirectory('$HOME/.fzf')
+    set rtp+=~/.fzf
+  else
+    call minpac#add('junegunn/fzf')
+  endif
+endfunction
+
+" Define user commands for updating/cleaning the plugins.
+" Each of them calls PackInit() to load minpac and register
+" the information of plugins, then performs the task.
+command! PackUpdate call PackInit() | call minpac#update()
+command! PackClean  call PackInit() | call minpac#clean()
+command! PackStatus packadd minpac | call minpac#status()
+
 " {{{1 Settings
 let mapleader="\<Space>"
 
-unlet! skip_defaults_vim
-source $VIMRUNTIME/defaults.vim
+if !has('nvim')
+  unlet! skip_defaults_vim
+  source $VIMRUNTIME/defaults.vim
+end
 
-set smarttab
 set autoindent
 set autoread
 set background=dark
 set belloff=all
+set clipboard=unnamedplus,unnamed
+set colorcolumn=+1
 set complete+=kspell
 set cscopeverbose
-set directory=$HOME/.local/share/vim/swap//
 set diffopt+=vertical
+set directory=$HOME/.local/share/vim/swap//
 set encoding=utf8
+set expandtab
 set fileencoding=utf8
 set fillchars="vert:│,fold:·"
 set formatoptions+=j
+set formatoptions-=cro
+set guioptions-=e
+set hidden
 set history=10000
 set hlsearch
+set incsearch
 set laststatus=2
 set listchars="tab:> ,trail:-,nbsp:+"
+set nobackup
+set noerrorbells
+set noswapfile
+set nowrap
 set nrformats-=octal
+set number
+set numberwidth=5
+set relativenumber
 set sessionoptions+=unix,slash
 set sessionoptions-=options
+set shiftwidth=2
 set shortmess+=F
 set shortmess-=S
+set showtabline=2
 set sidescroll=1
 set signcolumn=yes
+set smartcase
+set smarttab
+set softtabstop=2
 set splitbelow
 set splitright
 set tabpagemax=50
+set textwidth=80
 set ttimeoutlen=50
 set undodir=$HOME/.local/share/vim/undo
+set undofile
+set updatetime=50
 set viewoptions+=unix,slash
 set wildmenu
 set wildoptions=tagfile
@@ -86,29 +121,6 @@ let g:loaded_rrhelper = 1
 let g:loaded_tarPlugin = 1
 let g:loaded_vimballPlugin = 1
 let g:loaded_zipPlugin = 1
-
-" If I ever stop using vim-sleuth, set these again
-" set expandtab
-" set shiftwidth=2
-" set softtabstop=2
-set clipboard=unnamedplus,unnamed
-set textwidth=80
-set colorcolumn=+1
-set formatoptions-=cro
-set guioptions-=e
-set hidden
-set incsearch
-set nobackup
-set noerrorbells
-set noswapfile
-set nowrap
-set number
-set numberwidth=5
-set relativenumber
-set showtabline=2
-set smartcase
-set undofile
-set updatetime=50
 
 " {{{1 autogroups
 augroup misc
@@ -142,7 +154,7 @@ augroup end
 augroup dblanken_filetypes
   autocmd FileType * setlocal nolinebreak
   autocmd FileType xml,xsd,xslt,javascript setlocal ts=2
-  autocmd FileType mail,gitcommit setlocal tw=72
+  autocmd FileType mail,gitcommit setlocal tw=72 spell
   autocmd FileType sh,zsh,csh,tcsh setlocal fo-=t|
         \ inoremap <silent> <buffer> <C-X>! #!/bin/<C-R>=&ft<CR>
   autocmd FileType perl,python,ruby,tcl
@@ -151,8 +163,15 @@ augroup dblanken_filetypes
         \ inoremap <silent> <buffer> <C-X>! #!/usr/bin/env<Space>node
   autocmd FileType help setlocal ai formatoptions+=2n
   autocmd FileType ruby setlocal comments=:#\ tw=78
-  autocmd FileType liquid,markdown,text,txt setlocal tw=78 linebreak keywordprg=dict
-  autocmd FileType markdown call SetBujoMappings()
+  autocmd BufRead,BufNewFile *.md set filetype=markdown
+  autocmd FileType liquid,markdown,text,txt setlocal tw=78 linebreak keywordprg=dict spell
+  " When editing a file, always jump to the last known cursor position.
+  " Don't do it for commit messages, when the position is invalid, or when
+  " inside an event handler (happens when dropping a file on gvim).
+  autocmd BufReadPost *
+        \ if &ft != 'gitcommit' && line("'\"") > 0 && line("'\"") <= line("$") |
+        \   exe "normal g`\"" |
+        \ endif
 augroup END
 
 " {{{1 Mappings
@@ -171,6 +190,9 @@ command! Vimrc vsp ~/.vimrc
 nnoremap <Leader>\ :vsplit<CR>
 nnoremap <Leader>- :split<CR>
 
+nnoremap <Leader>h :nohl<CR>
+nnoremap <Leader><Leader> <C-^>
+
 " Delete what you have highlighted to the void register and paste what you
 " wanted.  It does not replace what you've copied previously.  Actual delete.
 vnoremap <Leader>p "_dP
@@ -180,12 +202,12 @@ vnoremap <Leader>p "_dP
 " will use completion if not at beginning
 set wildmode=list:longest,list:full
 function! InsertTabWrapper()
-    let col = col('.') - 1
-    if !col || getline('.')[col - 1] !~ '\k'
-        return "\<Tab>"
-    else
-        return "\<C-p>"
-    endif
+  let col = col('.') - 1
+  if !col || getline('.')[col - 1] !~ '\k'
+    return "\<Tab>"
+  else
+    return "\<C-p>"
+  endif
 endfunction
 inoremap <Tab> <C-r>=InsertTabWrapper()<CR>
 inoremap <S-Tab> <C-n>
@@ -193,14 +215,47 @@ inoremap <S-Tab> <C-n>
 " Switch between the last two files
 nnoremap <Leader><Leader> <C-^>
 
+" Next, center in screen, open folds
+nnoremap n nzzzv
+nnoremap N Nzzzv
+" Mark z, J, go back to mark z
+nnoremap J mzJ`z
+
+" Undo breakpoints
+inoremap , ,<c-g>u
+inoremap . .<c-g>u
+inoremap ! !<c-g>u
+inoremap ? ?<c-g>u
+inoremap = =<c-g>u
+inoremap [ [<c-g>u
+inoremap ] ]<c-g>u
+inoremap { {<c-g>u
+inoremap } }<c-g>u
+
+" Add counted jumps to jump list
+nnoremap <expr> k (v:count > 5 ? "m'" . v:count : "") . 'k'
+nnoremap <expr> j (v:count > 5 ? "m'" . v:count : "") . 'j'
+
+" Visual moving of lines
+vnoremap J :m '>+1<CR>gv=gv
+vnoremap K :m '<-2<CR>gv=gv
+
 " {{{1 netrw config
 let g:netrw_browse_split = 2
 let g:netrw_banner = 0
 let g:netrw_winsize = 25
 
-" {{{1 rg/grep
+" {{{1 rg/ag/grep
 if executable('rg')
   set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case
+  " Use ag in fzf for listing files. Lightning fast and respects .gitignore
+  let $FZF_DEFAULT_COMMAND = 'rg --hidden -no-ignore -l ""'
+
+  if !exists(":Rg")
+    command -nargs=+ -complete=file -bar Rg silent! grep! <args>|cwindow|redraw!
+    nnoremap \ :Rg<SPACE>
+  endif
+
   " Use The Silver Searcher https://github.com/ggreer/the_silver_searcher
 elseif executable('ag')
   " Use Ag over Grep
@@ -250,7 +305,8 @@ let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
 let g:ale_sign_error = ' '
 let g:ale_sign_info = ' '
 let g:ale_sign_warning = ' '
-let g:ale_fixers = {'ruby': ['rubocop']}
+let g:ale_fixers = {'ruby': ['standardrb', 'remove_trailing_lines', 'trim_whitespace']}
+let g:ale_linters = {'ruby': ['standardrb', 'debride', 'brakeman', 'rails_best_practices', 'reek', 'solargraph']}
 let g:ale_fix_on_save = 1
 let g:ale_floating_preview = 1
 let g:ale_cursor_detail = 1
@@ -302,12 +358,20 @@ augroup END
 " shell for syntax highlighting purposes.
 let g:is_posix = 1
 
-call camelcasemotion#CreateMotionMappings('<leader>')
+" For some reason, CreateMotionMappings is not avaialble on initial startup, so
+" it must wait until VimEnter
+augroup CamelCaseMotions
+ au!
+ autocmd VimEnter call camelcasemotion#CreateMotionMappings('<leader>')
+augroup END
 
 nnoremap <silent> <C-p> :Files<CR>
 
 " Treat <li> and <p> tags like the block tags they are
 let g:html_indent_tags = 'li\|p'
+
+" {{{1 Status line
+set statusline=%<%f\ %h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)\ %P
 
 " {{{1 Colorscheme
 let g:gruvbox_italic = 1
@@ -317,5 +381,5 @@ let g:gruvbox_italicize_strings = 1
 call transparency#enable()
 colorscheme gruvbox
 
-" {{{ Modeline
+" {{{1 Modeline
 " vim: nowrap fdm=marker
