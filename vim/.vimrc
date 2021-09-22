@@ -110,7 +110,7 @@ set splitright
 set tabpagemax=50
 set textwidth=80
 set ttimeoutlen=50
-set undodir=$HOME/.local/share/vim/undo
+set undodir=$HOME/.local/share/vim/undo//
 set undofile
 set updatetime=50
 set viewoptions+=unix,slash

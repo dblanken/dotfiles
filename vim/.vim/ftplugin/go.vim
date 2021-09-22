@@ -1,0 +1,1 @@
+/Users/dblanken/dotfiles/vim/ftplugin/go.vim

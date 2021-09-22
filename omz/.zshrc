@@ -193,3 +193,19 @@ bindkey '^Z' fg-bg
 # [ -n "$PS1" ] && \
 #     [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
 #         eval "$("$BASE16_SHELL/profile_helper.sh")"
+
+# Startup
+export NICKNAME="Dave"
+
+welcome() {
+  h=`date +%H`
+  if [ $h -lt 12 ]; then
+    echo -ne "Good morning, \e[1;35m$NICKNAME\e[0m! It's "; date '+%A, %B %-d %Y'
+  elif [ $h -lt 18 ]; then
+    echo -ne "Good afternoon, \e[1;35m$NICKNAME\e[0m! It's "; date '+%A, %B %-d %Y'
+  else
+    echo -ne "Good evening, \e[1;35m$NICKNAME\e[0m! It's "; date '+%A, %B %-d %Y'
+  fi
+}
+
+welcome
