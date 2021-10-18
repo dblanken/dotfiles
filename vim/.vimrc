@@ -36,14 +36,7 @@ function! PackInit() abort
   call minpac#add('vim-test/vim-test')              " Testing
   call minpac#add('SirVer/ultisnips')               " Snippet manager
   call minpac#add('honza/vim-snippets')             " Snippet repository
-
-  if isdirectory('/usr/local/opt/fzf')
-    set rtp+=/usr/local/opt/fzf
-  elseif isdirectory('$HOME/.fzf')
-    set rtp+=~/.fzf
-  else
-    call minpac#add('junegunn/fzf')
-  endif
+  call minpac#add('junegunn/fzf')
 endfunction
 
 " Define user commands for updating/cleaning the plugins.
@@ -251,8 +244,6 @@ let g:netrw_winsize = 25
 " {{{1 rg/ag/grep
 if executable('rg')
   set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case
-  " Use ag in fzf for listing files. Lightning fast and respects .gitignore
-  let $FZF_DEFAULT_COMMAND = 'rg --hidden -no-ignore -l ""'
 
   if !exists(":Rg")
     command -nargs=+ -complete=file -bar Rg silent! grep! <args>|cwindow|redraw!

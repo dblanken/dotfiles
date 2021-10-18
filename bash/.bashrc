@@ -178,8 +178,8 @@ __ps1() {
     if test "${dir}" = _; then
       dir=${PWD#*${PWD%/*/_}}
       dir=${dir#/}
-    elif test "${dir}" = work; then
-      dir=${PWD#*${PWD%/*/work}}
+    elif test "${dir}" = code; then
+      dir=${PWD#*${PWD%/*/code}}
       dir=${dir#/}
     fi
   fi

@@ -21,4 +21,4 @@ find_config() {
 #     exec ${EDITOR:-vim} "$vimrc_location"
 # }
 
-exec ${EDITOR=-vim} "$(find_config)" "$@"
+exec ${EDITOR:-vim} "$(find_config)" "$@"

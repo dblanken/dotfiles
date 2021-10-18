@@ -1,3 +1,4 @@
+fpath=(~/.zsh.d/ $fpath)
 ZSH_TMUX_AUTOSTART=true
 ZSH_TMUX_FIXTERM=false
 
@@ -27,9 +28,12 @@ zinit wait lucid for \
         OMZL::git.zsh \
   atload"unalias grv" \
         OMZP::git
-zinit wait lucid for \
+zinit lucid for \
   OMZL::completion.zsh \
   OMZP::asdf
+# zinit wait lucid for \
+#   OMZL::completion.zsh \
+#   OMZP::asdf
 
 zinit load "_local/dblanken"
 zinit snippet OMZP::tmux
