@@ -1,0 +1,14 @@
+{
+  "solargraph.diagnostics": true,
+  "solargraph.formatting": true,
+  "coc.preferences.formatOnSaveFiletypes": [
+    "ruby",
+    "html",
+    "markdown",
+    "javascript",
+    "typescript",
+    "json"
+  ],
+  "diagnostic.format": "[%source%code] [%severity] %message",
+  "diagnostic.displayByAle": true
+}

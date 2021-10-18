@@ -33,3 +33,4 @@ endfunction
 function! transparency#is_transparent()
   return exists(g:transparency)
 endfunction
+
