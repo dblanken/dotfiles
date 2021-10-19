@@ -54,17 +54,17 @@ function! SetupCoC() abort
     inoremap <silent><expr> <c-@> coc#refresh()
   endif
 
+  let g:endwise_no_mappings = 1
+
   " Make <CR> auto-select the first completion item and notify coc.nvim to
   " format on enter, <cr> could be remapped by other vim plugin
   inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
-        \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+        \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>\<C-R>=EndwiseDiscretionary()\<CR>"
 
-  if !exists('g:loaded_ale')
-    " Use `[g` and `]g` to navigate diagnostics
-    " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
-    nmap <silent> [d <Plug>(coc-diagnostic-prev)
-    nmap <silent> ]d <Plug>(coc-diagnostic-next)
-  endif
+  " Use `[g` and `]g` to navigate diagnostics
+  " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+  " nmap <silent> [d <Plug>(coc-diagnostic-prev)
+  " nmap <silent> ]d <Plug>(coc-diagnostic-next)
 
   " GoTo code navigation.
   nmap <silent> gd <Plug>(coc-definition)
@@ -92,13 +92,13 @@ function! SetupCoC() abort
   nmap <leader>rn <Plug>(coc-rename)
 
   " Formatting selected code.
-  xmap <leader>f  <Plug>(coc-format-selected)
-  nmap <leader>f  <Plug>(coc-format-selected)
+  " xmap <leader>f  <Plug>(coc-format-selected)
+  " nmap <leader>f  <Plug>(coc-format-selected)
 
   augroup mygroup
     autocmd!
     " Setup formatexpr specified filetype(s).
-    autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+    " autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
     " Update signature help on jump placeholder.
     autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
   augroup end
@@ -151,47 +151,33 @@ function! SetupCoC() abort
   " Add (Neo)Vim's native statusline support.
   " NOTE: Please see `:h coc-status` for integrations with external plugins that
   " provide custom statusline: lightline.vim, vim-airline.
-  set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+  " set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
-  " Mappings for CoCList
-  " Show all diagnostics.
-  " nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
-  " Manage extensions.
-  nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
-  " Show commands.
-  nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
-  " Find symbol of current document.
-  nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
-  " Search workspace symbols.
-  nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
-  " Do default action for next item.
-  nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
-  " Do default action for previous item.
-  nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
   " Resume latest coc list.
   nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 
 
   let g:coc_global_extensions = [
-        \ 'coc-json',
-        \ 'coc-tsserver',
-        \ 'coc-solargraph',
-        \ 'coc-yank',
-        \ 'coc-xml',
-        \ 'coc-vimlsp',
-        \ 'coc-sumneko-lua',
-        \ 'coc-sql',
-        \ 'coc-snippets',
-        \ 'coc-sh',
-        \ 'coc-pairs',
-        \ 'coc-markdownlint',
-        \ 'coc-lists',
+        \ 'coc-css',
+        \ 'coc-emmet',
+        \ 'coc-git',
+        \ 'coc-highlight',
         \ 'coc-html',
         \ 'coc-html-css-support',
-        \ 'coc-highlight',
-        \ 'coc-git',
-        \ 'coc-emmet',
-        \ 'coc-css'
+        \ 'coc-json',
+        \ 'coc-lists',
+        \ 'coc-markdownlint',
+        \ 'coc-pairs',
+        \ 'coc-sh',
+        \ 'coc-snippets',
+        \ 'coc-solargraph',
+        \ 'coc-sql',
+        \ 'coc-sumneko-lua',
+        \ 'coc-tsserver',
+        \ 'coc-vimlsp',
+        \ 'coc-xml',
+        \ 'coc-yaml',
+        \ 'coc-yank'
         \ ]
 
   " navigate chunks of current buffer
@@ -214,4 +200,5 @@ endfunction
 augroup CoCSetup
   autocmd!
   autocmd User PlugLoaded call SetupCoC()
+  autocmd CursorHold * silent call CocActionAsync('highlight')
 augroup END

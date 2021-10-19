@@ -1,4 +1,4 @@
-export EDITOR='vim'
+export EDITOR='nvim'
 
 # For new dotfiles installs, ohmz might not be there, so let me know
 if test ! -d ~/.oh-my-zsh; then
@@ -79,12 +79,14 @@ ZSH_CUSTOM=~/.config/omz/custom
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
+  auto-ls-after-cd
   asdf
   bundler
   capistrano
+  cd_code
   colored-man-pages
   common-aliases
-  dblanken
+  ctrlz
   docker
   extract
   git
@@ -150,19 +152,6 @@ alias snippets='cd $SNIPPETS'
 alias dot='cd $DOTFILES'
 alias x='exit'
 
-autoload -U add-zsh-hook
-
-function -auto-ls-after-cd() {
-emulate -L zsh
-# Only in response to a user-initiated `cd`, not indirectly (eg. via another
-# function).
-if [ "$ZSH_EVAL_CONTEXT" = "toplevel:shfunc" ]; then
-  ls -a
-fi
-}
-
-add-zsh-hook chpwd -auto-ls-after-cd
-
 export PATH="$HOME/.local/bin:$PATH"
 export CDPATH=.:~/code:~
 export DATADIR="$HOME/.mysql_data"
@@ -172,14 +161,3 @@ export SCRIPTS="~/.dotfiles/scripts/.local/bin"
 if [ -d "/home/linuxbrew" ]; then
   export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
 fi
-
-# Make CTRL-Z background things and unbackground them.
-function fg-bg() {
-if [[ $#BUFFER -eq 0 ]]; then
-  fg
-else
-  zle push-input
-fi
-}
-zle -N fg-bg
-bindkey '^Z' fg-bg

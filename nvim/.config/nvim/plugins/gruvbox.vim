@@ -1,4 +1,5 @@
-Plug 'morhetz/gruvbox'
+" Plug 'morhetz/gruvbox'
+Plug 'gruvbox-community/gruvbox'
 
 function! SetupGruvbox() abort
   let g:gruvbox_italic = 1

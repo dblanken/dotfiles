@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Place your default playlist in ~/.playlists/default
-playlist_path="$HOME/.playlists"
+playlist_path="$HOME/.config/playlists"
 playlist_settings="--volume=40 --geometry=100%:100% --autofit=100%x100% --shuffle --really-quiet"
 
 # Playlists will be stored in .log in case you need the URL again.

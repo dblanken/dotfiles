@@ -1,6 +1,4 @@
 {
-  "solargraph.diagnostics": true,
-  "solargraph.formatting": true,
   "coc.preferences.formatOnSaveFiletypes": [
     "ruby",
     "html",
@@ -9,6 +7,6 @@
     "typescript",
     "json"
   ],
-  "diagnostic.format": "[%source%code] [%severity] %message",
-  "diagnostic.displayByAle": true
+  "diagnostic.displayByAle": true,
+  "coc.preferences.colorSupport": true
 }
