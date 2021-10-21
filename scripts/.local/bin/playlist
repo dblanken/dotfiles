@@ -2,7 +2,7 @@
 
 # Place your default playlist in ~/.playlists/default
 playlist_path="$HOME/.config/playlists"
-playlist_settings="--volume=40 --geometry=100%:100% --autofit=100%x100% --shuffle --really-quiet"
+playlist_settings="--no-config --script-opts=ytdl_hook-ytdl_path=yt-dlp --volume=40 --geometry=100%:100% --autofit=100%x100% --shuffle --really-quiet"
 
 exec_prg="mpv"
 
