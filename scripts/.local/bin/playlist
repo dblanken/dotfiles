@@ -4,6 +4,8 @@
 playlist_path="$HOME/.config/playlists"
 playlist_settings="--volume=40 --geometry=100%:100% --autofit=100%x100% --shuffle --really-quiet"
 
+exec_prg="mpv"
+
 # Playlists will be stored in .log in case you need the URL again.
 # .past will not track duplicate URLs
 log_playlist() {
@@ -38,7 +40,7 @@ play_default_or_input_or_file() {
   log_playlist "$playlist"
 
   echo "Attempting to play $playlist"
-  exec mpv "$playlist" $playlist_settings "$@" 2>/dev/null
+  exec "$exec_prg" "$playlist" $playlist_settings "$@" 2>/dev/null
 }
 
 usage() {

@@ -3,6 +3,7 @@ let g:my_colorscheme = 'dracula'
 " Skip home grown tab completion since we use a plugin
 let g:tab_completion_loaded = 1
 
+" Space is a sane leader key
 let mapleader="\<Space>"
 
 " Automatically install vim-plug
@@ -48,4 +49,5 @@ source ~/.config/nvim/plugins/unimpaired.vim
 source ~/.config/nvim/plugins/tmux-navigator.vim
 
 call plug#end()
+" Perform all of our setups for all plugins
 doautocmd User PlugLoaded
