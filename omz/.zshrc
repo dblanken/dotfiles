@@ -150,6 +150,7 @@ alias chmox='chmod +x'
 alias view='vi -R'
 alias clear='printf "\e[H\e[2J"'
 alias snippets='cd $SNIPPETS'
+alias proc='ps -ax | grep'
 alias dot='cd $DOTFILES'
 alias x='exit'
 
