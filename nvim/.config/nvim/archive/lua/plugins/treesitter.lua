@@ -1,7 +1,3 @@
-Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }
-
-function! SetupTreesitter() abort
-lua <<EOF
 if not pcall(require, "nvim-treesitter") then
   return
 end
@@ -182,10 +178,3 @@ vim.cmd [[highlight IncludedC guibg=#373b41]]
 
 vim.cmd [[nnoremap <space>tp :TSPlaygroundToggle<CR>]]
 vim.cmd [[nnoremap <space>th :TSHighlightCapturesUnderCursor<CR>]]
-EOF
-endfunction
-
-augroup TreesitterOverrides
-  autocmd!
-  autocmd User PlugLoaded call SetupTreesitter()
-augroup END

@@ -1,5 +1,3 @@
-Plug 'tpope/vim-rails'
-
 " This lets me create a test file properly
 let g:rails_projections = {
       \ "test/models/*_test.rb": {"command": "modeltest",
@@ -10,3 +8,4 @@ let g:rails_projections = {
       \      "end"]
       \   }
       \ }
+

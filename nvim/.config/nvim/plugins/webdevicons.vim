@@ -1,0 +1,1 @@
+Plug 'cj/vim-webdevicons'

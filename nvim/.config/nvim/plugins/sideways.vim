@@ -1,1 +1,0 @@
-Plug 'AndrewRadev/sideways.vim'

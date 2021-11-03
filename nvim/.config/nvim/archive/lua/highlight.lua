@@ -1,0 +1,10 @@
+vim.cmd [[
+augroup LuaHighlight
+  au!
+  au TextYankPost * lua vim.highlight.on_yank {
+        \ higroup = "Substitute",
+        \ timeout = 150,
+        \ on_macro = true
+        \ }
+augroup END
+]]
