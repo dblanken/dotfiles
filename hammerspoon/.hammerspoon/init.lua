@@ -51,7 +51,8 @@ local grid = {
 local terminal_bundles = {
     iTerm2 = 'com.googlecode.iterm2',
     Terminal = 'com.apple.Terminal',
-    Alacritty = 'io.alacritty'
+    Alacritty = 'io.alacritty',
+    Kitty = 'net.kovidgoyal.kitty'
 }
 
 local ignoreAlwaysApps = {
@@ -102,10 +103,6 @@ local layoutConfig = {
                 app:activate()
             end
         end
-        -- Make sure iTerm appears in front of others.
-        -- activate('com.googlecode.iterm2')
-        -- activate('com.apple.Terminal')
-        -- activate('io.alacritty')
     end),
 
     ['com.google.Chrome'] = (function(window, forceScreenCount)
@@ -138,6 +135,16 @@ local layoutConfig = {
         end
     end),
 
+  ['net.kovidgoyal.kitty'] = (function(window, forceScreenCount)
+    local count = forceScreenCount or screenCount
+    if count == 1 then
+      hs.grid.set(window, grid.fullScreen)
+    else
+      local leftscreen = hs.screen{x=-1,y=0}
+      hs.grid.set(window, grid.fullScreen, leftscreen)
+    end
+  end),
+
     ['com.apple.Terminal'] = (function(window, forceScreenCount)
         local count = forceScreenCount or screenCount
         if count == 1 then
@@ -159,9 +166,10 @@ local layoutConfig = {
     end),
 
     ['mpv'] = (function(window, forceScreenCount)
-        activate('com.googlecode.iterm2')
-        activate('com.apple.Terminal')
-        activate('io.alacritty')
+        for _name, appID in pairs(terminal_bundles) do
+          -- log.i('Activating app: ' .. appID)
+          activate(appID)
+        end
     end),
 }
 
@@ -256,14 +264,14 @@ handleWindowEvent = (function(window)
         -- exists
         local nilBundles = { "mpv" }
 
-        log.i(application)
-        log.i(bundleID)
+        -- log.i(application)
+        -- log.i(bundleID)
 
         -- Nil bundles could mean the app doesn't properly
         -- have a bundle ID associated
         -- An example of this launching mpv
         if bundleID == nil then
-            for _,key in pairs(nilBundles) do
+            for _, key in pairs(nilBundles) do
                 nilApp = hs.application.find(key)
                 if not(nilApp == nil) then
                     bundleID = key
