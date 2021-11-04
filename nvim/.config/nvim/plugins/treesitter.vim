@@ -1,14 +1,13 @@
 Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }
+Plug 'nvim-treesitter/nvim-treesitter-refactor'
+Plug 'nvim-treesitter/nvim-treesitter-textobjects'
+Plug 'JoosepAlviste/nvim-ts-context-commentstring'
 
 function! SetupTreesitter() abort
 lua <<EOF
 if not pcall(require, "nvim-treesitter") then
+  print("nvim-treesitter not installed")
   return
-end
-
-local ts_debugging = false
-if ts_debugging then
-  RELOAD "nvim-treesitter"
 end
 
 local list = require("nvim-treesitter.parsers").get_parser_configs()
@@ -56,35 +55,34 @@ local swap_next, swap_prev = (function()
 end)()
 
 local _ = require("nvim-treesitter.configs").setup {
-  ensure_installed = { "go", "rust", "toml", "query", "html", "typescript", "tsx", "ruby" },
+  ensure_installed = { "go", "rust", "toml", "query", "html", "typescript", "tsx", "ruby", "vim", "lua" },
+
+    refactor = {
+        highlight_definitions = { enable = true },
+        highlight_current_scope = { enable = true },
+        smart_rename = {
+            enable = true,
+            keymaps = {
+                smart_rename = "grr",
+            },
+        },
+        navigation = {
+            enable = true,
+            keymaps = {
+                goto_definition = "gnd",
+                list_definitions = "gnD",
+                list_definitions_toc = "gO",
+                goto_next_usage = "<a-*>",
+                goto_previous_usage = "<a-#>",
+            },
+        },
+    },
 
   highlight = {
     enable = true,
     use_languagetree = false,
     disable = { "json" },
     custom_captures = custom_captures,
-  },
-
-  refactor = {
-    highlight_definitions = { enable = true },
-    highlight_current_scope = { enable = false },
-
-    smart_rename = {
-      enable = false,
-      keymaps = {
-        -- mapping to rename reference under cursor
-        smart_rename = "grr",
-      },
-    },
-
-    -- TODO: This seems broken...
-    navigation = {
-      enable = false,
-      keymaps = {
-        goto_definition = "gnd", -- mapping to go to definition of symbol under cursor
-        list_definitions = "gnD", -- mapping to list all definitions in current file
-      },
-    },
   },
 
   incremental_selection = {
@@ -99,6 +97,7 @@ local _ = require("nvim-treesitter.configs").setup {
 
   context_commentstring = {
     enable = true,
+    enable_autocmd = true,
     config = {
       c = "// %s",
       lua = "-- %s",
@@ -179,9 +178,6 @@ end
 -- vim.treesitter.set_query("sql", "highlights", read_query "~/.config/nvim/queries/sql/highlights.scm")
 
 vim.cmd [[highlight IncludedC guibg=#373b41]]
-
-vim.cmd [[nnoremap <space>tp :TSPlaygroundToggle<CR>]]
-vim.cmd [[nnoremap <space>th :TSHighlightCapturesUnderCursor<CR>]]
 EOF
 endfunction
 

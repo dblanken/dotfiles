@@ -7,7 +7,7 @@ augroup END
 
 function! LspConfigSetup() abort
 lua <<EOF
-local on_attach = function(client, bufnr)
+  local on_attach = function(client, bufnr)
   local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
   local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
 
@@ -56,10 +56,19 @@ local runtime_path = vim.split(package.path, ';')
 table.insert(runtime_path, "lua/?.lua")
 table.insert(runtime_path, "lua/?/init.lua")
 
+
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+local ok, cmp = pcall(require, "cmp_nvim_lsp")
+if ok then
+  capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
+end
+
 local my_configs = {
   solargraph = true,
   vimls = true,
   html = {
+    on_attach = on_attach,
+    capabilities = capabilities,
     cmd = { "vscode-html-language-server", "--stdio" };
     filetypes = { "html", "eruby" };
     init_options = {
@@ -78,6 +87,8 @@ local my_configs = {
   cssls = true,
   bashls = true,
   sumneko_lua = {
+    on_attach = on_attach;
+    capabilities = capabilities;
     cmd = {sumneko_binary, "-E", sumneko_root_path .. "/main.lua"};
     settings = {
       Lua = {
@@ -106,6 +117,7 @@ local my_configs = {
 
 local default_config = {
   on_attach = on_attach,
+  capabilities = capabilities,
   flags = {
     debounce_text_changes = 150
     }

@@ -30,16 +30,17 @@ source ~/.config/nvim/plugins/CamelCaseMotion.vim
 source ~/.config/nvim/plugins/abolish.vim
 source ~/.config/nvim/plugins/apathy.vim
 source ~/.config/nvim/plugins/bundler.vim
+source ~/.config/nvim/plugins/cmp.vim
 source ~/.config/nvim/plugins/commentary.vim
 source ~/.config/nvim/plugins/copilot.vim
 source ~/.config/nvim/plugins/dadbod.vim
 source ~/.config/nvim/plugins/dispatch.vim
+source ~/.config/nvim/plugins/dracula.vim
 source ~/.config/nvim/plugins/emmet.vim
 source ~/.config/nvim/plugins/endwise.vim
 source ~/.config/nvim/plugins/eunuch.vim
 source ~/.config/nvim/plugins/fugitive.vim
 source ~/.config/nvim/plugins/git.vim
-source ~/.config/nvim/plugins/gruvbox.vim
 source ~/.config/nvim/plugins/jdaddy.vim
 source ~/.config/nvim/plugins/lightline-lsp.vim
 source ~/.config/nvim/plugins/lightline-webdevicons.vim
@@ -65,8 +66,6 @@ source ~/.config/nvim/plugins/telescope.vim
 source ~/.config/nvim/plugins/test.vim
 source ~/.config/nvim/plugins/tmux-navigator.vim
 source ~/.config/nvim/plugins/transparent.vim
-source ~/.config/nvim/plugins/treesitter-refactor.vim
-source ~/.config/nvim/plugins/treesitter-textobjects.vim
 source ~/.config/nvim/plugins/treesitter.vim
 source ~/.config/nvim/plugins/unimpaired.vim
 source ~/.config/nvim/plugins/vinegar.vim
