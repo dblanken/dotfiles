@@ -16,6 +16,8 @@ set shiftwidth=2
 set number
 set relativenumber
 set notermguicolors
+set scrolloff=8
+set sidescrolloff=8
 
 " {{{ Plugins
 let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
@@ -85,6 +87,7 @@ nnoremap Y y$
 nnoremap <Leader>h :nohl<CR>
 nnoremap <Leader><Leader> <C-^>
 tnoremap <Esc> <C-\><C-n>
+
 nnoremap n nzzzv
 nnoremap N Nzzzv
 nnoremap J mzJ`z
@@ -104,9 +107,21 @@ inoremap } }<c-g>u
 nnoremap <expr> k (v:count > 5 ? "m'" . v:count : "") . 'k'
 nnoremap <expr> j (v:count > 5 ? "m'" . v:count : "") . 'j'
 
+" Reselect visual selection after indenting
+vnoremap < <gv
+vnoremap > >gv
+
+" Maintain the cursor position when yanking a visual selection
+" http://ddrscott.github.io/blog/2016/yank-without-jank/
+vnoremap y myy`y
+vnoremap Y myY`y
+
 " Visual moving of lines
 vnoremap J :m '>+1<CR>gv=gv
 vnoremap K :m '<-2<CR>gv=gv
+
+imap ;; <Esc>A;<Esc>
+imap ,, <Esc>A,<Esc>
 
 " {{{ rg/ag/grep
 if executable('rg')
