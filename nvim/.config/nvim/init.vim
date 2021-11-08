@@ -194,3 +194,22 @@ setglobal spelllang=en_us
 setglobal spellfile=~/.vim/spell/en.utf-8.add
 let g:spellfile_URL = 'http://ftp.vim.org/vim/runtime/spell'
 
+lua <<EOF
+-- Inspect anything
+function P(x)
+  print(vim.inspect(x))
+end
+
+function GetSynStack()
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  local stack = vim.fn.synstack(cursor[1], cursor[2])
+  P(vim.tbl_map(
+  function(entry)
+    return vim.fn.synIDattr(entry, "name")
+  end,
+  stack
+  ))
+end
+EOF
+
+command! GetSyn lua GetSynStack()
