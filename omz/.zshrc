@@ -163,6 +163,3 @@ export SCRIPTS="~/.dotfiles/scripts/.local/bin"
 if [ -d "/home/linuxbrew" ]; then
   export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
 fi
-
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
