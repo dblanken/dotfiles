@@ -1,0 +1,1 @@
+/Users/dblanken/.dotfiles/omz/.config/omz/dracula/dracula.zsh-theme

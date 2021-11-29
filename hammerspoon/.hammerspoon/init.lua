@@ -486,7 +486,7 @@ chain = (function(movements)
       hs.application.launchOrFocusByBundleID(bundleID)
     end))
 
-    hs.hotkey.bind({'cmd'}, '4', (function()
+    hs.hotkey.bind({'cmd'}, '5', (function()
       local bundleID = "com.microsoft.SkypeForBusiness"
       hs.application.launchOrFocusByBundleID(bundleID)
     end))

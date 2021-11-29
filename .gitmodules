@@ -13,3 +13,12 @@
 [submodule "sumneko"]
 	path = nvim/.local/share/nvim/lua-language-server
 	url = http://github.com/sumneko/lua-language-server
+[submodule "tmux/.tmux/plugins/tpm"]
+	path = tmux/.tmux/plugins/tpm
+	url = https://github.com/tmux-plugins/tpm
+[submodule "omz/.config/omz/dracula"]
+	path = omz/.config/omz/dracula
+	url = https://github.com/dracula/zsh
+[submodule "antigen/.antigen"]
+	path = antigen/.antigen
+	url = https://github.com/zsh-users/antigen
