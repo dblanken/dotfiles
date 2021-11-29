@@ -312,7 +312,10 @@ handleWindowEvent = (function(window)
     end
 
     if bundleID then
-      if layoutConfig[bundleID] then
+      local application = hs.application.get(bundleID)
+      -- Attempt to layout adjust only if it's the first window and a layout
+      -- exists
+      if layoutConfig[bundleID] and windowCount(application) <= 1 then
         layoutConfig[bundleID](window)
       end
     end
