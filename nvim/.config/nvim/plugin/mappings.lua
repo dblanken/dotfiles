@@ -34,3 +34,10 @@ vim.api.nvim_set_keymap('v', 'K', ":m '<-2<CR>gv=gv", opts)
 
 vim.api.nvim_set_keymap('i', ';;', '<Esc>A;<Esc>', opts)
 vim.api.nvim_set_keymap('i', ',,', '<Esc>A,<Esc>', opts)
+
+-- since we lazy load packer.nvim, we need to load it when we run packer-related commands
+vim.cmd "silent! command PackerCompile lua require 'dblanken.plugins' require('packer').compile()"
+vim.cmd "silent! command PackerInstall lua require 'dblanken.plugins' require('packer').install()"
+vim.cmd "silent! command PackerStatus lua require 'dblanken.plugins' require('packer').status()"
+vim.cmd "silent! command PackerSync lua require 'dblanken.plugins' require('packer').sync()"
+vim.cmd "silent! command PackerUpdate lua require 'dblanken.plugins' require('packer').update()"

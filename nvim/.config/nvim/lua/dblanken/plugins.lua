@@ -29,7 +29,6 @@ return require("packer").startup {
     use "alexghergh/nvim-tmux-navigation"
     use "xiyaowong/nvim-transparent"
     use "windwp/nvim-autopairs"
-    -- use "wincent/corpus"
     use {
       "vim-pandoc/vim-pandoc",
       requires = { { "vim-pandoc/vim-pandoc-syntax" } }
