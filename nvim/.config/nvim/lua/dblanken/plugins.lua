@@ -1,6 +1,6 @@
 vim.cmd [[packadd packer.nvim]]
 
-return require("packer").startup {
+return require("packer").startup({
   function(use)
     use "wbthomason/packer.nvim"
 
@@ -9,7 +9,18 @@ return require("packer").startup {
     use "tpope/vim-rails"
     use "tpope/vim-surround"
     use "vim-test/vim-test"
-    use "tpope/vim-commentary"
+    -- use "tpope/vim-commentary"
+    use {
+      "numToStr/Comment.nvim",
+      config = function()
+        require('Comment').setup({
+          toggler = {
+            line = 'gcl',
+            block = 'gbl'
+          }
+        })
+      end
+    }
     use "tpope/vim-fugitive"
     use "tpope/vim-eunuch"
     use {
@@ -25,7 +36,8 @@ return require("packer").startup {
       'nvim-telescope/telescope.nvim',
       requires = { {'nvim-lua/plenary.nvim'} }
     }
-    use { 'dracula/vim', as = 'dracula' }
+    -- use { 'dracula/vim', as = 'dracula' }
+    use { 'Mofiqul/dracula.nvim'}
     use "alexghergh/nvim-tmux-navigation"
     use "xiyaowong/nvim-transparent"
     use "windwp/nvim-autopairs"
@@ -41,7 +53,22 @@ return require("packer").startup {
     use "plasticboy/vim-markdown"
     use "vimwiki/vimwiki"
     use "michal-h21/vimwiki-sync"
-    use "vim-airline/vim-airline"
-    use "vim-airline/vim-airline-themes"
-  end
-}
+    use {
+      "nvim-lualine/lualine.nvim",
+      requires = {
+        "kyazdani42/nvim-web-devicons", opt = true
+      },
+      config = function()
+        require('lualine').setup {
+          options = {
+            theme = 'dracula-nvim'
+          }
+        }
+      end
+    }
+    use 'lewis6991/impatient.nvim'
+  end,
+  config = {
+    compile_path = vim.fn.stdpath('config')..'/lua/packer_compiled.lua'
+  }
+})
