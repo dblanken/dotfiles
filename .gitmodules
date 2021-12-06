@@ -1,11 +1,11 @@
 [submodule "ohmyzsh"]
-	path = omz/.oh-my-zsh
+	path = zsh/.oh-my-zsh
 	url = http://github.com/ohmyzsh/ohmyzsh
 [submodule "zsh-autosuggestions"]
-	path = omz/.config/omz/custom/plugins/zsh-autosuggestions
+	path = zsh/.config/omz/custom/plugins/zsh-autosuggestions
 	url = http://github.com/zsh-users/zsh-autosuggestions
 [submodule "zsh-syntax-highlighting"]
-	path = omz/.config/omz/custom/plugins/zsh-syntax-highlighting
+	path = zsh/.config/omz/custom/plugins/zsh-syntax-highlighting
 	url = http://github.com/zsh-users/zsh-syntax-highlighting
 [submodule "sumneko"]
 	path = nvim/.local/share/nvim/lua-language-server
@@ -14,5 +14,5 @@
 	path = tmux/.tmux/plugins/tpm
 	url = https://github.com/tmux-plugins/tpm
 [submodule "omz/.config/omz/dracula"]
-	path = omz/.config/omz/dracula
+	path = zsh/.config/omz/dracula
 	url = https://github.com/dracula/zsh
