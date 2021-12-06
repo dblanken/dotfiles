@@ -1,7 +1,0 @@
-require "test_helper"
-
-class {1}Test < ActiveSupport::TestCase
-  test "something" do
-    skip("Do something")
-  end
-end
