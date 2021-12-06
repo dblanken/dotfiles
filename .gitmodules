@@ -10,9 +10,18 @@
 [submodule "sumneko"]
 	path = nvim/.local/share/nvim/lua-language-server
 	url = http://github.com/sumneko/lua-language-server
-[submodule "tmux/.tmux/plugins/tpm"]
+[submodule "tpm"]
 	path = tmux/.tmux/plugins/tpm
 	url = https://github.com/tmux-plugins/tpm
-[submodule "omz/.config/omz/dracula"]
+[submodule "dracula"]
 	path = zsh/.config/omz/dracula
 	url = https://github.com/dracula/zsh
+[submodule "tmux-sensible"]
+  path = tmux/.tmux/plugins/tmux-sensible
+  url = https://github.com/tmux-plugins/tmux-sensible
+[submodule "tmux-yank"]
+  path = tmux/.tmux/plugins/tmux-yank
+  url = https://github.com/tmux-plugins/tmux-yank
+[submodule "vim-tmux-navigator"]
+  path = tmux/.tmux/plugins/vim-tmux-navigator
+  url = https://github.com/christoomey/vim-tmux-navigator
