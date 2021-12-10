@@ -7,3 +7,5 @@ vim.opt.relativenumber = true
 vim.opt.scrolloff = 8
 vim.opt.sidescrolloff = 8
 vim.opt.foldlevel = 99
+vim.opt.clipboard="unnamedplus"
+vim.opt.termguicolors = true

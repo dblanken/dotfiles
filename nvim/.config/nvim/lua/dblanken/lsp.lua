@@ -30,11 +30,31 @@ local on_attach = function(client, bufnr)
   buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
   buf_set_keymap('n', '<leader>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
   buf_set_keymap('n', '<leader>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
+
+  if client.resolved_capabilities.document_highlight then
+    vim.cmd [[
+      augroup AutocmdLspHighlighting
+      autocmd!
+      autocmd CursorHold  <buffer> lua vim.lsp.buf.document_highlight()
+      autocmd CursorHoldI <buffer> lua vim.lsp.buf.document_highlight()
+      autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+      augroup END
+    ]]
+  end
+
+  if client.resolved_capabilities.code_lens then
+    vim.cmd [[
+      augroup AutocmdLspCodeLens
+        autocmd!
+        autocmd BufEnter,CursorHold,InsertLeave <buffer> lua vim.lsp.codelens.refresh()
+      augroup END
+    ]]
+  end
 end
 
 -- Use a loop to conveniently call 'setup' on multiple servers and
 -- map buffer local keybindings when the language server attaches
-local servers = { 'solargraph', 'bashls', 'cssls', 'html', 'jsonls', 'vimls', 'yamlls' }
+local servers = { 'bashls', 'cssls', 'html', 'jsonls', 'vimls', 'yamlls' }
 for _, lsp in ipairs(servers) do
   nvim_lsp[lsp].setup {
     on_attach = on_attach,
@@ -43,6 +63,18 @@ for _, lsp in ipairs(servers) do
     }
   }
 end
+
+nvim_lsp['solargraph'].setup {
+  on_attach = on_attach,
+  flags = {
+    debounce_text_changes = 150,
+  },
+  settings = {
+    solargraph = {
+      useBundler = true
+    }
+  }
+}
 
 local system_name
 if vim.fn.has("mac") == 1 then

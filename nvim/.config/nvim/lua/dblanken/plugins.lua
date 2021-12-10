@@ -9,18 +9,7 @@ return require("packer").startup({
     use "tpope/vim-rails"
     use "tpope/vim-surround"
     use "vim-test/vim-test"
-    -- use "tpope/vim-commentary"
-    use {
-      "numToStr/Comment.nvim",
-      config = function()
-        require('Comment').setup({
-          toggler = {
-            line = 'gcl',
-            block = 'gbl'
-          }
-        })
-      end
-    }
+    use "numToStr/Comment.nvim"
     use "tpope/vim-fugitive"
     use "tpope/vim-eunuch"
     use {
@@ -31,13 +20,14 @@ return require("packer").startup({
         { "JoosepAlviste/nvim-ts-context-commentstring" }
       }
     }
+    use "nvim-treesitter/playground"
     use { "tpope/vim-dispatch", cmd = { "Dispatch", "Make" } }
     use {
       'nvim-telescope/telescope.nvim',
       requires = { {'nvim-lua/plenary.nvim'} }
     }
-    -- use { 'dracula/vim', as = 'dracula' }
-    use { 'Mofiqul/dracula.nvim'}
+    use { 'dracula/vim', as = 'dracula' }
+    -- use { 'Mofiqul/dracula.nvim'}
     use "alexghergh/nvim-tmux-navigation"
     use "xiyaowong/nvim-transparent"
     use "windwp/nvim-autopairs"
@@ -53,6 +43,7 @@ return require("packer").startup({
     use "plasticboy/vim-markdown"
     use "vimwiki/vimwiki"
     use "michal-h21/vimwiki-sync"
+    use "gruvbox-community/gruvbox"
     use {
       "nvim-lualine/lualine.nvim",
       requires = {
@@ -61,14 +52,48 @@ return require("packer").startup({
       config = function()
         require('lualine').setup {
           options = {
-            theme = 'dracula-nvim'
+            theme = 'dracula'
           }
         }
       end
     }
     use 'lewis6991/impatient.nvim'
+    use {
+      "dstein64/vim-startuptime",
+      cmd = "StartupTime",
+    }
+    use {
+      "tpope/vim-scriptease",
+      cmd = {
+        "Messages", --view messages in quickfix list
+        "Verbose", -- view verbose output in preview window.
+        "Time", -- measure how long it takes to run some stuff.
+      },
+    }
+    use "godlygeek/tabular"
+    use "tpope/vim-repeat"
+    use {
+      "AndrewRadev/splitjoin.vim",
+      keys = { "gJ", "gS" },
+    }
+    if vim.fn.executable "gh" == 1 then
+      use "pwntester/octo.nvim"
+    end
+    use {
+      "rhysd/git-messenger.vim",
+      keys = "<Plug>(git-messenger)",
+    }
+    use "lewis6991/gitsigns.nvim"
+    use {
+      "alec-gibson/nvim-tetris",
+      cmd = "Tetris",
+    }
+    use {
+      "antoinemadec/FixCursorHold.nvim"
+    }
   end,
   config = {
-    compile_path = vim.fn.stdpath('config')..'/lua/packer_compiled.lua'
+    compile_path = vim.fn.stdpath('config')..'/lua/packer_compiled.lua',
+    display = {}
   }
 })

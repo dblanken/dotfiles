@@ -161,6 +161,8 @@ export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --glob '!.git'"
 export SCRIPTS="~/.dotfiles/scripts/.local/bin"
 export LESSOPEN="|/usr/local/bin/lesspipe.sh %s" LESS_ADVANCED_PREPROCESSOR=1
 
+bindkey -s ^f "tmux-sessionizer\n"
+
 if [ -d "/home/linuxbrew" ]; then
   export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
 fi

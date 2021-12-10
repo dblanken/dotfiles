@@ -1,4 +1,10 @@
-require('telescope').setup{}
+require('telescope').setup {
+  pickers = {
+    find_files = {
+      hidden = true
+    }
+  }
+}
 
 function custom_edit_files(opts)
   local opts_with_preview, opts_without_preview
@@ -49,3 +55,4 @@ vim.api.nvim_set_keymap('n', '<leader>fh', '<cmd>lua require("telescope.builtin"
 vim.api.nvim_set_keymap('n', '<leader>fbr', '<cmd>lua require("telescope.builtin").file_browser()<CR>', opts)
 vim.api.nvim_set_keymap('n', '<leader>en', '<cmd>lua custom_edit_files({ title = "edit neovim", cwd = "~/.config/nvim" })<CR>', opts)
 vim.api.nvim_set_keymap('n', '<leader>ed', '<cmd>lua custom_edit_files({ title = "edit dotfiles", cwd = "~/.dotfiles" })<CR>', opts)
+vim.api.nvim_set_keymap('n', '<leader>ec', '<cmd>lua custom_edit_files({ title = "edit code", cwd = "~/code" })<CR>', opts)
