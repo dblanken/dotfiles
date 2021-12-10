@@ -1,3 +1,0 @@
-#!/bin/sh
-
-exec playlist "$(shuf -n 1 ~/.playlists/urls)"

@@ -1,8 +1,0 @@
-#!/bin/sh
-
-wiki () {
-  url=$(urlencode "$*")
-  l "https://en.wikipedia.org/wiki/Special:Search/$url"
-}
-
-wiki $*

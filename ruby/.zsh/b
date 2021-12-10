@@ -1,0 +1,12 @@
+# Adapted from Thoughtbot
+# https://github.com/thoughtbot/dotfiles/blob/main/zsh/functions/g
+
+# No arguments: `bundle install`
+# With arguments: acts like `bundle`
+b() {
+  if [[ $# -gt 0 ]]; then
+    bundle "$@"
+  else
+    bundle install -j 8
+  fi
+}

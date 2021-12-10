@@ -1,1 +1,0 @@
-/Users/dblanken/dotfiles/vim/ftplugin/scss.vim

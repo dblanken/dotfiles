@@ -1,1 +1,0 @@
-/Users/dblanken/dotfiles/vim/ftplugin/sass.vim

@@ -20,6 +20,3 @@ _darcs
 ^/README.*
 ^/LICENSE.*
 ^/COPYING
-
-\.tools
-\Gruvbox-dark.terminal

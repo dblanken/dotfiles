@@ -11,8 +11,8 @@
 #import:
 #  - /path/to/alacritty.yml
 
-import:
-  - ~/.config/alacritty/dracula.yml
+#import:
+#  - ~/.config/alacritty/dracula.yml
 
 # Any items in the `env` entry below will be added as
 # environment variables. Some entries may override variables
@@ -160,9 +160,9 @@ font:
   # Offset is the extra space around each character. `offset.y` can be thought
   # of as modifying the line spacing, and `offset.x` as modifying the letter
   # spacing.
-  offset:
-   x: 0
-   y: 10
+  # offset:
+  #  x: 0
+  #  y: 10
 
   # Glyph offset determines the locations of the glyphs within their cells with
   # the default being at the bottom. Increasing `x` moves the glyph to the

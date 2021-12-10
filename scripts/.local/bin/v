@@ -1,7 +1,0 @@
-#!/bin/sh
-
-if test -f "./Session.vim"; then
-	exec "${EDITOR:-vim}" -S "$@"
-else
-	exec "${EDITOR:-vim}" "$@"
-fi
