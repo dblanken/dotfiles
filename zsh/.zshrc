@@ -43,6 +43,15 @@ bindkey '^[[Z' reverse-menu-complete
 
 # To search history
 bindkey "^R" history-incremental-search-backward
+
+# Define parts of my prompt
+typeset -a __PROMPT_PARTS
+__PROMPT_PARTS=(
+  "%F{green}%n@%m%f"
+  "%F{blue}%1~%f"
+  "%F{yellow}%#%f"
+)
+
 if [ -d "$HOME/.zsh" ]
 then
   for zsh_file in ~/.zsh/*; do
@@ -59,3 +68,13 @@ alias be='bundle exec'
 alias gst='echo "use g"'
 alias gca='echo "use g"'
 alias gcb='echo "use g"'
+# Prompt
+setopt prompt_subst
+
+PROMPT=""
+for i in $__PROMPT_PARTS; do
+  PROMPT="${PROMPT##[[:space]]*[[:space]]} ${i}"
+done
+PROMPT="${PROMPT##[[:space]]*[[:space]]} "
+export SPROMPT="zsh: correct %F{red}'%R'%f to %F{red}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %B%Ue%u%bdit, %B%Ua%u%bbort]? "
+
