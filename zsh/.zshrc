@@ -1,3 +1,5 @@
+if [ "$TMUX" = "" ]; then tmux attach || tmux new -s neimoon && exit; fi
+
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
 HISTSIZE=1000
