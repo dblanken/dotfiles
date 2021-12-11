@@ -1,0 +1,15 @@
+[user]
+    name = David Blankenship
+    email = dblanken@iu.edu
+[hub]
+    host = github.iu.edu
+[core]
+    autocrlf = input
+[push]
+    default = upstream
+[merge]
+    ff = only
+[fetch]
+    prune = true
+[commit]
+    template = ~/.gitmessage
