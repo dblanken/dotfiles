@@ -65,9 +65,6 @@ alias ls='ls --color'
 alias v='nvim'
 alias be='bundle exec'
 
-alias gst='echo "use g"'
-alias gca='echo "use g"'
-alias gcb='echo "use g"'
 # Prompt
 setopt prompt_subst
 
