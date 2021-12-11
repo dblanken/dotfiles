@@ -14,6 +14,35 @@ autoload -Uz compinit
 compinit
 # End of lines added by compinstall
 
+export ITALIC_ON=$'\e[3m'
+export ITALIC_OFF=$'\e[23m'
+
+# Categorize completion suggestions with headings:
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:descriptions' format %F{default}%B%{$ITALIC_ON%}--- %d ---%{$ITALIC_OFF%}%b%f
+
+# Make completion:
+# - Try exact (case-sensitive) match first.
+# - Then fall back to case-insensitive.
+# - Accept abbreviations after . or _ or - (ie. f.b -> foo.bar).
+# - Substring complete (ie. bar -> foobar).
+zstyle ':completion:*' matcher-list '' '+m:{[:lower:]}={[:upper:]}' '+m:{[:upper:]}={[:lower:]}' '+m:{_-}={-_}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
+# Colorize completions using default `ls` colors.
+zstyle ':completion:*' list-colors ''
+
+# Allow completion of ..<Tab> to ../ and beyond.
+zstyle -e ':completion:*' special-dirs '[[ $PREFIX = (../)#(..) ]] && reply=(..)'
+
+# Enable keyboard navigation of completions in menu
+# (not just tab/shift-tab but cursor keys as well):
+zstyle ':completion:*' menu select
+
+# For some reason Shift-Tab only works when I do this
+bindkey '^[[Z' reverse-menu-complete
+
+# To search history
+bindkey "^R" history-incremental-search-backward
 if [ -d "$HOME/.zsh" ]
 then
   for zsh_file in ~/.zsh/*; do
