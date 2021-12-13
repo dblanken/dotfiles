@@ -48,6 +48,10 @@ bindkey '^[[Z' reverse-menu-complete
 # To search history
 bindkey "^R" history-incremental-search-backward
 
+# Make zsh know about hosts already accessed by SSH
+# Taken from ohmyzsh: https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/common-aliases/common-aliases.plugin.zsh
+zstyle -e ':completion:*:(ssh|scp|sftp|rsh|rsync):hosts' hosts 'reply=(${=${${(f)"$(cat {/etc/ssh_,~/.ssh/known_}hosts(|2)(N) /dev/null)"}%%[# ]*}//,/ })'
+
 # Define parts of my prompt
 typeset -a __PROMPT_PARTS
 __PROMPT_PARTS=(
