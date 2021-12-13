@@ -16,6 +16,8 @@ autoload -Uz compinit
 compinit
 # End of lines added by compinstall
 
+export HISTCONTROL=ignorespace
+
 export ITALIC_ON=$'\e[3m'
 export ITALIC_OFF=$'\e[23m'
 
