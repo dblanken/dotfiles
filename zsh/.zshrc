@@ -1,5 +1,7 @@
 if [ "$TMUX" = "" ]; then tmux attach || tmux new -s neimoon && exit; fi
 
+export PATH="$HOME/.local/bin:$PATH"
+
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
 HISTSIZE=1000
@@ -64,6 +66,12 @@ alias ls='ls --color'
 
 alias v='nvim'
 alias be='bundle exec'
+
+alias zshrc='v ~/.zshrc'
+alias vimrc='v ~/.config/nvim/init.lua'
+alias tmuxconf='v ~/.tmux.conf'
+alias dot='cd ~/.dotfiles'
+alias alacconf='v ~/.config/alacritty/alacritty.yml'
 
 # Prompt
 setopt prompt_subst
