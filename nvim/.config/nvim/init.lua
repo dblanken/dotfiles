@@ -180,6 +180,7 @@ require('packer').startup(function(use)
   use "vim-test/vim-test"
   use "dense-analysis/ale"
   use "tribela/vim-transparent"
+  use "vimwiki/vimwiki"
 
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
@@ -198,6 +199,8 @@ let test#strategy = 'dispatch'
 nmap <silent> ]d <Plug>(ale_next_wrap)
 nmap <silent> [d <Plug>(ale_previous_wrap)
 let g:ale_echo_msg_format = '[%linter%] %code: %%s'
+
+let g:vimwiki_list = [{'path': '~/code/vimwiki', 'ext': '.md', 'syntax': 'markdown'}, {'path': '~/vimwiki', 'ext': '.md', 'syntax': 'markdown'}]
 
 colorscheme gruvbox
 ]]
