@@ -69,17 +69,23 @@ fi
 
 alias vim='nvim'
 
+# Colors
 alias ls='ls --color'
 alias grep='grep --color'
+
+# Shortened
+alias v='nvim'
+alias be='bundle exec'
 alias t='tail -f'
 alias h='history'
+
+# Easy find
+alias ff='find . -type f -name'
+(( $+commands[fd] )) || alias fd='find . -type d -name'
 
 alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
-
-alias v='nvim'
-alias be='bundle exec'
 
 alias zshrc='v ~/.zshrc'
 alias vimrc='v ~/.config/nvim/init.lua'
