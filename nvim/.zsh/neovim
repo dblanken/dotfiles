@@ -1,0 +1,19 @@
+# Check if we are nesting nvims
+# If we have nvim, make it the default
+if [ -x "$(command -v nvim)" ]; then
+  export EDITOR=nvim
+  alias vim="nvim"
+
+  # If we're in an nvim instance and nvr is installed, use it.
+  if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
+    if [ -x "$(command -v nvr)"  ]; then
+      alias nvim="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+      alias vim="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+
+      export EDITOR="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+      export VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+    fi
+  fi
+else
+  export EDITOR='vim'
+fi
