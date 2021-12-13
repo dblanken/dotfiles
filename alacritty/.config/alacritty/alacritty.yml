@@ -11,8 +11,9 @@
 #import:
 #  - /path/to/alacritty.yml
 
-#import:
+import:
 #  - ~/.config/alacritty/dracula.yml
+  - ~/.config/alacritty/gruvbox.yml
 
 # Any items in the `env` entry below will be added as
 # environment variables. Some entries may override variables
