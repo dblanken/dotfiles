@@ -64,7 +64,15 @@ then
 fi
 
 alias vim='nvim'
+
 alias ls='ls --color'
+alias grep='grep --color'
+alias t='tail -f'
+alias h='history'
+
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
 
 alias v='nvim'
 alias be='bundle exec'
