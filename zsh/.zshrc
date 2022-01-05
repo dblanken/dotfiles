@@ -1,6 +1,7 @@
 if [ "$TMUX" = "" ]; then tmux attach || tmux new -s neimoon && exit; fi
 
 export PATH="$HOME/.local/bin:$PATH"
+export EDITOR="vim"
 
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
@@ -67,14 +68,14 @@ then
   done
 fi
 
-alias vim='nvim'
+setopt completealiases
 
 # Colors
 alias ls='ls --color'
 alias grep='grep --color'
 
 # Shortened
-alias v='nvim'
+alias v='$EDITOR'
 alias be='bundle exec'
 alias t='tail -f'
 alias h='history'
@@ -88,10 +89,24 @@ alias cp='cp -i'
 alias mv='mv -i'
 
 alias zshrc='v ~/.zshrc'
-alias vimrc='v ~/.config/nvim/init.lua'
+alias vimrc='v ~/.vimrc'
 alias tmuxconf='v ~/.tmux.conf'
 alias dot='cd ~/.dotfiles'
 alias alacconf='v ~/.config/alacritty/alacritty.yml'
+
+# Git aliases from ohmyzsh I actually like
+alias ga='git add'
+alias gb='git branch'
+alias gc='git commit -v'
+alias gca='git commit -v -a'
+alias gcb='git checkout -b'
+alias gco='git checkout'
+alias gd='git diff'
+alias glog='git log --oneline --decorate --graph'
+alias gst='git status'
+alias gwip='git add -A; git rm $(git ls-files --deleted) 2> /dev/null; git commit --no-verify --no-gpg-sign -m "--wip-- [skip ci]"'
+
+export THOR_MERGE='vim'
 
 # Prompt
 setopt prompt_subst
