@@ -54,7 +54,7 @@ require('packer').startup({
 
     -- Lua plugins
     use 'lewis6991/impatient.nvim'
-    -- use { "nvim-treesitter/nvim-treesitter", run = ":TSUpdate", config = function() require('dblanken.treesitter') end }
+    use { "nvim-treesitter/nvim-treesitter", run = ":TSUpdate", config = function() require('dblanken.treesitter') end }
     use {
       'nvim-telescope/telescope.nvim',
       requires = { {'nvim-lua/plenary.nvim'} },
