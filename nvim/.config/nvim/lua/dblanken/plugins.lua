@@ -53,7 +53,7 @@ require('packer').startup({
     use "kchmck/vim-coffee-script"
 
     -- Lua plugins
-    -- use 'lewis6991/impatient.nvim'
+    use 'lewis6991/impatient.nvim'
     -- use { "nvim-treesitter/nvim-treesitter", run = ":TSUpdate", config = function() require('dblanken.treesitter') end }
     -- use {
     --   'nvim-telescope/telescope.nvim',
