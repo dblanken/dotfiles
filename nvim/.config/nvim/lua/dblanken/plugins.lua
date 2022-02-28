@@ -60,10 +60,10 @@ require('packer').startup({
       requires = { {'nvim-lua/plenary.nvim'} },
       config = function() require('dblanken.telescope') end,
     }
-    -- use {
-    --   { "neovim/nvim-lspconfig", config = function() require('dblanken.lsp') end },
-    --   "williamboman/nvim-lsp-installer",
-    -- }
+    use {
+      { "neovim/nvim-lspconfig", config = function() require('dblanken.lsp') end },
+      "williamboman/nvim-lsp-installer",
+    }
     -- use {
     --   'hrsh7th/cmp-nvim-lsp',
     --   'hrsh7th/cmp-buffer',
