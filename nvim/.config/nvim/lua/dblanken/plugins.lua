@@ -55,11 +55,11 @@ require('packer').startup({
     -- Lua plugins
     use 'lewis6991/impatient.nvim'
     -- use { "nvim-treesitter/nvim-treesitter", run = ":TSUpdate", config = function() require('dblanken.treesitter') end }
-    -- use {
-    --   'nvim-telescope/telescope.nvim',
-    --   requires = { {'nvim-lua/plenary.nvim'} },
-    --   config = function() require('dblanken.telescope') end,
-    -- }
+    use {
+      'nvim-telescope/telescope.nvim',
+      requires = { {'nvim-lua/plenary.nvim'} },
+      config = function() require('dblanken.telescope') end,
+    }
     -- use {
     --   { "neovim/nvim-lspconfig", config = function() require('dblanken.lsp') end },
     --   "williamboman/nvim-lsp-installer",
