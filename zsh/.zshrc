@@ -1,4 +1,8 @@
-if [ "$TMUX" = "" ]; then tmux attach || tmux new -s neimoon && exit; fi
+if command -v reattach-to-user-namespace &> /dev/null; then
+  if [ "$TMUX" = "" ]; then tmux attach || tmux new -s neimoon && exit; fi
+else
+  echo "Please install reattach-to-user-namespace for tmux to work"
+fi
 
 export PATH="$HOME/.local/bin:$PATH"
 export EDITOR="vim"
