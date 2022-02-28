@@ -64,17 +64,17 @@ require('packer').startup({
       { "neovim/nvim-lspconfig", config = function() require('dblanken.lsp') end },
       "williamboman/nvim-lsp-installer",
     }
-    -- use {
-    --   'hrsh7th/cmp-nvim-lsp',
-    --   'hrsh7th/cmp-buffer',
-    --   'hrsh7th/cmp-path',
-    --   'hrsh7th/cmp-cmdline',
-    --   'hrsh7th/cmp-nvim-lua',
-    --   'hrsh7th/cmp-vsnip',
-    --   'hrsh7th/vim-vsnip',
-    --   { 'rafamadriz/friendly-snippets', config = function() require('dblanken.vsnip') end },
-    --   { 'hrsh7th/nvim-cmp', config = function() require('dblanken.cmp') end },
-    -- }
+    use {
+      'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-buffer',
+      'hrsh7th/cmp-path',
+      'hrsh7th/cmp-cmdline',
+      'hrsh7th/cmp-nvim-lua',
+      'hrsh7th/cmp-vsnip',
+      'hrsh7th/vim-vsnip',
+      { 'rafamadriz/friendly-snippets', config = function() require('dblanken.vsnip') end },
+      { 'hrsh7th/nvim-cmp', config = function() require('dblanken.cmp') end },
+    }
 
     -- Automatically set up your configuration after cloning packer.nvim
     -- Put this at the end after all plugins
