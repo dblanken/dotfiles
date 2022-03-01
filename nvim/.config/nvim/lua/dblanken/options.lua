@@ -8,6 +8,7 @@ opt.number = true
 opt.relativenumber = true
 opt.scrolloff = 8
 opt.sidescrolloff = 8
+opt.signcolumn = "yes"
 opt.foldlevel = 99
 opt.clipboard="unnamedplus"
 opt.termguicolors = true
