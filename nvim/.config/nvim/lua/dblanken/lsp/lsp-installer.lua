@@ -19,5 +19,9 @@ lsp_installer.on_server_ready(function(server)
     opts = vim.tbl_deep_extend('force', sumneko_opts, opts)
   end
 
+  if server.name == "solargraph" then
+    print("Please do not install solargraph from nvim-lsp-installer.  It mucks up other libraries used with solargraph.")
+  end
+
   server:setup(opts)
 end)
