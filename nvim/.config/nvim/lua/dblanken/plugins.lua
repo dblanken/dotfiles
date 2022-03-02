@@ -63,6 +63,7 @@ require('packer').startup({
     use {
       { "neovim/nvim-lspconfig", config = function() require('dblanken.lsp') end },
       "williamboman/nvim-lsp-installer",
+      'nvim-lua/lsp-status.nvim',
     }
     use {
       'hrsh7th/cmp-nvim-lsp',
@@ -76,6 +77,7 @@ require('packer').startup({
       { 'hrsh7th/nvim-cmp', config = function() require('dblanken.cmp') end },
     }
     use { 'kyazdani42/nvim-web-devicons', config = function() require('dblanken.devicons') end }
+    use { 'tjdevries/express_line.nvim', requires = { { 'nvim-lua/plenary.nvim' } }, config = function() require('dblanken.statusline') end }
 
     -- Automatically set up your configuration after cloning packer.nvim
     -- Put this at the end after all plugins
