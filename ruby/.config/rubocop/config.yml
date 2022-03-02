@@ -1,5 +1,6 @@
 require:
   - standard
+  - rubocop-rails
 
 inherit_gem:
   standard: config/base.yml
