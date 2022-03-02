@@ -15,7 +15,7 @@ require('packer').startup({
     use "tpope/vim-rails"
     use "tpope/vim-projectionist"
     use "tpope/vim-fugitive"
-    use "tpope/vim-dispatch"
+    use { "tpope/vim-dispatch", config = function() require('dblanken.dispatch') end }
     use "tpope/vim-unimpaired"
     use "tpope/vim-bundler"
     use "tpope/vim-eunuch"
