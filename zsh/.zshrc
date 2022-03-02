@@ -110,6 +110,10 @@ alias glog='git log --oneline --decorate --graph'
 alias gst='git status'
 alias gwip='git add -A; git rm $(git ls-files --deleted) 2> /dev/null; git commit --no-verify --no-gpg-sign -m "--wip-- [skip ci]"'
 
+if command -v logo-ls &> /dev/null; then
+  alias ls='logo-ls'
+fi
+
 export THOR_MERGE='vim'
 
 # Prompt
