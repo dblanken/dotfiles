@@ -75,6 +75,7 @@ require('packer').startup({
       { 'rafamadriz/friendly-snippets', config = function() require('dblanken.vsnip') end },
       { 'hrsh7th/nvim-cmp', config = function() require('dblanken.cmp') end },
     }
+    use { 'kyazdani42/nvim-web-devicons', config = function() require('dblanken.devicons') end }
 
     -- Automatically set up your configuration after cloning packer.nvim
     -- Put this at the end after all plugins
