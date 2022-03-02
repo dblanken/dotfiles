@@ -1,7 +1,13 @@
 local M = {}
 
+M.status_exists, M.lsp_status = pcall(require, 'lsp-status')
+
 -- TODO: backfill this to template
 M.setup = function()
+  if M.status_exists then
+    M.lsp_status.register_progress()
+  end
+
   local signs = {
     { name = "DiagnosticSignError", text = "" },
     { name = "DiagnosticSignWarn", text = "" },
@@ -85,6 +91,9 @@ local function lsp_keymaps(bufnr)
 end
 
 M.on_attach = function(client, bufnr)
+  if M.status_exists then
+    M.lsp_status.on_attach(client, bufnr)
+  end
   if client.name == "tsserver" then
     client.resolved_capabilities.document_formatting = false
   end
