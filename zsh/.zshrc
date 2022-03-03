@@ -123,3 +123,5 @@ for i in $__PROMPT_PARTS; do
 done
 PROMPT="${${PROMPT##[[:space]]*[[:space]]}:1} "
 export SPROMPT="zsh: correct %F{red}'%R'%f to %F{red}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %B%Ue%u%bdit, %B%Ua%u%bbort]? "
+
+fortune computers riddles pets wisdom work food kids | cowsay -f dragon | lolcat
