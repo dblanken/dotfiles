@@ -72,8 +72,6 @@ then
   done
 fi
 
-setopt completealiases
-
 # Colors
 alias ls='ls --color'
 alias grep='grep --color'
