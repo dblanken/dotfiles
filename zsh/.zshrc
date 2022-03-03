@@ -60,7 +60,7 @@ zstyle -e ':completion:*:(ssh|scp|sftp|rsh|rsync):hosts' hosts 'reply=(${=${${(f
 # Define parts of my prompt
 typeset -a __PROMPT_PARTS
 __PROMPT_PARTS=(
-  "%F{green}%n@%m%f"
+  "%F{green}%n%F{black}@%F{green}%m%f"
   "%F{blue}%1~%f"
   "%F{yellow}%#%f"
 )
