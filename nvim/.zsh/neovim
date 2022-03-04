@@ -1,6 +1,6 @@
 # Check if we are nesting nvims
 # If we have nvim, make it the default
-if [ -x "$(command -v nvim)" ]; then
+if [[ -x "$(command -v nvim)" && "${USE_NVIM:-false}" == "true" ]]; then
   export EDITOR=nvim
   alias vim="nvim"
 
