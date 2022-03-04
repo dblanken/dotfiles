@@ -1,442 +1,246 @@
-" designed for vim 8+
-
-if has("eval")                               " vim-tiny lacks 'eval'
-  let skip_defaults_vim = 1
+if $VIM_BARE
+  setglobal noloadplugins
+  finish
 endif
 
-set nocompatible
+filetype plugin on
 
-"####################### Vi Compatible (~/.exrc) #######################
-
-" automatically indent new lines
-set autoindent
-
-" automatically write files when changing when multiple files open
-set autowrite
-
-" activate line numbers
-set number
-
-" turn col and row position on in bottom right
-set ruler " see ruf for formatting
-
-" show command and insert mode
-set showmode
-
-set tabstop=2
-
-"#######################################################################
+exe 'augroup my'
+autocmd!
+setglobal nocompatible
 
 let mapleader=' '
 
-set softtabstop=2
+" Section: Moving around, searching, patterns, and tags
 
-" mostly used with >> and <<
-set shiftwidth=2
+setglobal cpoptions+=J
+setglobal smartcase
+setglobal incsearch
+setglobal include=
+setglobal path=.,,
 
-set smartindent
+" Section: Displaying text
 
-set smarttab
-
-if v:version >= 800
-  " stop vim from silently messing with files that it shouldn't
-  set nofixendofline
-
-  " better ascii friendly listchars
-  set listchars=space:*,trail:*,nbsp:*,extends:>,precedes:<,tab:\|>
-
-  " i hate automatic folding
-  set foldmethod=manual
-  set nofoldenable
+setglobal display=lastline
+setglobal scrolloff=1
+setglobal sidescrolloff=5
+setglobal lazyredraw
+set cmdheight=2
+set breakindent showbreak=\ +
+if (&termencoding ==# 'utf-8' || &encoding ==# 'utf-8') && v:version >= 700
+  let &g:listchars = "tab:\u21e5\u00b7,trail:\u2423,extends:\u21c9,precedes:\u21c7,nbsp:\u00b7"
+  let &g:fillchars = "vert:\u250b,fold:\u00b7"
+else
+  setglobal listchars=tab:>\ ,trail:-,extends:>,precedes:<
 endif
 
-" mark trailing spaces as errors
-if has("match")
-  match ErrorMsg '\s\+$'
+" Section: Windows
+
+setglobal laststatus=2
+setglobal showtabline=2
+if empty(&g:statusline)
+  setglobal statusline=[%n]\ %<%.99f\ %y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
 endif
+setglobal titlestring=%{v:progname}\ %{tolower(empty(v:servername)?'':'--servername\ '.v:servername.'\ ')}%{fnamemodify(getcwd(),':~')}%{exists('$SSH_TTY')?'\ <'.hostname().'>':''}
+setglobal iconstring=%{tolower(empty(v:servername)?v:progname\ :\ v:servername)}%{exists('$SSH_TTY')?'@'.hostname():''}
 
-" enough for line numbers + gutter within 80 standard
-set textwidth=72
+" Section: GUI
 
-" replace tabs with spaces automatically
-set expandtab
-
-" relative line numbers
-set relativenumber
-
-" more risky, but cleaner
-set nobackup
-set noswapfile
-set nowritebackup
-
-set icon
-
-" highlight search hits
-set hlsearch
-set incsearch
-set linebreak
-
-" avoid most of the 'Hit Enter ...' messages
-set shortmess=aoOtTI
-
-" prevents truncated yanks, deletes, etc.
-set viminfo='20,<1000,s1000
-
-" not a fan of bracket matching or folding
-if has("eval") " vim-tiny detection
-  let g:loaded_matchparen=1
+if has('nvim') && len($TMUX)
+  set guicursor=
 endif
-set noshowmatch
+setglobal printoptions=paper:letter
+setglobal mousemodel=popup
 
-" wrap around when searching
-set wrapscan
-
-" Just the defaults, these are changed per filetype by plugins.
-" Most of the utility of all of this has been superceded by the use of
-" modern simplified pandoc for capturing knowledge source instead of
-" arbitrary raw text files.
-
-set fo-=t   " don't auto-wrap text using text width
-set fo+=c   " autowrap comments using textwidth with leader
-set fo-=r   " don't auto-insert comment leader on enter in insert
-set fo-=o   " don't auto-insert comment leader on o/O in normal
-set fo+=q   " allow formatting of comments with gq
-set fo-=w   " don't use trailing whitespace for paragraphs
-set fo-=a   " disable auto-formatting of paragraph changes
-set fo-=n   " don't recognized numbered lists
-set fo+=j   " delete comment prefix when joining
-set fo-=2   " don't use the indent of second paragraph line
-set fo-=v   " don't use broken 'vi-compatible auto-wrapping'
-set fo-=b   " don't use broken 'vi-compatible auto-wrapping'
-set fo+=l   " long lines not broken in insert mode
-set fo+=m   " multi-byte character line break support
-set fo+=M   " don't add space before or after multi-byte char
-set fo-=B   " don't add space between two multi-byte chars
-set fo+=1   " don't break a line after a one-letter word
-
-" requires PLATFORM env variable set (in ~/.bashrc)
-if $PLATFORM == 'mac'
-  " required for mac delete to work
-  set backspace=indent,eol,start
-endif
-
-" stop complaints about switching buffer with changes
-set hidden
-
-" command history
-set history=100
-
-" here because plugins and stuff need it
-if has("syntax")
-  syntax enable
-endif
-
-" faster scrolling
-set ttyfast
-
-" allow sensing the filetype
-filetype plugin on
-
-" high contrast for streaming, etc.
-set background=dark
-
-" base default color changes (gruvbox dark friendly)
-augroup ColorOverrides
-  au!
-  au FileType markdown,pandoc hi Title ctermfg=yellow ctermbg=NONE
-  au FileType markdown,pandoc hi Operator ctermfg=yellow ctermbg=NONE
-augroup END
-
-set ruf=%30(%=%#LineNr#%.50F\ [%{strlen(&ft)?&ft:'none'}]\ %l:%c\ %p%%%)
-
-" enable omni-completion
-set omnifunc=syntaxcomplete#Complete
-
-set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
-
-" only load plugins if Plug detected
-if filereadable(expand("~/.vim/autoload/plug.vim"))
-
-  " github.com/junegunn/vim-plug
-
-  call plug#begin('~/.local/share/vim/plugins')
-  Plug 'sheerun/vim-polyglot'
-  Plug 'vim-pandoc/vim-pandoc'
-  Plug 'tpope/vim-commentary'
-  Plug 'tpope/vim-surround'
-  Plug 'tpope/vim-rails'
-  Plug 'tpope/vim-projectionist'
-  Plug 'tpope/vim-fugitive'
-  Plug 'tpope/vim-dispatch'
-  Plug 'tpope/vim-unimpaired'
-  Plug 'tpope/vim-eunuch'
-  Plug 'tpope/vim-repeat'
-  Plug 'vim-test/vim-test'
-  Plug 'morhetz/gruvbox'
-  Plug 'christoomey/vim-tmux-navigator'
-  " Plug 'dense-analysis/ale'
-  Plug 'neoclide/coc.nvim', {'branch': 'release'}
-  Plug 'honza/vim-snippets'
-  call plug#end()
-
-  " pandoc
-  let g:pandoc#formatting#mode = 'h' " A'
-  let g:pandoc#formatting#textwidth = 72
-
-  " vim-test
-  nmap <silent> <leader>t :TestNearest<CR>
-  nmap <silent> <leader>T :TestFile<CR>
-  nmap <silent> <leader>a :TestSuite<CR>
-  nmap <silent> <leader>l :TestLast<CR>
-  let g:test#strategy='dispatch'
-
-  " ale
-  " nmap <silent> ]d :ALENextWrap<CR>zz
-  " nmap <silent> [d :ALEPreviousWrap<CR>zz
-  " let g:ale_floating_preview=1
-  " let g:ale_hover_to_preview=1
-  " let g:ale_floating_window_border = ['│', '─', '╭', '╮', '╯', '╰']
-  " let g:ale_disable_lsp=1
-  " let g:ale_set_balloons=0
-  " let g:ale_linters={'ruby': ['brakeman', 'rails_best_practices', 'reek', 'standardrb', 'solargraph']}
-  " let g:ale_fixers={'ruby': ['remove_trailing_lines', 'trim_whitespace', 'standardrb']}
-  " let g:ale_echo_msg_format='%linter%: %code: %%s'
-
-  " coc.nvm
-  set encoding=utf-8
-  set hidden
-  set nobackup
-  set nowritebackup
-  set cmdheight=2
-  set updatetime=300
-  set shortmess+=c
-  set signcolumn=yes
-
-  let g:coc_snippet_next = '<tab>'
-
-  " Always confirms, but then checks if it can jump and jumps if so
-  function! Confirm_and_jump() abort
-    if pumvisible()
-      call coc#_select_confirm()
-      if coc#expandableOrJumpable()
-        return "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>"
-      end
-    end
-    return  "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-  endfunction
-
-  inoremap <silent><expr> <TAB>
-        \ pumvisible() ? "\<C-n>" :
-        \ <SID>check_back_space() ? "\<TAB>" :
-        \ coc#refresh()
-  inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-  function! s:check_back_space() abort
-    let col = col('.') - 1
-    return !col || getline('.')[col - 1]  =~# '\s'
-  endfunction
-
-  inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
-        \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
-  " Use `[d` and `]d` to navigate diagnostics
-  " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
-  nmap <silent> [d <Plug>(coc-diagnostic-prev)
-  nmap <silent> ]d <Plug>(coc-diagnostic-next)
-
-  " GoTo code navigation.
-  nmap <silent> gd <Plug>(coc-definition)
-  nmap <silent> gy <Plug>(coc-type-definition)
-  nmap <silent> gi <Plug>(coc-implementation)
-  nmap <silent> gr <Plug>(coc-references)
-
-  " Use K to show documentation in preview window.
-  nnoremap <silent> K :call <SID>show_documentation()<CR>
-
-  function! s:show_documentation()
-    if (index(['vim','help'], &filetype) >= 0)
-      execute 'h '.expand('<cword>')
-    elseif (coc#rpc#ready())
-      call CocActionAsync('doHover')
-    else
-      execute '!' . &keywordprg . " " . expand('<cword>')
-    endif
-  endfunction
-
-  augroup HighlightCoc
-    autocmd!
-    " Highlight the symbol and its references when holding the cursor.
-    autocmd CursorHold * silent call CocActionAsync('highlight')
-  augroup END
-
-  " Symbol renaming.
-  nmap <leader>rn <Plug>(coc-rename)
-
-  " Formatting selected code.
-  xmap <leader>f  <Plug>(coc-format-selected)
-  nmap <leader>f  <Plug>(coc-format-selected)
-
-  augroup mygroup
-    autocmd!
-    " Setup formatexpr specified filetype(s).
-    autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
-    " Update signature help on jump placeholder.
-    autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-  augroup end
-
-  " Applying codeAction to the selected region.
-  " Example: `<leader>aap` for current paragraph
-  xmap <leader>ca  <Plug>(coc-codeaction-selected)
-  nmap <leader>ca  <Plug>(coc-codeaction-selected)
-
-  " Remap keys for applying codeAction to the current buffer.
-  nmap <leader>ac  <Plug>(coc-codeaction)
-  " Apply AutoFix to problem on the current line.
-  nmap <leader>qf  <Plug>(coc-fix-current)
-
-  " Run the Code Lens action on the current line.
-  nmap <leader>cl  <Plug>(coc-codelens-action)
-
-  " Map function and class text objects
-  " NOTE: Requires 'textDocument.documentSymbol' support from the language server.
-  xmap if <Plug>(coc-funcobj-i)
-  omap if <Plug>(coc-funcobj-i)
-  xmap af <Plug>(coc-funcobj-a)
-  omap af <Plug>(coc-funcobj-a)
-  xmap ic <Plug>(coc-classobj-i)
-  omap ic <Plug>(coc-classobj-i)
-  xmap ac <Plug>(coc-classobj-a)
-  omap ac <Plug>(coc-classobj-a)
-
-  " Remap <C-f> and <C-b> for scroll float windows/popups.
-  if has('nvim-0.4.0') || has('patch-8.2.0750')
-    nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-    nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-    inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-    inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
-    vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-    vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+if $TERM =~# '^screen' || $TERM =~# '^tmux'
+  if exists('+ttymouse') && &ttymouse ==# ''
+    setglobal ttymouse=xterm
   endif
-
-  " Use CTRL-S for selections ranges.
-  " Requires 'textDocument/selectionRange' support of language server.
-  nmap <silent> <C-s> <Plug>(coc-range-select)
-  xmap <silent> <C-s> <Plug>(coc-range-select)
-
-  " Add `:Format` command to format current buffer.
-  command! -nargs=0 Format :call CocAction('format')
-
-  " Add `:Fold` command to fold current buffer.
-  command! -nargs=? Fold :call     CocAction('fold', <f-args>)
-
-  " Add `:OR` command for organize imports of the current buffer.
-  command! -nargs=0 OR   :call     CocActionAsync('runCommand', 'editor.action.organizeImport')
-
-  " Add (Neo)Vim's native statusline support.
-  " NOTE: Please see `:h coc-status` for integrations with external plugins that
-  " provide custom statusline: lightline.vim, vim-airline.
-  set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
-
-  " Mappings for CoCList
-  " Show all diagnostics.
-  nnoremap <silent><nowait> <space>ca  :<C-u>CocList diagnostics<cr>
-  " Manage extensions.
-  nnoremap <silent><nowait> <space>ce  :<C-u>CocList extensions<cr>
-  " Show commands.
-  nnoremap <silent><nowait> <space>cc  :<C-u>CocList commands<cr>
-  " Find symbol of current document.
-  nnoremap <silent><nowait> <space>co  :<C-u>CocList outline<cr>
-  " Search workspace symbols.
-  nnoremap <silent><nowait> <space>cs  :<C-u>CocList -I symbols<cr>
-  " Do default action for next item.
-  nnoremap <silent><nowait> <space>cj  :<C-u>CocNext<CR>
-  " Do default action for previous item.
-  nnoremap <silent><nowait> <space>ck  :<C-u>CocPrev<CR>
-  " Resume latest coc list.
-  nnoremap <silent><nowait> <space>cp  :<C-u>CocListResume<CR>
-
-  let g:coc_global_extensions = [
-      \ 'coc-json',
-      \ 'coc-tsserver',
-      \ 'coc-yank',
-      \ 'coc-yaml',
-      \ 'coc-vimlsp',
-      \ 'coc-sumneko-lua',
-      \ 'coc-solargraph',
-      \ 'coc-snippets',
-      \ 'coc-sh',
-      \ 'coc-pairs',
-      \ 'coc-markdownlint',
-      \ 'coc-lists',
-      \ 'coc-html',
-      \ 'coc-html-css-support',
-      \ 'coc-highlight',
-      \ 'coc-git',
-      \ 'coc-emmet',
-      \ 'coc-css'
-      \ ]
 endif
 
-" navigate chunks of current buffer
-nmap [g <Plug>(coc-git-prevchunk)
-nmap ]g <Plug>(coc-git-nextchunk)
-" navigate conflicts of current buffer
-nmap g[c <Plug>(coc-git-prevconflict)
-nmap g]c <Plug>(coc-git-nextconflict)
-" show chunk diff at current position
-nmap ggs <Plug>(coc-git-chunkinfo)
-" show commit contains current position
-nmap ggc <Plug>(coc-git-commit)
-" create text object for git chunks
-omap ig <Plug>(coc-git-chunk-inner)
-xmap ig <Plug>(coc-git-chunk-inner)
-omap ag <Plug>(coc-git-chunk-outer)
-xmap ag <Plug>(coc-git-chunk-outer)
+autocmd FocusLost * let s:confirm = &confirm | setglobal noconfirm | silent! wall | let &confirm = s:confirm
 
-" make Y consitent with D and C (yank til end)
-map Y y$
+" Section: Messages and info
 
+setglobal confirm
+setglobal showcmd
+setglobal visualbell
+syntax enable
+
+" Section: Editing text and indent
+
+setglobal textwidth=0
+setglobal backspace=2
+setglobal complete-=i
+setglobal formatoptions+=j
+setglobal infercase
+setglobal showmatch
+setglobal virtualedit=block
+
+setglobal shiftround
+setglobal smarttab
+setglobal autoindent
+setglobal omnifunc=syntaxcomplete#Complete
+setglobal completefunc=syntaxcomplete#Complete
+
+autocmd FileType json set sw=2 et
+
+" Section: Folding and Comments
+
+setglobal foldmethod=marker
+setglobal foldopen+=jump
+setglobal commentstring=#\ %s
+if !get(v:, 'vim_did_enter', !has('vim_starting'))
+  setlocal commentstring<
+endif
+
+autocmd FileType git,gitcommit        setlocal foldmethod=syntax foldlevel=1
+
+inoremap <C-X>^ <C-R>=substitute(&commentstring,' \=%s\>'," -*- ".&ft." -*- vim:set ft=".&ft." ".(&et?"et":"noet")." sw=".&sw.(&sts ? " sts=".&sts : "").':','')<CR>
+
+" Section: Maps
+
+setglobal timeoutlen=1200
+setglobal ttimeoutlen=50
+
+digraph ,. 8230
+digraph cl 8984
+
+nnoremap Y y$
 nnoremap Q @q
 
-" better command-line completion
-set wildmenu
+" Section: Reading and writing files
 
-" disable search highlighting with <C-L> when refreshing screen
-nnoremap <leader>h :nohl<CR>
+setglobal autoread
+setglobal autowrite
+setglobal fileformats=unix,dos,mac
 
-" force some files to be specific file type
-augroup CustomFileTypes
-  au!
-  au bufnewfile,bufRead *.bash* set ft=bash
-  au bufnewfile,bufRead *ssh/config set filetype=sshconfig
-  au bufnewfile,bufRead *gitconfig set filetype=gitconfig
-augroup END
-
-" displays all the syntax rules for current position, useful
-" when writing vimscript syntax plugins
-if has("syntax")
-function! <SID>SynStack()
-  if !exists("*synstack")
-    return
+set undofile
+setglobal viminfo=!,'20,<50,s10,h
+if !empty($SUDO_USER) && $USER !=# $SUDO_USER
+  setglobal viminfo=
+  setglobal directory-=~/tmp
+  setglobal backupdir-=~/tmp
+elseif exists('+undofile')
+  setglobal undodir=~/.cache/vim/undo
+  if !isdirectory(&undodir)
+    call mkdir(&undodir, 'p')
   endif
-    echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-endfunc
+endif 
+
+" Section: Command line editing
+
+setglobal history=200
+setglobal wildmenu
+setglobal wildmode=full
+setglobal wildignore+=tags,.*.un~,*.pyc
+
+" Section: External commands
+
+setglobal grepformat=%f:%l:%c:%m,%f:%l:%m,%f:%l%m,%f\ \ %l%m
+if executable('ag')
+  setglobal grepprg=ag\ -s\ --vimgrep
+elseif has('unix')
+  setglobal grepprg=grep\ -rn\ $*\ /dev/null
 endif
 
-" start at last place you were editing
-augroup LastEdited
-  au!
-  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-augroup END
+autocmd FileType tmux let b:dispatch = 'tmux source %:p:S'
+autocmd FileType html let b:dispatch = ':Browse'
 
-let g:ruby_path = expand('~/.asdf/shims/ruby')
-let ruby_fold=0
+" Section: Filetype settings
 
-nmap n nzz
-nmap N Nzz
+autocmd FileType * setlocal nolinebreak
+autocmd FileType xml,xsd,xslt,javascript setlocal ts=2
+autocmd FileType mail,gitcommit setlocal tw=72
+autocmd FileType sh,zsh,csh,tcsh setlocal fo-=t|
+      \ inoremap <silent> <buffer> <C-X>! #!/bin/<C-R>=&ft<CR>
+autocmd FileType perl,python,ruby,tcl
+      \ inoremap <silent> <buffer> <C-X>! #!/usr/bin/env<Space><C-R>=&ft<CR>
+autocmd FileType javascript
+      \ inoremap <silent> <buffer> <C-X>! #!/usr/bin/env<Space>node
+autocmd FileType help setlocal ai formatoptions+=2n
+autocmd FileType ruby setlocal comments=:#\ tw=78
+autocmd FileType liquid,markdown,text,txt setlocal tw=78 linebreak keywordprg=dict
+autocmd FileType tex setlocal formatoptions+=l
+autocmd FileType vim setlocal keywordprg=:help |
+      \ if &foldmethod !=# 'diff' | setlocal foldmethod=expr foldlevel=1 | endif |
+    \ setlocal foldexpr=getline(v:lnum)=~'^\"\ Section:'?'>1':'='
 
-nnoremap <Leader><Leader> <C-^>
+let g:sh_fold_enabled = has('folding')
+let g:is_posix = 1
+let g:go_fmt_autosave = 0
+let g:sql_type_default = 'mysql'
 
-let g:gruvbox_italic=1
+" Section: Highlighting
 
-colorscheme gruvbox
+setglobal spelllang=en_us
+setglobal spellfile=~/.vim/spell/en.utf-8.add
+let g:spellfile_URL = 'http://ftp.vim.org/vim/runtime/spell'
+autocmd FileType gitcommit setlocal spell
+autocmd FileType help if &buftype ==# 'help' | setlocal nospell | endif
+
+" Section: Plugin settings
+
+let g:omni_sql_no_default_maps = 1
+let g:sh_noisk = 1
+let g:markdown_fenced_languages = ['ruby', 'html', 'javascript', 'css', 'bash=sh', 'sh']
+let g:liquid_highlight_types = g:markdown_fenced_languages + ['jinja=liquid', 'html+erb=eruby.html', 'html+jinja=liquid.html']
+
+let g:CSApprox_verbose_level = 0
+let g:NERDTreeHijackNetrw = 0
+let g:netrw_dirhistmax = 0
+let g:ragtag_global_maps = 1
+let b:surround_{char2nr('e')} = "\r\n}"
+let g:surround_{char2nr('-')} = "<% \r %>"
+let g:surround_{char2nr('=')} = "<%= \r %>"
+let g:surround_{char2nr('8')} = "/* \r */"
+let g:surround_{char2nr('s')} = " \r"
+let g:surround_{char2nr('^')} = "/^\r$/"
+let g:surround_indent = 1
+
+nmap <silent> <leader>t :TestNearest<CR>
+nmap <silent> <leader>T :TestFile<CR>
+nmap <silent> <leader>a :TestSuite<CR>
+nmap <silent> <leader>l :TestLast<CR>
+let test#strategy = 'dispatch' " or 'dispatch_background'
+
+nmap <silent> ]d :ALENext<CR>
+nmap <silent> [d :ALEPrevious<CR>
+
+if (&t_Co > 2 || has('gui_running')) && has('syntax')
+  if &g:highlight =~# 'NonText'
+    let &g:highlight = substitute(&g:highlight, 'NonText', 'SpecialKey', 'g')
+  endif
+  if !exists('syntax_on') && !exists('syntax_manual')
+    exe 'augroup END'
+    syntax on
+    exe 'augroup my'
+  endif
+  if !get(v:, 'vim_did_enter', !has('vim_starting'))
+    set list
+    if !exists('g:colors_name')
+      colorscheme vividchalk
+    endif
+  endif
+
+  autocmd Syntax sh   syn sync minlines=500
+  autocmd Syntax css  syn sync minlines=50
+endif
+
+" Section: Misc
+
+setglobal sessionoptions-=buffers sessionoptions-=curdir sessionoptions+=sesdir,globals
+autocmd VimEnter * nested
+      \ if !argc() && empty(v:this_session) && filereadable('Session.vim') && !&modified |
+      \   source Session.vim |
+      \ endif
+
+" Section: Fin
+
+if filereadable(expand('~/.vimrc.local'))
+  source ~/.vimrc.local
+endif
+
+exe 'augroup END'
+
+" vim:set et sw=2 foldmethod=expr"
