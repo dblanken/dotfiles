@@ -18,3 +18,4 @@
   ca = commit -v -a
   cb = checkout -b
   co = checkout
+  unstage = reset
