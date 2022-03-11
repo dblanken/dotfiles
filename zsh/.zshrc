@@ -65,10 +65,18 @@ __PROMPT_PARTS=(
   "%F{yellow}%#%f"
 )
 
+typeset -a __RPROMPT_PARTS
+__RPROMPT_PARTS=(
+  '$(ruby_version)'
+  '$(node_version)'
+)
+
+autoload -Uz add-zsh-hook
+
 if [ -d "$HOME/.zsh" ]
 then
   for zsh_file in ~/.zsh/*; do
-	  source $zsh_file
+    source $zsh_file
   done
 fi
 
@@ -124,6 +132,13 @@ for i in $__PROMPT_PARTS; do
   PROMPT="${PROMPT##[[:space]]*[[:space]]} ${i}"
 done
 PROMPT="${${PROMPT##[[:space]]*[[:space]]}:1} "
+
+RPROMPT=""
+for i in $__RPROMPT_PARTS; do
+  RPROMPT="${RPROMPT##[[:space]]*[[:space]]} ${i}"
+done
+RPROMPT="${${RPROMPT##[[:space]]*[[:space]]}:1} "
+
 export SPROMPT="zsh: correct %F{red}'%R'%f to %F{red}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %B%Ue%u%bdit, %B%Ua%u%bbort]? "
 
-fortune computers riddles pets wisdom work food kids | cowsay -f dragon | lolcat
+# fortune computers riddles pets wisdom work food kids | cowsay -f dragon | lolcat
