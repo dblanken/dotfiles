@@ -3,6 +3,8 @@ hs.grid.MARGINX = 0
 hs.grid.MARGINY = 0
 hs.window.animationDuration = 0 -- disable animations
 
+local debug = false
+
 local events = require 'events'
 local log = require 'log'
 local timer = require("hs.timer")
@@ -23,6 +25,7 @@ local tearDownEventHandling = nil
 local windowCount = nil
 local leftDisplay = nil
 local rightDisplay = nil
+local debugMsg = nil
 
 local screenCount = #hs.screen.allScreens()
 
@@ -67,6 +70,12 @@ hs.loadSpoon("ReloadConfiguration")
 spoon.ReloadConfiguration:start()
 
 local open_file = io.open
+
+local function debugMsg(msg)
+  if debug then
+    log.i(msg)
+  end
+end
 
 local function read_file(path)
   local file = open_file(path, "rb") -- r read mode and b binary mode
@@ -198,8 +207,17 @@ local layoutConfig = {
   end),
 
   ['mpv'] = (function(window, forceScreenCount)
+    local count = forceScreenCount or screenCount
+    if count == 1 then
+      hs.grid.set(window, grid.fullScreen)
+    else
+      local leftscreen = hs.screen{x=-1,y=0}
+      hs.grid.set(window, grid.fullScreen, leftscreen)
+    end
+
+    -- Bring the terminal up front after
     for _name, appID in pairs(terminal_bundles) do
-      -- log.i('Activating app: ' .. appID)
+      debugMsg('Activating app: ' .. appID)
       activate(appID)
     end
   end),
@@ -260,7 +278,7 @@ leftDisplay = (function()
   hs.screen{x=-1,y=0}
 end)
 
-rightDIsplay = (function()
+rightDisplay = (function()
   hs.screen{x=1,y=0}
 end)
 
@@ -295,18 +313,25 @@ handleWindowEvent = (function(window)
     -- Define bundles that may have a nil bundle, but app
     -- exists
     local nilBundles = { "mpv" }
+    local nilFound = false
 
-    -- log.i(application)
-    -- log.i(bundleID)
+    debugMsg(application)
+    debugMsg(bundleID)
 
     -- Nil bundles could mean the app doesn't properly
     -- have a bundle ID associated
     -- An example of this launching mpv
     if bundleID == nil then
       for _, key in pairs(nilBundles) do
+        debugMsg('Attempting to find ' .. key)
+
         nilApp = hs.application.find(key)
         if not(nilApp == nil) then
+          debugMsg(key .. ' found!')
+          nilFound = true
           bundleID = key
+        else
+          debugMsg(key .. ' not found.')
         end
       end
     end
@@ -315,8 +340,10 @@ handleWindowEvent = (function(window)
       local application = hs.application.get(bundleID)
       -- Attempt to layout adjust only if it's the first window and a layout
       -- exists
-      if layoutConfig[bundleID] and windowCount(application) <= 1 then
-        layoutConfig[bundleID](window)
+      if layoutConfig[bundleID] then
+        if nilFound or windowCount(application) <= 1 then
+          layoutConfig[bundleID](window)
+        end
       end
     end
   end
@@ -379,6 +406,7 @@ chain = (function(movements)
       elseif (sequenceNumber == 1) then
         -- At end of chain, restart chain on next screen.
         screen = screen:next()
+        debugMsg('Moving screens')
       end
       lastSeenAt = now
       lastSeenWindow = id
@@ -460,43 +488,43 @@ chain = (function(movements)
 
   -- Uncomment to learn the bundle id of an active app
   -- hs.hotkey.bind({'cmd'}, 'w', (function()
-    --     local current_application = hs.application.frontmostApplication()
-    --     log.i(current_application:bundleID())
-    -- end))
+  --   local current_application = hs.application.frontmostApplication()
+  --   debugMsg(current_application:bundleID())
+  -- end))
 
-    hs.hotkey.bind({'cmd'}, '1', (function()
-      local console_app = read_file(os.getenv("HOME") .. "/.config/terminal")
-      local bundleID = terminal_bundles[console_app:gsub("%s+", "")]
-      if bundleID then
-        hs.application.launchOrFocusByBundleID(bundleID)
-      else
-        log.i("No bundle ID found for " .. console_app)
-      end
-    end))
-
-    hs.hotkey.bind({'cmd'}, '2', (function()
-      local bundleID = "com.apple.Safari"
+  hs.hotkey.bind({'cmd'}, '1', (function()
+    local console_app = read_file(os.getenv("HOME") .. "/.config/terminal")
+    local bundleID = terminal_bundles[console_app:gsub("%s+", "")]
+    if bundleID then
       hs.application.launchOrFocusByBundleID(bundleID)
-    end))
-
-    hs.hotkey.bind({'cmd'}, '3', (function()
-      local bundleID = "com.apple.mail"
-      hs.application.launchOrFocusByBundleID(bundleID)
-    end))
-
-    hs.hotkey.bind({'cmd'}, '4', (function()
-      local bundleID = "com.apple.MobileSMS"
-      hs.application.launchOrFocusByBundleID(bundleID)
-    end))
-
-    hs.hotkey.bind({'cmd'}, '5', (function()
-      local bundleID = "com.microsoft.SkypeForBusiness"
-      hs.application.launchOrFocusByBundleID(bundleID)
-    end))
-
-    for _, app in pairs(ignoreAlwaysApps) do
-      -- Ignore some stuff for warnings
-      hs.window.filter.ignoreAlways[app] = true
+    else
+      debugMsg("No bundle ID found for " .. console_app)
     end
+  end))
 
-    log.i('Config loaded')
+  hs.hotkey.bind({'cmd'}, '2', (function()
+    local bundleID = "com.apple.Safari"
+    hs.application.launchOrFocusByBundleID(bundleID)
+  end))
+
+  hs.hotkey.bind({'cmd'}, '3', (function()
+    local bundleID = "com.apple.mail"
+    hs.application.launchOrFocusByBundleID(bundleID)
+  end))
+
+  hs.hotkey.bind({'cmd'}, '4', (function()
+    local bundleID = "com.apple.MobileSMS"
+    hs.application.launchOrFocusByBundleID(bundleID)
+  end))
+
+  hs.hotkey.bind({'cmd'}, '5', (function()
+    local bundleID = "com.microsoft.SkypeForBusiness"
+    hs.application.launchOrFocusByBundleID(bundleID)
+  end))
+
+  for _, app in pairs(ignoreAlwaysApps) do
+    -- Ignore some stuff for warnings
+    hs.window.filter.ignoreAlways[app] = true
+  end
+
+  log.i('Config loaded')
