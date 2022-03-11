@@ -66,6 +66,8 @@ setglobal confirm
 setglobal showcmd
 setglobal visualbell
 syntax enable
+set number
+set relativenumber
 
 " Section: Editing text and indent
 
@@ -178,6 +180,54 @@ setglobal spellfile=~/.vim/spell/en.utf-8.add
 let g:spellfile_URL = 'http://ftp.vim.org/vim/runtime/spell'
 autocmd FileType gitcommit setlocal spell
 autocmd FileType help if &buftype ==# 'help' | setlocal nospell | endif
+
+" Section: Plugins
+
+call plug#begin()
+
+Plug 'tpope/vim-abolish'
+Plug 'tpope/vim-afterimage'
+Plug 'tpope/vim-apathy'
+Plug 'tpope/vim-bundler'
+Plug 'tpope/vim-characterize'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-cucumber'
+Plug 'tpope/vim-dadbod'
+Plug 'tpope/vim-dispatch'
+Plug 'tpope/vim-dotenv'
+Plug 'tpope/vim-endwise'
+Plug 'tpope/vim-eunuch'
+Plug 'tpope/vim-flagship'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-git'
+Plug 'tpope/vim-jdaddy'
+Plug 'tpope/vim-markdown'
+Plug 'tpope/vim-obsession'
+Plug 'tpope/vim-projectionist'
+Plug 'tpope/vim-ragtag'
+Plug 'tpope/vim-rails'
+Plug 'tpope/vim-rake'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-rhubarb'
+Plug 'tpope/vim-scriptease'
+Plug 'tpope/vim-sensible'
+Plug 'tpope/vim-sleuth'
+Plug 'tpope/vim-speeddating'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-tbone'
+Plug 'tpope/vim-unimpaired'
+Plug 'tpope/vim-vinegar'
+Plug 'tpope/vim-vividchalk'
+
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'vim-test/vim-test'
+Plug 'tribela/vim-transparent'
+Plug 'dense-analysis/ale'
+Plug 'ecomba/vim-ruby-refactoring'
+Plug 'kana/vim-textobj-user'
+Plug 'nelstrom/vim-textobj-rubyblock'
+
+call plug#end()
 
 " Section: Plugin settings
 
