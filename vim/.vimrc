@@ -129,6 +129,10 @@ elseif exists('+undofile')
   if !isdirectory(&undodir)
     call mkdir(&undodir, 'p')
   endif
+  setglobal directory=~/.cache/vim/swap//
+  if !isdirectory(&directory)
+    call mkdir(&directory, 'p')
+  endif
 endif 
 
 " Section: Command line editing
