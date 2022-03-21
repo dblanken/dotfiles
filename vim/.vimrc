@@ -236,6 +236,8 @@ Plug 'ecomba/vim-ruby-refactoring'
 Plug 'kana/vim-textobj-user'
 Plug 'nelstrom/vim-textobj-rubyblock'
 
+Plug 'gruvbox-community/gruvbox'
+
 call plug#end()
 
 " Section: Plugin settings
@@ -265,6 +267,12 @@ let test#strategy = 'dispatch' " or 'dispatch_background'
 
 nmap <silent> ]d :ALENext<CR>
 nmap <silent> [d :ALEPrevious<CR>
+
+let g:gruvbox_italic=1
+let g:gruvbox_italicize_strings=1
+let g:colors_name='gruvbox'
+set background=light
+colorscheme gruvbox
 
 if (&t_Co > 2 || has('gui_running')) && has('syntax')
   if &g:highlight =~# 'NonText'
