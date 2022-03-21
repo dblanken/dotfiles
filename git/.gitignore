@@ -1,2 +1,8 @@
 tags
 .tags
+*~
+*.swp
+*.swo
+.*.swp
+.*.swo
+.*~
