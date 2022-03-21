@@ -68,6 +68,7 @@ setglobal visualbell
 syntax enable
 set number
 set relativenumber
+set signcolumn=yes
 
 " Section: Editing text and indent
 
