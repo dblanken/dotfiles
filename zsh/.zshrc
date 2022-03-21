@@ -4,7 +4,7 @@ else
   echo "Please install reattach-to-user-namespace for tmux to work"
 fi
 
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 export EDITOR="vim"
 
 # Lines configured by zsh-newuser-install

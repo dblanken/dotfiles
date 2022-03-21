@@ -13,7 +13,8 @@
 
 import:
 #  - ~/.config/alacritty/dracula.yml
-  - ~/.config/alacritty/gruvbox.yml
+#  - ~/.config/alacritty/gruvbox.yml
+  - ~/.config/alacritty/gruvbox-dark.yml
 
 # Any items in the `env` entry below will be added as
 # environment variables. Some entries may override variables
@@ -59,23 +60,23 @@ window:
   # Window decorations
   #
   # Values for `decorations`:
-  #     - full: Borders and title bar
-  #     - none: Neither borders nor title bar
+  #  - full: Borders and title bar
+  #  - none: Neither borders nor title bar
   #
   # Values for `decorations` (macOS only):
-  #     - transparent: Title bar, transparent background and title bar buttons
-  #     - buttonless: Title bar, transparent background and no title bar buttons
+  #  - transparent: Title bar, transparent background and title bar buttons
+  #  - buttonless: Title bar, transparent background and no title bar buttons
   decorations: none
 
   # Startup Mode (changes require restart)
   #
   # Values for `startup_mode`:
-  #   - Windowed
-  #   - Maximized
-  #   - Fullscreen
+  #  - Windowed
+  #  - Maximized
+  #  - Fullscreen
   #
   # Values for `startup_mode` (macOS only):
-  #   - SimpleFullscreen
+  #  - SimpleFullscreen
   startup_mode: Maximized
 
   # Window title
@@ -118,9 +119,9 @@ font:
     # Font family
     #
     # Default:
-    #   - (macOS) Menlo
-    #   - (Linux/BSD) monospace
-    #   - (Windows) Consolas
+    #  - (macOS) Menlo
+    #  - (Linux/BSD) monospace
+    #  - (Windows) Consolas
     family: JetBrainsMono Nerd Font
 
     # The `style` can be specified to pick a specific face.
@@ -375,16 +376,16 @@ draw_bold_text_with_bright_colors: true
   # Animation effect for flashing the screen when the visual bell is rung.
   #
   # Values for `animation`:
-  #   - Ease
-  #   - EaseOut
-  #   - EaseOutSine
-  #   - EaseOutQuad
-  #   - EaseOutCubic
-  #   - EaseOutQuart
-  #   - EaseOutQuint
-  #   - EaseOutExpo
-  #   - EaseOutCirc
-  #   - Linear
+  #  - Ease
+  #  - EaseOut
+  #  - EaseOutSine
+  #  - EaseOutQuad
+  #  - EaseOutCubic
+  #  - EaseOutQuart
+  #  - EaseOutQuint
+  #  - EaseOutExpo
+  #  - EaseOutCirc
+  #  - Linear
   #animation: EaseOutExpo
 
   # Duration of the visual bell flash in milliseconds. A `duration` of `0` will
@@ -421,18 +422,18 @@ draw_bold_text_with_bright_colors: true
     # Cursor shape
     #
     # Values for `shape`:
-    #   - ▇ Block
-    #   - _ Underline
-    #   - | Beam
+    #  - ▇ Block
+    #  - _ Underline
+    #  - | Beam
     #shape: Block
 
     # Cursor blinking state
     #
     # Values for `blinking`:
-    #   - Never: Prevent the cursor from ever blinking
-    #   - Off: Disable blinking by default
-    #   - On: Enable blinking by default
-    #   - Always: Force the cursor to always blink
+    #  - Never: Prevent the cursor from ever blinking
+    #  - Off: Disable blinking by default
+    #  - On: Enable blinking by default
+    #  - Always: Force the cursor to always blink
     #blinking: Off
 
   # Vi mode cursor style
@@ -464,13 +465,13 @@ live_config_reload: true
 # shell.
 #
 # Default:
-#   - (macOS) /bin/bash --login
-#   - (Linux/BSD) user login shell
-#   - (Windows) powershell
+#  - (macOS) /bin/bash --login
+#  - (Linux/BSD) user login shell
+#  - (Windows) powershell
 #shell:
 #  program: /bin/bash
 #  args:
-#    - --login
+#  - --login
 
 # Startup directory
 #
@@ -517,16 +518,16 @@ live_config_reload: true
   # (e.g. a trailing `.`). This is most useful for URIs.
   #
   # Values for `action`:
-  #   - Copy
+  #  - Copy
   #       Copy the hint's text to the clipboard.
-  #   - Paste
+  #  - Paste
   #       Paste the hint's text to the terminal or search.
-  #   - Select
+  #  - Select
   #       Select the hint's text.
-  #   - MoveViModeCursor
+  #  - MoveViModeCursor
   #       Move the vi mode cursor to the beginning of the hint.
   #enabled:
-  # - regex: "(ipfs:|ipns:|magnet:|mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)\
+  #  - regex: "(ipfs:|ipns:|magnet:|mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)\
   #           [^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+"
   #   command: xdg-open
   #   post_processing: true
@@ -548,18 +549,18 @@ live_config_reload: true
 #
 # Each mouse binding will specify a:
 #
-# - `mouse`:
+#  - `mouse`:
 #
-#   - Middle
-#   - Left
-#   - Right
-#   - Numeric identifier such as `5`
+#  - Middle
+#  - Left
+#  - Right
+#  - Numeric identifier such as `5`
 #
-# - `action` (see key bindings)
+#  - `action` (see key bindings)
 #
 # And optionally:
 #
-# - `mods` (see key bindings)
+#  - `mods` (see key bindings)
 #mouse_bindings:
 #  - { mouse: Middle, action: PasteSelection }
 
@@ -572,11 +573,11 @@ live_config_reload: true
 #
 # Each key binding will specify a:
 #
-# - `key`: Identifier of the key pressed
+#  - `key`: Identifier of the key pressed
 #
-#    - A-Z
-#    - F1-F24
-#    - Key0-Key9
+#  - A-Z
+#  - F1-F24
+#  - Key0-Key9
 #
 #    A full list with available key codes can be found here:
 #    https://docs.rs/glutin/*/glutin/event/enum.VirtualKeyCode.html#variants
@@ -590,7 +591,7 @@ live_config_reload: true
 #
 # Then exactly one of:
 #
-# - `chars`: Send a byte sequence to the running application
+#  - `chars`: Send a byte sequence to the running application
 #
 #    The `chars` field writes the specified string to the terminal. This makes
 #    it possible to pass escape sequences. To find escape codes for bindings
@@ -599,133 +600,133 @@ live_config_reload: true
 #    to keys. It is therefore required to update the terminfo when changing an
 #    escape sequence.
 #
-# - `action`: Execute a predefined action
+#  - `action`: Execute a predefined action
 #
-#   - ToggleViMode
-#   - SearchForward
+#  - ToggleViMode
+#  - SearchForward
 #       Start searching toward the right of the search origin.
-#   - SearchBackward
+#  - SearchBackward
 #       Start searching toward the left of the search origin.
-#   - Copy
-#   - Paste
-#   - IncreaseFontSize
-#   - DecreaseFontSize
-#   - ResetFontSize
-#   - ScrollPageUp
-#   - ScrollPageDown
-#   - ScrollHalfPageUp
-#   - ScrollHalfPageDown
-#   - ScrollLineUp
-#   - ScrollLineDown
-#   - ScrollToTop
-#   - ScrollToBottom
-#   - ClearHistory
+#  - Copy
+#  - Paste
+#  - IncreaseFontSize
+#  - DecreaseFontSize
+#  - ResetFontSize
+#  - ScrollPageUp
+#  - ScrollPageDown
+#  - ScrollHalfPageUp
+#  - ScrollHalfPageDown
+#  - ScrollLineUp
+#  - ScrollLineDown
+#  - ScrollToTop
+#  - ScrollToBottom
+#  - ClearHistory
 #       Remove the terminal's scrollback history.
-#   - Hide
+#  - Hide
 #       Hide the Alacritty window.
-#   - Minimize
+#  - Minimize
 #       Minimize the Alacritty window.
-#   - Quit
+#  - Quit
 #       Quit Alacritty.
-#   - ToggleFullscreen
-#   - SpawnNewInstance
+#  - ToggleFullscreen
+#  - SpawnNewInstance
 #       Spawn a new instance of Alacritty.
-#   - ClearLogNotice
+#  - ClearLogNotice
 #       Clear Alacritty's UI warning and error notice.
-#   - ClearSelection
+#  - ClearSelection
 #       Remove the active selection.
-#   - ReceiveChar
-#   - None
+#  - ReceiveChar
+#  - None
 #
-# - Vi mode exclusive actions:
+#  - Vi mode exclusive actions:
 #
-#   - Open
+#  - Open
 #       Perform the action of the first matching hint under the vi mode cursor
 #       with `mouse.enabled` set to `true`.
-#   - ToggleNormalSelection
-#   - ToggleLineSelection
-#   - ToggleBlockSelection
-#   - ToggleSemanticSelection
+#  - ToggleNormalSelection
+#  - ToggleLineSelection
+#  - ToggleBlockSelection
+#  - ToggleSemanticSelection
 #       Toggle semantic selection based on `selection.semantic_escape_chars`.
 #
-# - Vi mode exclusive cursor motion actions:
+#  - Vi mode exclusive cursor motion actions:
 #
-#   - Up
+#  - Up
 #       One line up.
-#   - Down
+#  - Down
 #       One line down.
-#   - Left
+#  - Left
 #       One character left.
-#   - Right
+#  - Right
 #       One character right.
-#   - First
+#  - First
 #       First column, or beginning of the line when already at the first column.
-#   - Last
+#  - Last
 #       Last column, or beginning of the line when already at the last column.
-#   - FirstOccupied
+#  - FirstOccupied
 #       First non-empty cell in this terminal row, or first non-empty cell of
 #       the line when already at the first cell of the row.
-#   - High
+#  - High
 #       Top of the screen.
-#   - Middle
+#  - Middle
 #       Center of the screen.
-#   - Low
+#  - Low
 #       Bottom of the screen.
-#   - SemanticLeft
+#  - SemanticLeft
 #       Start of the previous semantically separated word.
-#   - SemanticRight
+#  - SemanticRight
 #       Start of the next semantically separated word.
-#   - SemanticLeftEnd
+#  - SemanticLeftEnd
 #       End of the previous semantically separated word.
-#   - SemanticRightEnd
+#  - SemanticRightEnd
 #       End of the next semantically separated word.
-#   - WordLeft
+#  - WordLeft
 #       Start of the previous whitespace separated word.
-#   - WordRight
+#  - WordRight
 #       Start of the next whitespace separated word.
-#   - WordLeftEnd
+#  - WordLeftEnd
 #       End of the previous whitespace separated word.
-#   - WordRightEnd
+#  - WordRightEnd
 #       End of the next whitespace separated word.
-#   - Bracket
+#  - Bracket
 #       Character matching the bracket at the cursor's location.
-#   - SearchNext
+#  - SearchNext
 #       Beginning of the next match.
-#   - SearchPrevious
+#  - SearchPrevious
 #       Beginning of the previous match.
-#   - SearchStart
+#  - SearchStart
 #       Start of the match to the left of the vi mode cursor.
-#   - SearchEnd
+#  - SearchEnd
 #       End of the match to the right of the vi mode cursor.
 #
-# - Search mode exclusive actions:
-#   - SearchFocusNext
+#  - Search mode exclusive actions:
+#  - SearchFocusNext
 #       Move the focus to the next search match.
-#   - SearchFocusPrevious
+#  - SearchFocusPrevious
 #       Move the focus to the previous search match.
-#   - SearchConfirm
-#   - SearchCancel
-#   - SearchClear
+#  - SearchConfirm
+#  - SearchCancel
+#  - SearchClear
 #       Reset the search regex.
-#   - SearchDeleteWord
+#  - SearchDeleteWord
 #       Delete the last word in the search regex.
-#   - SearchHistoryPrevious
+#  - SearchHistoryPrevious
 #       Go to the previous regex in the search history.
-#   - SearchHistoryNext
+#  - SearchHistoryNext
 #       Go to the next regex in the search history.
 #
-# - macOS exclusive actions:
-#   - ToggleSimpleFullscreen
+#  - macOS exclusive actions:
+#  - ToggleSimpleFullscreen
 #       Enter fullscreen without occupying another space.
 #
-# - Linux/BSD exclusive actions:
+#  - Linux/BSD exclusive actions:
 #
-#   - CopySelection
+#  - CopySelection
 #       Copy from the selection buffer.
-#   - PasteSelection
+#  - PasteSelection
 #       Paste from the selection buffer.
 #
-# - `command`: Fork and execute a specified command plus arguments
+#  - `command`: Fork and execute a specified command plus arguments
 #
 #    The `command` field must be a map containing a `program` string and an
 #    `args` array of command line parameter strings. For example:
@@ -733,29 +734,29 @@ live_config_reload: true
 #
 # And optionally:
 #
-# - `mods`: Key modifiers to filter binding actions
+#  - `mods`: Key modifiers to filter binding actions
 #
-#    - Command
-#    - Control
-#    - Option
-#    - Super
-#    - Shift
-#    - Alt
+#  - Command
+#  - Control
+#  - Option
+#  - Super
+#  - Shift
+#  - Alt
 #
 #    Multiple `mods` can be combined using `|` like this:
 #       `mods: Control|Shift`.
 #    Whitespace and capitalization are relevant and must match the example.
 #
-# - `mode`: Indicate a binding for only specific terminal reported modes
+#  - `mode`: Indicate a binding for only specific terminal reported modes
 #
 #    This is mainly used to send applications the correct escape sequences
 #    when in different modes.
 #
-#    - AppCursor
-#    - AppKeypad
-#    - Search
-#    - Alt
-#    - Vi
+#  - AppCursor
+#  - AppKeypad
+#  - Search
+#  - Alt
+#  - Vi
 #
 #    A `~` operator can be used before a mode to apply the binding whenever
 #    the mode is *not* active, e.g. `~Alt`.
@@ -965,12 +966,12 @@ key_bindings:
   # Log level
   #
   # Values for `log_level`:
-  #   - Off
-  #   - Error
-  #   - Warn
-  #   - Info
-  #   - Debug
-  #   - Trace
+  #  - Off
+  #  - Error
+  #  - Warn
+  #  - Info
+  #  - Debug
+  #  - Trace
   #log_level: Warn
 
   # Print all received window events.

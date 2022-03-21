@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Set vim to dark mode
+perl -p -i -e 's/^set background=\S+/set background=dark/' ~/.vimrc
+
+# Set alacritty to gruvbox-dark
+perl -p -i -e 's/\s+-\s~\/\.config\/alacritty\/gruvbox-\S+.yml/  - ~\/.config\/alacritty\/gruvbox-dark.yml/' ~/.config/alacritty/alacritty.yml
+
+# Set opacity to 0.90 (slight transparency)
+perl -p -i -e 's/^\s+opacity: [0-9.]+/  opacity: '0.90'/' ~/.config/alacritty/alacritty.yml
