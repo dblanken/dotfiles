@@ -1,0 +1,3 @@
+#!/bin/sh
+
+/Users/dblanken/.asdf/installs/postgres/14.1/bin/pg_ctl -D /Users/dblanken/.asdf/installs/postgres/14.1/data -l logfile stop
