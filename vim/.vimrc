@@ -133,6 +133,10 @@ elseif exists('+undofile')
   if !isdirectory(&directory)
     call mkdir(&directory, 'p')
   endif
+  setglobal backupdir=~/.cache/vim/backup
+  if !isdirectory(&backupdir)
+    call mkdir(&backupdir, 'p')
+  endif
 endif 
 
 " Section: Command line editing
