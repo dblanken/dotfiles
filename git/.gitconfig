@@ -5,6 +5,7 @@
   host = github.iu.edu
 [core]
   autocrlf = input
+  excludefiles = /Users/dblanken/.gitignore
 [push]
   default = upstream
 [merge]
