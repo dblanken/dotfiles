@@ -132,7 +132,7 @@ if command -v logo-ls &> /dev/null; then
   alias ls='logo-ls'
 fi
 
-export THOR_MERGE='vim'
+export THOR_MERGE='vim -d'
 
 # Prompt
 setopt prompt_subst
