@@ -8,3 +8,6 @@ perl -p -i -e 's/\s+-\s~\/\.config\/alacritty\/gruvbox-\S+.yml/  - ~\/.config\/a
 
 # Set opacity to 1 (no opacity)
 perl -p -i -e 's/^\s+opacity: [0-9.]+/  opacity: '1.00'/' ~/.config/alacritty/alacritty.yml
+
+# Tell MacOS to light up!
+osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to false'
