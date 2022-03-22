@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Set opacity to 0.90 (slight transparency)
+perl -p -i -e 's/^\s+opacity: [0-9.]+/  opacity: '$1'/' ~/.config/alacritty/alacritty.yml
