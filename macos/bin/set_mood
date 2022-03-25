@@ -1,0 +1,21 @@
+#!/bin/zsh
+
+set -e
+
+_set_mood() {
+  BIN_PATH="$HOME/bin"
+  DARK_MODE=light
+  if [[ "$(osascript -e 'tell app "System Events" to tell appearance preferences to get dark mode')" == "true" ]]; then
+    DARK_MODE=dark
+  fi
+
+  CURRENT_MODE="${CURRENT_MODE:-light}"
+
+  if [[ "$DARK_MODE" != "$CURRENT_MODE" ]]; then
+    CURRENT_MODE="$DARK_MODE"
+  fi
+
+  "${BIN_PATH}/$CURRENT_MODE"
+}
+
+_set_mood

@@ -1,0 +1,1 @@
+precmd() { $(("$HOME/bin/set_mood" &) &> /dev/null)}
