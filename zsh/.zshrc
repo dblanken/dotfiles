@@ -128,6 +128,8 @@ alias gwip='git add -A; git rm $(git ls-files --deleted) 2> /dev/null; git commi
 
 alias testvims='rm -rf ~/*vim.log; \vim --startuptime ~/vim.log +qa; \nvim --startuptime ~/nvim.log +qa; vim -O ~/*vim.log'
 
+alias pandoc='pandoc -V colorlinks=true -V linkcolor=blue -V urlcolor=blue -V toccolor=gray'
+
 if command -v logo-ls &> /dev/null; then
   alias ls='logo-ls'
 fi
