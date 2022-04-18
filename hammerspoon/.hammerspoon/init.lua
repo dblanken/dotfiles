@@ -492,35 +492,35 @@ chain = (function(movements)
   --   debugMsg(current_application:bundleID())
   -- end))
 
-  hs.hotkey.bind({'cmd'}, '1', (function()
-    local console_app = read_file(os.getenv("HOME") .. "/.config/terminal")
-    local bundleID = terminal_bundles[console_app:gsub("%s+", "")]
-    if bundleID then
-      hs.application.launchOrFocusByBundleID(bundleID)
-    else
-      debugMsg("No bundle ID found for " .. console_app)
-    end
-  end))
+  -- hs.hotkey.bind({'cmd'}, '1', (function()
+  --   local console_app = read_file(os.getenv("HOME") .. "/.config/terminal")
+  --   local bundleID = terminal_bundles[console_app:gsub("%s+", "")]
+  --   if bundleID then
+  --     hs.application.launchOrFocusByBundleID(bundleID)
+  --   else
+  --     debugMsg("No bundle ID found for " .. console_app)
+  --   end
+  -- end))
 
-  hs.hotkey.bind({'cmd'}, '2', (function()
-    local bundleID = "com.apple.Safari"
-    hs.application.launchOrFocusByBundleID(bundleID)
-  end))
+  -- hs.hotkey.bind({'cmd'}, '2', (function()
+  --   local bundleID = "com.apple.Safari"
+  --   hs.application.launchOrFocusByBundleID(bundleID)
+  -- end))
 
-  hs.hotkey.bind({'cmd'}, '3', (function()
-    local bundleID = "com.apple.mail"
-    hs.application.launchOrFocusByBundleID(bundleID)
-  end))
+  -- hs.hotkey.bind({'cmd'}, '3', (function()
+  --   local bundleID = "com.apple.mail"
+  --   hs.application.launchOrFocusByBundleID(bundleID)
+  -- end))
 
-  hs.hotkey.bind({'cmd'}, '4', (function()
-    local bundleID = "com.apple.MobileSMS"
-    hs.application.launchOrFocusByBundleID(bundleID)
-  end))
+  -- hs.hotkey.bind({'cmd'}, '4', (function()
+  --   local bundleID = "com.apple.MobileSMS"
+  --   hs.application.launchOrFocusByBundleID(bundleID)
+  -- end))
 
-  hs.hotkey.bind({'cmd'}, '5', (function()
-    local bundleID = "com.microsoft.SkypeForBusiness"
-    hs.application.launchOrFocusByBundleID(bundleID)
-  end))
+  -- hs.hotkey.bind({'cmd'}, '5', (function()
+  --   local bundleID = "com.microsoft.SkypeForBusiness"
+  --   hs.application.launchOrFocusByBundleID(bundleID)
+  -- end))
 
   for _, app in pairs(ignoreAlwaysApps) do
     -- Ignore some stuff for warnings
