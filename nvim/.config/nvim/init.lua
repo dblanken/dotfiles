@@ -182,7 +182,7 @@ packadd! vim-repeat
 packadd! vim-surround
 packadd! vim-tmux-navigator
 packadd! vim-test
-packadd! nvim-base16
+packadd! nvim-base16.lua
 packadd! nvim-treesitter            " Run ':TSUpdate' and ':TSInstall all' after
 packadd! plenary.nvim
 packadd! telescope.nvim
