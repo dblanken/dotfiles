@@ -6,11 +6,11 @@ if [[ $# -ne 1 ]]; then
   exit 1
 fi
 
-local add_submodule() {
+add_submodule() {
   local user=${1%/*}
   local repo=${1##*/}
 
-  git submodule add --name "$2" "https://github.com/$1/$2" "nvim/.config/nvim/pack/bundle/opt/$2"
+  git submodule add --name "$repo" "https://github.com/$user/$repo" "nvim/.config/nvim/pack/bundle/opt/$repo"
 }
 
 add_submodule "$1"
