@@ -1,0 +1,99 @@
+[submodule "base16-shell"]
+	path = base16/.config/base16-shell
+	url = https://github.com/chriskempson/base16-shell
+[submodule "vim-commentary"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-commentary
+	url = https://github.com/tpope/vim-commentary
+[submodule "vim-fugitive"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-fugitive
+	url = https://github.com/tpope/vim-fugitive
+[submodule "vim-rails"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-rails
+	url = https://github.com/tpope/vim-rails
+[submodule "vim-rake"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-rake
+	url = https://github.com/tpope/vim-rake
+[submodule "vim-repeat"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-repeat
+	url = https://github.com/tpope/vim-repeat
+[submodule "vim-eunuch"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-eunuch
+	url = https://github.com/tpope/vim-eunuch
+[submodule "vim-surround"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-surround
+	url = https://github.com/tpope/vim-surround
+[submodule "vim-projectionist"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-projectionist
+	url = https://github.com/tpope/vim-projectionist
+[submodule "vim-tmux-navigator"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-tmux-navigator
+	url = https://github.com/christoomey/vim-tmux-navigator
+[submodule "vim-test"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-test
+	url = https://github.com/vim-test/vim-test
+[submodule "base16-vim"]
+	path = nvim/.config/nvim/pack/bundle/opt/base16-vim
+	url = https://github.com/chriskempson/base16-vim
+[submodule "vim-dispatch"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-dispatch
+	url = https://github.com/tpope/vim-dispatch
+[submodule "nvim-treesitter"]
+	path = nvim/.config/nvim/pack/bundle/opt/nvim-treesitter
+	url = http://github.com/nvim-treesitter/nvim-treesitter
+[submodule "nvim-base16.lua"]
+	path = nvim/.config/nvim/pack/bundle/opt/nvim-base16.lua
+	url = http://github.com/norcalli/nvim-base16.lua
+[submodule "nvim-base16"]
+	path = nvim/.config/nvim/pack/bundle/opt/nvim-base16
+	url = http://github.com/RRethy/nvim-base16
+[submodule "telescope.nvim"]
+	path = nvim/.config/nvim/pack/bundle/opt/telescope.nvim
+	url = http://github.com/nvim-telescope/telescope.nvim
+[submodule "plenary.nvim"]
+	path = nvim/.config/nvim/pack/bundle/opt/plenary.nvim
+	url = https://github.com/nvim-lua/plenary.nvim
+[submodule "nvim-lspconfig"]
+	path = nvim/.config/nvim/pack/bundle/opt/nvim-lspconfig
+	url = https://github.com/neovim/nvim-lspconfig
+[submodule "cmp-nvim-lsp"]
+	path = nvim/.config/nvim/pack/bundle/opt/cmp-nvim-lsp
+	url = https://github.com/hrsh7th/cmp-nvim-lsp
+[submodule "cmp-buffer"]
+	path = nvim/.config/nvim/pack/bundle/opt/cmp-buffer
+	url = https://github.com/hrsh7th/cmp-buffer
+[submodule "cmp-path"]
+	path = nvim/.config/nvim/pack/bundle/opt/cmp-path
+	url = https://github.com/hrsh7th/cmp-path
+[submodule "cmp-cmdline"]
+	path = nvim/.config/nvim/pack/bundle/opt/cmp-cmdline
+	url = https://github.com/hrsh7th/cmp-cmdline
+[submodule "nvim-cmp"]
+	path = nvim/.config/nvim/pack/bundle/opt/nvim-cmp
+	url = https://github.com/hrsh7th/nvim-cmp
+[submodule "cmp-vsnip"]
+	path = nvim/.config/nvim/pack/bundle/opt/cmp-vsnip
+	url = https://github.com/hrsh7th/cmp-vsnip
+[submodule "vim-vsnip"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-vsnip
+	url = https://github.com/hrsh7th/vim-vsnip
+[submodule "nvim-lsp-installer"]
+	path = nvim/.config/nvim/pack/bundle/opt/nvim-lsp-installer
+	url = https://github.com/williamboman/nvim-lsp-installer
+[submodule "vim-unimpaired"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-unimpaired
+	url = https://github.com/tpope/vim-unimpaired
+[submodule "zsh-history-substring-search"]
+	path = zsh/.config/zsh/zsh-history-substring-search
+	url = http://github.com/zsh-users/zsh-history-substring-search
+[submodule "zsh-autosuggestions"]
+	path = zsh/.config/zsh/zsh-autosuggestions
+	url = http://github.com/zsh-users/zsh-autosuggestions
+[submodule "zsh-syntax-highlighting"]
+	path = zsh/.config/zsh/zsh-syntax-highlighting
+	url = http://github.com/zsh-users/zsh-syntax-highlighting
+[submodule "cmp-git"]
+	path = nvim/.config/nvim/pack/bundle/opt/cmp-git
+	url = https://github.com/petertriho/cmp-git
+[submodule "friendly-snippets"]
+	path = nvim/.config/nvim/pack/bundle/opt/friendly-snippets
+	url = https://github.com/rafamadriz/friendly-snippets

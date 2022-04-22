@@ -1,3 +1,0 @@
-if [ -f "$HOME/.auto_dark" ]; then
-  precmd() { $(("$HOME/bin/set_mood" &) &> /dev/null)}
-fi
