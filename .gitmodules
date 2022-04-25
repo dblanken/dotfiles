@@ -97,3 +97,12 @@
 [submodule "friendly-snippets"]
 	path = nvim/.config/nvim/pack/bundle/opt/friendly-snippets
 	url = https://github.com/rafamadriz/friendly-snippets
+[submodule "vimwiki"]
+	path = nvim/.config/nvim/pack/bundle/opt/vimwiki
+	url = https://github.com/vimwiki/vimwiki
+[submodule "vim-pandoc"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-pandoc
+	url = https://github.com/vim-pandoc/vim-pandoc
+[submodule "vim-pandoc-syntax"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-pandoc-syntax
+	url = https://github.com/vim-pandoc/vim-pandoc-syntax

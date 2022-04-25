@@ -198,9 +198,26 @@ packadd! vim-vsnip
 packadd! friendly-snippets
 packadd! nvim-lsp-installer
 packadd! vim-unimpaired
+packadd! vimwiki
+packadd! vim-pandoc
+packadd! vim-pandoc-syntax
 ]]
 
 -- {{{2 Plugin Configuration
+-- {{{3 vimwiki
+g.vimwiki_list = {
+  {
+    path = '~/code/vimwiki',
+    syntax = 'markdown',
+    ext = '.md'
+  },
+  {
+    path = '~/vimwiki',
+    syntax = 'markdown',
+    ext = '.md'
+  }
+}
+
 -- {{{3 vim-test
 api.nvim_set_keymap('n', '<Leader>t', ':TestNearest<CR>', { silent = true })
 api.nvim_set_keymap('n', '<Leader>T', ':TestFile<CR>', { silent = true })
