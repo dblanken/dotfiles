@@ -201,6 +201,7 @@ packadd! vim-unimpaired
 packadd! vimwiki
 packadd! vim-pandoc
 packadd! vim-pandoc-syntax
+packadd! markdown-preview.nvim
 ]]
 
 -- {{{2 Plugin Configuration

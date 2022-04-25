@@ -106,3 +106,6 @@
 [submodule "vim-pandoc-syntax"]
 	path = nvim/.config/nvim/pack/bundle/opt/vim-pandoc-syntax
 	url = https://github.com/vim-pandoc/vim-pandoc-syntax
+[submodule "markdown-preview.nvim"]
+	path = nvim/.config/nvim/pack/bundle/opt/markdown-preview.nvim
+	url = https://github.com/iamcco/markdown-preview.nvim
