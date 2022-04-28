@@ -109,3 +109,24 @@
 [submodule "markdown-preview.nvim"]
 	path = nvim/.config/nvim/pack/bundle/opt/markdown-preview.nvim
 	url = https://github.com/iamcco/markdown-preview.nvim
+[submodule "ale"]
+	path = nvim/.config/nvim/pack/bundle/opt/ale
+	url = https://github.com/dense-analysis/ale
+[submodule "deoplete.nvim"]
+	path = nvim/.config/nvim/pack/bundle/opt/deoplete.nvim
+	url = https://github.com/Shougo/deoplete.nvim
+[submodule "nvim-yarp"]
+	path = nvim/.config/nvim/pack/bundle/opt/nvim-yarp
+	url = https://github.com/roxma/nvim-yarp
+[submodule "vim-hug-neovim-rpc"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-hug-neovim-rpc
+	url = https://github.com/roxma/vim-hug-neovim-rpc
+[submodule "ultisnips"]
+	path = nvim/.config/nvim/pack/bundle/opt/ultisnips
+	url = https://github.com/SirVer/ultisnips
+[submodule "vim-snippets"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-snippets
+	url = https://github.com/honza/vim-snippets
+[submodule "vim-sensible"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-sensible
+	url = https://github.com/tpope/vim-sensible

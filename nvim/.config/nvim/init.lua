@@ -52,7 +52,7 @@ g.loaded_netrwPlugin = 1
 g.loaded_netrwSettings = 1
 
 -- {{{1 Options
-opt.clipboard="unnamedplus"
+opt.clipboard = "unnamedplus"
 opt.completeopt = { 'menu', 'menuone', 'noselect' }
 opt.expandtab = true
 opt.foldmethod = "marker"
@@ -205,6 +205,20 @@ packadd! markdown-preview.nvim
 ]]
 
 -- {{{2 Plugin Configuration
+-- {{{3 vim-rails
+g.rails_projections = {
+  ["test/models/*_test.rb"] = {
+    ["command"] = "modeltest",
+    ["template"] = {
+      "require 'test_helper'",
+      "",
+      "class {camelcase|capitalize|colons}Test < ActiveSupport::TestCase",
+      "",
+      "end"
+    },
+    ["alternate"] = "app/models/{}.rb"
+  }
+}
 -- {{{3 vimwiki
 g.vimwiki_list = {
   {
@@ -227,7 +241,7 @@ api.nvim_set_keymap('n', '<Leader>l', ':TestLast<CR>', { silent = true })
 g['test#strategy'] = 'dispatch'
 
 -- {{{3 nvim-treesitter
-require'nvim-treesitter.configs'.setup {
+require 'nvim-treesitter.configs'.setup {
   -- A list of parser names, or "all"
   ensure_installed = "all",
 
@@ -265,14 +279,14 @@ function edit_neovim()
     layout_config = {
       width = 0.9,
       height = 0.8,
-        horizontal = {
+      horizontal = {
         width = { padding = 0.15 },
       },
       vertical = {
         preview_height = 0.75,
       },
     },
-    find_command = {"rg","--ignore","--hidden", "--files", "--glob=!pack"},
+    find_command = { "rg", "--ignore", "--hidden", "--files", "--glob=!pack" },
   }
 
   require("telescope.builtin").find_files(opts)
@@ -287,14 +301,14 @@ function edit_dotfiles()
     layout_config = {
       width = 0.9,
       height = 0.8,
-        horizontal = {
+      horizontal = {
         width = { padding = 0.15 },
       },
       vertical = {
         preview_height = 0.75,
       },
     },
-    find_command = {"rg","--ignore","--hidden", "--files", "--glob=!pack", "--glob=!.git"},
+    find_command = { "rg", "--ignore", "--hidden", "--files", "--glob=!pack", "--glob=!.git" },
   }
 
   require("telescope.builtin").find_files(opts)
@@ -308,7 +322,7 @@ api.nvim_set_keymap('n', '<Leader>fn', "<cmd>lua edit_neovim()<CR>", { noremap =
 api.nvim_set_keymap('n', '<Leader>fd', "<cmd>lua edit_dotfiles()<CR>", { noremap = true })
 
 -- {{{3 nvim-cmp
-local cmp = require'cmp'
+local cmp = require 'cmp'
 
 local has_words_before = function()
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -392,7 +406,7 @@ cmp.setup.cmdline(':', {
 })
 
 -- Allow rails filetypes to use ruby snippets
-vim.cmd[[
+vim.cmd [[
 let g:vsnip_filetypes = {}
 let g:vsnip_filetypes.ruby = ['rails']
 ]]
@@ -426,8 +440,9 @@ lsp_installer.on_server_ready(function(server)
     api.nvim_buf_set_keymap(bufnr, 'n', '<Leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
     api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
     api.nvim_buf_set_keymap(bufnr, 'n', '<Leader>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
-    api.nvim_buf_set_keymap(bufnr, 'n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
-    api.nvim_buf_set_keymap(bufnr, 'n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+    api.nvim_buf_set_keymap(bufnr, 'n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
+    api.nvim_buf_set_keymap(bufnr, 'n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
+    api.nvim_buf_set_keymap(bufnr, 'n', '<Leader>=', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
   end
 
   local opts = {
@@ -439,12 +454,40 @@ lsp_installer.on_server_ready(function(server)
   -- if server.name == "tsserver" then
   --     opts.root_dir = function() ... end
   -- end
+  if server.name == "diagnosticls" then
+    opts.filetypes = {
+      "ruby"
+    }
+    opts.init_options = {
+      linters = {
+        reek = {
+          command = "reek",
+          debounce = 100,
+          args = { "--format", "json", "%file" },
+          sourceName = "reek",
+          parseJson = {
+            line = "lines[0]",
+            message = "${message} [${smell_type}]",
+          }
+        },
+      },
+      filetypes = {
+        ruby = "reek"
+      }
+    }
+  end
 
   -- This setup() function will take the provided server configuration and decorate it with the necessary properties
   -- before passing it onwards to lspconfig.
   -- Refer to https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
   server:setup(opts)
 end)
+
+-- {{{3 ale
+-- g.ale_disable_lsp = 1
+-- g.ale_linters = {
+--   ['ruby'] = { 'reek' }
+-- }
 
 -- {{{3 colorscheme
 vim.cmd('colorscheme base16-' .. vim.env["BASE16_THEME"])
