@@ -130,3 +130,6 @@
 [submodule "vim-sensible"]
 	path = nvim/.config/nvim/pack/bundle/opt/vim-sensible
 	url = https://github.com/tpope/vim-sensible
+[submodule "vim-endwise"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-endwise
+	url = https://github.com/tpope/vim-endwise

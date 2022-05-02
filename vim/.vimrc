@@ -128,6 +128,7 @@ packadd! vim-hug-neovim-rpc
 packadd! ultisnips
 packadd! vim-snippets
 packadd! base16-vim
+packadd! vim-endwise
 
 augroup deopleter
   autocmd!
