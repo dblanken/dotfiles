@@ -129,6 +129,7 @@ packadd! ultisnips
 packadd! vim-snippets
 packadd! base16-vim
 packadd! vim-endwise
+packadd! vim-transparent
 
 augroup deopleter
   autocmd!

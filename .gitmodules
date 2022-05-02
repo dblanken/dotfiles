@@ -133,3 +133,6 @@
 [submodule "vim-endwise"]
 	path = nvim/.config/nvim/pack/bundle/opt/vim-endwise
 	url = https://github.com/tpope/vim-endwise
+[submodule "vim-transparent"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-transparent
+	url = https://github.com/tribela/vim-transparent
