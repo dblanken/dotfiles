@@ -96,7 +96,7 @@ BASE16_SHELL="$HOME/.config/base16-shell/"
 . /usr/local/opt/asdf/libexec/asdf.sh
 
 # {{{1 NVIM
-export EDITOR=vim
+export EDITOR=nvim
 export VISUAL="$EDITOR"
 
 # {{{1 Vi mode
@@ -151,10 +151,14 @@ bindkey '^Z' fg-bg
 alias git=hub
 alias g=git
 alias v=vim
+alias vimrc="v ~/.vimrc"
+if [[ "$EDITOR" == "nvim" ]]; then
+  alias v=nvim
+  alias vimrc="v ~/.config/nvim/init.lua"
+fi
 alias zshrc="v ~/.zshrc"
 alias dot="cd ~/.dotfiles"
 alias tmuxconf="v ~/.tmux.conf"
-alias vimrc="v ~/.vimrc"
 alias be="bundle exec"
 alias b="bundle"
 alias r="bundle exec rails"
