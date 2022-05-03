@@ -96,7 +96,7 @@ BASE16_SHELL="$HOME/.config/base16-shell/"
 . /usr/local/opt/asdf/libexec/asdf.sh
 
 # {{{1 NVIM
-export EDITOR=nvim
+export EDITOR=lvim
 export VISUAL="$EDITOR"
 
 # {{{1 Vi mode
@@ -152,8 +152,8 @@ alias git=hub
 alias g=git
 alias v=vim
 alias vimrc="v ~/.vimrc"
-if [[ "$EDITOR" == "nvim" ]]; then
-  alias v=nvim
+if [[ "$EDITOR" == "nvim" || "$EDITOR" == "lvim" ]]; then
+  alias v=$EDITOR
   alias vimrc="v ~/.config/nvim/init.lua"
 fi
 alias zshrc="v ~/.zshrc"
