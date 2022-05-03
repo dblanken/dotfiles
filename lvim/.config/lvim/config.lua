@@ -134,6 +134,10 @@ end
 --     filetypes = { "typescript", "typescriptreact" },
 --   },
 -- }
+local formatters = require "lvim.lsp.null-ls.formatters"
+formatters.setup {
+  { command = "markdownlint", filetypes = { "markdown" } }
+}
 
 -- -- set additional linters
 -- local linters = require "lvim.lsp.null-ls.linters"
@@ -152,6 +156,10 @@ end
 --     filetypes = { "javascript", "python" },
 --   },
 -- }
+local linters = require "lvim.lsp.null-ls.linters"
+linters.setup {
+  { command = "markdownlint", filetypes = { "markdown" } },
+}
 
 -- Additional Plugins
 -- lvim.plugins = {
@@ -217,6 +225,8 @@ lvim.plugins = {
     end,
   },
   { "vimwiki/vimwiki" },
+  { "vim-pandoc/vim-pandoc" },
+  { "vim-pandoc/vim-pandoc-syntax" },
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
@@ -295,3 +305,4 @@ vim.g.vimwiki_list = {
     ext = '.md'
   },
 }
+vim.g.vimwiki_filetypes = { 'markdown', 'pandoc' }
