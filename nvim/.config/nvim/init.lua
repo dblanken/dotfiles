@@ -202,6 +202,7 @@ packadd! vimwiki
 packadd! vim-pandoc
 packadd! vim-pandoc-syntax
 packadd! markdown-preview.nvim
+packadd! vim-transparent
 ]]
 
 -- {{{2 Plugin Configuration
@@ -265,7 +266,7 @@ require 'nvim-treesitter.configs'.setup {
     -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
     -- Using this option may slow down your editor, and you may see some duplicate highlights.
     -- Instead of true it can also be a list of languages
-    additional_vim_regex_highlighting = false,
+    additional_vim_regex_highlighting = true,
   },
 }
 
@@ -454,7 +455,9 @@ lsp_installer.on_server_ready(function(server)
   -- if server.name == "tsserver" then
   --     opts.root_dir = function() ... end
   -- end
-  if server.name == "diagnosticls" then
+  if server.name == "ruby" then
+    opts.diagnostics = true
+  elseif server.name == "diagnosticls" then
     opts.filetypes = {
       "ruby"
     }
