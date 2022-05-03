@@ -216,6 +216,7 @@ lvim.plugins = {
       require("nvim-ts-autotag").setup()
     end,
   },
+  { "vimwiki/vimwiki" },
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
@@ -281,3 +282,16 @@ end
 
 -- Set my footer to be a fortune
 lvim.builtin.alpha.dashboard.section.footer.val = GetFortune()
+
+vim.g.vimwiki_list = {
+  {
+    path = '~/code/vimwiki',
+    syntax = 'markdown',
+    ext = '.md'
+  },
+  {
+    path = '~/vimwiki',
+    syntax = 'markdown',
+    ext = '.md'
+  },
+}
