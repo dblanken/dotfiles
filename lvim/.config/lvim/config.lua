@@ -26,7 +26,7 @@ lvim.leader = "space"
 -- lvim.keys.normal_mode["<C-Up>"] = false
 -- edit a default keymapping
 -- lvim.keys.normal_mode["<C-q>"] = ":q<cr>"
-
+vim.api.nvim_create_user_command('Only', '%bdelete|edit #|normal `', {})
 -- Change Telescope navigation to use j and k for navigation and n and p for history in both input and normal mode.
 -- we use protected-mode (pcall) just in case the plugin wasn't loaded yet.
 -- local _, actions = pcall(require, "telescope.actions")
@@ -73,6 +73,9 @@ lvim.builtin.terminal.active = true
 lvim.builtin.nvimtree.setup.view.side = "left"
 lvim.builtin.nvimtree.show_icons.git = 0
 
+-- Enable nvim-dap
+lvim.builtin.dap.active = true
+
 -- if you don't want all the parsers change this to a table of the ones you want
 lvim.builtin.treesitter.ensure_installed = {
   "bash",
@@ -91,14 +94,35 @@ lvim.builtin.treesitter.highlight.enabled = true
 -- generic LSP settings
 
 -- ---@usage disable automatic installation of servers
--- lvim.lsp.automatic_servers_installation = false
+lvim.lsp.automatic_servers_installation = false
 
 -- ---configure a server manually. !!Requires `:LvimCacheReset` to take effect!!
 -- ---see the full default list `:lua print(vim.inspect(lvim.lsp.automatic_configuration.skipped_servers))`
 -- vim.list_extend(lvim.lsp.automatic_configuration.skipped_servers, { "pyright" })
 -- local opts = {} -- check the lspconfig documentation for a list of all possible options
 -- require("lvim.lsp.manager").setup("pyright", opts)
+local reek_opts = {
+  filetypes = { "ruby" },
+  init_options = {
+    linters = {
+      reek = {
+        command = "reek",
+        debounce = 100,
+        args = { "--format", "json", "%file" },
+        sourceName = "reek",
+        parseJson = {
+          line = "lines[0]",
+          message = "${message} [${smell_type}]",
+        }
+      },
+    },
+    filetypes = {
+      ruby = "reek",
+    },
+  },
 
+}
+require('lvim.lsp.manager').setup("diagnosticls", reek_opts)
 -- ---remove a server from the skipped list, e.g. eslint, or emmet_ls. !!Requires `:LvimCacheReset` to take effect!!
 -- ---`:LvimInfo` lists which server(s) are skiipped for the current filetype
 -- vim.tbl_map(function(server)
@@ -189,6 +213,7 @@ lvim.plugins = {
   { "tpope/vim-sleuth" },
   { "tpope/vim-unimpaired" },
   { "vim-test/vim-test" },
+  { "tpope/vim-eunuch" },
   {
     "iamcco/markdown-preview.nvim",
     run = "cd app && npm install",
@@ -306,3 +331,19 @@ vim.g.vimwiki_list = {
   },
 }
 vim.g.vimwiki_filetypes = { 'markdown', 'pandoc' }
+
+vim.g.rails_projections = {
+  ["test/models/*_test.rb"] = {
+    ["command"] = "modeltest",
+    ["template"] = {
+      "require 'test_helper'",
+      "",
+      "class {camelcase|capitalize|colons}Test < ActiveSupport::TestCase",
+      "",
+      "end"
+    },
+    ["alternate"] = "app/models/{}.rb"
+  }
+}
+
+-- vim.lsp.set_log_level "debug"
