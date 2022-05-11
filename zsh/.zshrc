@@ -96,7 +96,7 @@ BASE16_SHELL="$HOME/.config/base16-shell/"
 . /usr/local/opt/asdf/libexec/asdf.sh
 
 # {{{1 NVIM
-export EDITOR=lvim
+export EDITOR=vim
 export VISUAL="$EDITOR"
 
 # {{{1 Vi mode
