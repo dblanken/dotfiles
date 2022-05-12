@@ -68,5 +68,6 @@ packadd! vim-projectionist
 packadd! vim-surround
 packadd! vim-tmux-navigator
 packadd! vim-unimpaired
+packadd! vim-fugitive
 
 colorscheme desert
