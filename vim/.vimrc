@@ -105,4 +105,8 @@ inoremap <S-Tab> <C-n>
 
 command! EnableProgramming let g:programming_mode=1
 command! DisableProgramming let g:programming_mode=0
+
+" Switch between the last two files
+nnoremap <Leader><Leader> <C-^>
+
 colorscheme desert
