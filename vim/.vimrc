@@ -65,7 +65,6 @@ let g:ruby_path = '~/.asdf/shims'
 packadd! vim-commentary
 packadd! vim-dispatch
 packadd! vim-projectionist
-" packadd! vim-rails
 packadd! vim-surround
 packadd! vim-tmux-navigator
 packadd! vim-unimpaired
