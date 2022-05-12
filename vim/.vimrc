@@ -83,4 +83,26 @@ let g:ale_fixers = {
       \ 'ruby': ['rubocop']
       \ }
 
+" Taken from thoughtbot/dotfiles
+" Tab completion
+" will insert tab at beginning of line,
+" will traverse popup menu if open and enabled for XO,
+" will use omni completion if not at beginning
+set wildmode=list:longest,list:full
+function! InsertTabWrapper()
+  let proglang = get(g:, 'programming_mode', 1)
+  let col = col('.') - 1
+  if !col || getline('.')[col - 1] !~ '\k'
+    return "\<Tab>"
+  elseif !pumvisible() && proglang == 1
+    return "\<C-x>\<C-o>"
+  else
+    return "\<C-p>"
+  endif
+endfunction
+inoremap <Tab> <C-r>=InsertTabWrapper()<CR>
+inoremap <S-Tab> <C-n>
+
+command! EnableProgramming let g:programming_mode=1
+command! DisableProgramming let g:programming_mode=0
 colorscheme desert
