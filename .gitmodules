@@ -136,3 +136,6 @@
 [submodule "vim-bundler"]
 	path = nvim/.config/nvim/pack/bundle/opt/vim-bundler
 	url = https://github.com/tpope/vim-bundler
+[submodule "vim-unimpaired"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-unimpaired
+	url = https://github.com/dblanken/vim-unimpaired
