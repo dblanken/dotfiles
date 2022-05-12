@@ -16,6 +16,7 @@ set sidescrolloff=8
 set signcolumn=yes
 set softtabstop=2
 set tabstop=2
+set colorcolumn=80
 
 nnoremap Q @q
 nnoremap <Leader>= migg=G`i
