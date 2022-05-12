@@ -69,5 +69,18 @@ packadd! vim-surround
 packadd! vim-tmux-navigator
 packadd! vim-unimpaired
 packadd! vim-fugitive
+packadd! ale
+
+nnoremap ]d <Plug>(ale_next)
+nnoremap [d <Plug>(ale_previous)
+let g:ale_echo_msg_format = '[%linter%] %code: %%s'
+let g:ale_fix_on_save = 1
+let g:ale_linters = {
+      \ 'ruby': ['reek', 'solargraph', 'brakeman', 'cspell', 'debride']
+      \ }
+let g:ale_fixers = {
+      \ '*': ['remove_trailing_lines'],
+      \ 'ruby': ['rubocop']
+      \ }
 
 colorscheme desert
