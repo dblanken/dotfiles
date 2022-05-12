@@ -79,9 +79,6 @@
 [submodule "nvim-lsp-installer"]
 	path = nvim/.config/nvim/pack/bundle/opt/nvim-lsp-installer
 	url = https://github.com/williamboman/nvim-lsp-installer
-[submodule "vim-unimpaired"]
-	path = nvim/.config/nvim/pack/bundle/opt/vim-unimpaired
-	url = https://github.com/tpope/vim-unimpaired
 [submodule "zsh-history-substring-search"]
 	path = zsh/.config/zsh/zsh-history-substring-search
 	url = http://github.com/zsh-users/zsh-history-substring-search
@@ -136,3 +133,6 @@
 [submodule "vim-transparent"]
 	path = nvim/.config/nvim/pack/bundle/opt/vim-transparent
 	url = https://github.com/tribela/vim-transparent
+[submodule "vim-bundler"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-bundler
+	url = https://github.com/tpope/vim-bundler
