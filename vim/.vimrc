@@ -69,7 +69,11 @@ packadd! vim-surround
 packadd! vim-tmux-navigator
 packadd! vim-unimpaired
 packadd! vim-fugitive
+packadd! vim-eunuch
+packadd! vim-vinegar
 packadd! ale
+packadd! emmet-vim
+packadd! vim-rails
 
 nnoremap ]d <Plug>(ale_next)
 nnoremap [d <Plug>(ale_previous)

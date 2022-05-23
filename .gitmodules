@@ -139,3 +139,9 @@
 [submodule "vim-unimpaired"]
 	path = nvim/.config/nvim/pack/bundle/opt/vim-unimpaired
 	url = https://github.com/dblanken/vim-unimpaired
+[submodule "vim-vinegar"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-vinegar
+	url = https://github.com/tpope/vim-vinegar
+[submodule "emmet-vim"]
+	path = nvim/.config/nvim/pack/bundle/opt/emmet-vim
+	url = https://github.com/mattn/emmet-vim
