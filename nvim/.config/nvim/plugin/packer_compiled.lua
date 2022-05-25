@@ -69,6 +69,76 @@ end
 time([[try_loadstring definition]], false)
 time([[Defining packer_plugins]], true)
 _G.packer_plugins = {
+  LuaSnip = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/LuaSnip",
+    url = "https://github.com/L3MON4D3/LuaSnip"
+  },
+  ["cmp-buffer"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/cmp-buffer",
+    url = "https://github.com/hrsh7th/cmp-buffer"
+  },
+  ["cmp-cmdline"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/cmp-cmdline",
+    url = "https://github.com/hrsh7th/cmp-cmdline"
+  },
+  ["cmp-nvim-lsp"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/cmp-nvim-lsp",
+    url = "https://github.com/hrsh7th/cmp-nvim-lsp"
+  },
+  ["cmp-path"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/cmp-path",
+    url = "https://github.com/hrsh7th/cmp-path"
+  },
+  cmp_luasnip = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/cmp_luasnip",
+    url = "https://github.com/saadparwaiz1/cmp_luasnip"
+  },
+  ["conflict-marker.vim"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/conflict-marker.vim",
+    url = "https://github.com/rhysd/conflict-marker.vim"
+  },
+  ["friendly-snippets"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/friendly-snippets",
+    url = "https://github.com/rafamadriz/friendly-snippets"
+  },
+  ["gitsigns.nvim"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/gitsigns.nvim",
+    url = "https://github.com/lewis6991/gitsigns.nvim"
+  },
+  ["impatient.nvim"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/impatient.nvim",
+    url = "https://github.com/lewis6991/impatient.nvim"
+  },
+  ["lualine.nvim"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/lualine.nvim",
+    url = "https://github.com/nvim-lualine/lualine.nvim"
+  },
+  ["markdown-preview.nvim"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/markdown-preview.nvim",
+    url = "https://github.com/iamcco/markdown-preview.nvim"
+  },
+  ["nvim-cmp"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/nvim-cmp",
+    url = "https://github.com/hrsh7th/nvim-cmp"
+  },
+  ["nvim-gps"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/nvim-gps",
+    url = "https://github.com/SmiteshP/nvim-gps"
+  },
   ["nvim-lspconfig"] = {
     loaded = true,
     path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/nvim-lspconfig",
@@ -84,6 +154,11 @@ _G.packer_plugins = {
     path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/nvim-treesitter-endwise",
     url = "https://github.com/RRethy/nvim-treesitter-endwise"
   },
+  ["nvim-web-devicons"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/nvim-web-devicons",
+    url = "https://github.com/kyazdani42/nvim-web-devicons"
+  },
   ["packer.nvim"] = {
     loaded = true,
     path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/packer.nvim",
@@ -94,10 +169,110 @@ _G.packer_plugins = {
     path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/plenary.nvim",
     url = "https://github.com/nvim-lua/plenary.nvim"
   },
+  ["surround.nvim"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/surround.nvim",
+    url = "https://github.com/Mephistophiles/surround.nvim"
+  },
   ["telescope.nvim"] = {
     loaded = true,
     path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/telescope.nvim",
     url = "https://github.com/nvim-telescope/telescope.nvim"
+  },
+  ["tokyonight.nvim"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/tokyonight.nvim",
+    url = "https://github.com/folke/tokyonight.nvim"
+  },
+  ["vim-bundler"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-bundler",
+    url = "https://github.com/tpope/vim-bundler"
+  },
+  ["vim-commentary"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-commentary",
+    url = "https://github.com/tpope/vim-commentary"
+  },
+  ["vim-dispatch"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-dispatch",
+    url = "https://github.com/tpope/vim-dispatch"
+  },
+  ["vim-eunuch"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-eunuch",
+    url = "https://github.com/tpope/vim-eunuch"
+  },
+  ["vim-fugitive"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-fugitive",
+    url = "https://github.com/tpope/vim-fugitive"
+  },
+  ["vim-pandoc"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-pandoc",
+    url = "https://github.com/vim-pandoc/vim-pandoc"
+  },
+  ["vim-pandoc-syntax"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-pandoc-syntax",
+    url = "https://github.com/vim-pandoc/vim-pandoc-syntax"
+  },
+  ["vim-projectionist"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-projectionist",
+    url = "https://github.com/tpope/vim-projectionist"
+  },
+  ["vim-ragtag"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-ragtag",
+    url = "https://github.com/tpope/vim-ragtag"
+  },
+  ["vim-rails"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-rails",
+    url = "https://github.com/tpope/vim-rails"
+  },
+  ["vim-rake"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-rake",
+    url = "https://github.com/tpope/vim-rake"
+  },
+  ["vim-repeat"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-repeat",
+    url = "https://github.com/tpope/vim-repeat"
+  },
+  ["vim-rhubarb"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-rhubarb",
+    url = "https://github.com/tpope/vim-rhubarb"
+  },
+  ["vim-test"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-test",
+    url = "https://github.com/vim-test/vim-test"
+  },
+  ["vim-tmux-navigator"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-tmux-navigator",
+    url = "https://github.com/christoomey/vim-tmux-navigator"
+  },
+  ["vim-unimpaired"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-unimpaired",
+    url = "https://github.com/dblanken/vim-unimpaired"
+  },
+  ["vim-vinegar"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vim-vinegar",
+    url = "https://github.com/tpope/vim-vinegar"
+  },
+  vimwiki = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/vimwiki",
+    url = "https://github.com/vimwiki/vimwiki"
   }
 }
 

@@ -38,8 +38,6 @@ local options = {
   formatoptions = "jql",
   iskeyword = "@,48-57,_,192-255,?,-",
 }
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
 vim.opt.fillchars.eob=" "
 
 vim.opt.shortmess:append "c"

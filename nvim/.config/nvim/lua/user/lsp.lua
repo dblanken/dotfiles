@@ -3,6 +3,12 @@ if not status_ok then
   return
 end
 
+local status_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+if status_ok then
+  capabilities = cmp_nvim_lsp.update_capabilities(capabilities)
+end
+
 -- Mappings.
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
 local opts = { noremap=true, silent=true }
@@ -40,6 +46,7 @@ local servers = { 'solargraph', 'tsserver' }
 for _, lsp in pairs(servers) do
   require('lspconfig')[lsp].setup {
     on_attach = on_attach,
+    capabilities = capabilities,
     flags = {
       -- This will be the default in neovim 0.7+
       debounce_text_changes = 150,
@@ -47,7 +54,110 @@ for _, lsp in pairs(servers) do
   }
 end
 
+lspconfig.diagnosticls.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
+  cmd = {"diagnostic-languageserver", "--stdio"},
+  filetypes = {
+    "sh",
+    "markdown",
+    "yaml",
+    "toml",
+    "pandoc",
+    "ruby",
+    "vimwiki",
+  },
+  init_options = {
+    linters = {
+      reek = {
+        command = "reek",
+        debounce = 100,
+        args = {"--format", "json", "%file"},
+        sourceName = "reek",
+        parseJson = {
+          line = "lines[0]",
+          message = "${message} [${smell_type}] (reek)",
+        },
+        securities = {
+          error = "error",
+          warning = "warning",
+          info = "info",
+          style = "hint",
+          undefined = "info"
+        }
+      },
+      shellcheck = {
+        command = "shellcheck",
+        debounce = 100,
+        args = {"--format", "json", "-"},
+        sourceName = "shellcheck",
+        parseJson = {
+          line = "line",
+          column = "column",
+          endLine = "endLine",
+          endColumn = "endColumn",
+          message = "${message} [${code}] (shellcheck)",
+          security = "level"
+        },
+        securities = {
+          error = "error",
+          warning = "warning",
+          info = "info",
+          style = "hint"
+        }
+      },
+      markdownlint = {
+        command = "markdownlint",
+        isStderr = true,
+        debounce = 100,
+        args = {"--stdin"},
+        offsetLine = 0,
+        offsetColumn = 0,
+        sourceName = "markdownlint",
+        formatLines = 1,
+        formatPattern = {
+          "^.*?:\\s?(\\d+)(:(\\d+)?)?\\s(MD\\d{3}\\/[A-Za-z0-9-/]+)\\s(.*)$",
+          {
+            line = 1,
+            column = 3,
+            message = {4}
+          }
+        }
+      }
+    },
+    filetypes = {
+      sh = "shellcheck",
+      markdown = "markdownlint",
+      pandoc = "markdownlint",
+      vimwiki = "markdownlint",
+      ruby = "reek"
+    },
+    formatters = {
+      shfmt = {
+        command = "shfmt",
+        args = {"-i", "2", "-bn", "-ci", "-sr"}
+      },
+      prettier = {
+        command = "prettier",
+        args = {"--stdin-filepath", "%filepath"},
+      }
+    },
+    formatFiletypes = {
+      sh = "shfmt",
+      json = "prettier",
+      yaml = "prettier",
+      toml = "prettier",
+      markdown = "prettier",
+      vimwiki = "prettier",
+      lua = "prettier",
+      pandoc = "prettier"
+    }
+  }
+}
+
 lspconfig.sumneko_lua.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
   settings = {
     Lua = {
       runtime = {

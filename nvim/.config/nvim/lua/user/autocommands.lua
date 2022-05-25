@@ -33,3 +33,16 @@ vim.api.nvim_create_autocmd({ "BufReadPost" }, {
     end
   end
 })
+
+vim.api.nvim_create_autocmd({ "CursorMoved", "BufWinEnter", "BufFilePost", "InsertEnter", "BufWritePost" }, {
+  callback = function()
+    require("user.winbar").get_winbar()
+  end,
+})
+
+vim.api.nvim_create_autocmd({ "FileType" }, {
+  pattern = { "vimwiki" },
+  callback = function()
+    vim.cmd[[set syntax=markdown.pandoc]]
+  end
+})
