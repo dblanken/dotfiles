@@ -145,3 +145,15 @@
 [submodule "emmet-vim"]
 	path = nvim/.config/nvim/pack/bundle/opt/emmet-vim
 	url = https://github.com/mattn/emmet-vim
+[submodule "fzf.vim"]
+	path = nvim/.config/nvim/pack/bundle/opt/fzf.vim
+	url = https://github.com/junegunn/fzf.vim
+[submodule "tokyonight-vim"]
+	path = nvim/.config/nvim/pack/bundle/opt/tokyonight-vim
+	url = https://github.com/ghifarit53/tokyonight-vim
+[submodule "gruvbox"]
+	path = nvim/.config/nvim/pack/bundle/opt/gruvbox
+	url = https://github.com/gruvbox-community/gruvbox
+[submodule "vim-ruby"]
+	path = nvim/.config/nvim/pack/bundle/opt/vim-ruby
+	url = https://github.com/vim-ruby/vim-ruby
