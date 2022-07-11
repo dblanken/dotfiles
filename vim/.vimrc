@@ -1,6 +1,8 @@
 " {{{1 Vim defaults
-unlet! skip_defaults_vim
-source $VIMRUNTIME/defaults.vim
+if !has('nvim')
+  unlet! skip_defaults_vim
+  source $VIMRUNTIME/defaults.vim
+endif
 
 " {{{1 Mapleaders
 let mapleader=' '
@@ -103,7 +105,7 @@ packadd! vim-ruby
 packadd! vim-sensible
 packadd! vim-snippets
 packadd! vim-surround
-packadd! vim-tmux-navigator
+packadd! vim-test
 packadd! vim-tmux-navigator
 packadd! vim-transparent
 packadd! vim-unimpaired
@@ -131,6 +133,12 @@ augroup FzfNess
   autocmd!
   autocmd FileType fzf tnoremap <buffer> <Esc> <Esc><Esc>
 augroup END
+
+" {{{1 vim-test
+nmap <silent> <leader>t :TestNearest<CR>
+nmap <silent> <leader>T :TestFile<CR>
+nmap <silent> <leader>a :TestSuite<CR>
+nmap <silent> <leader>l :TestLast<CR>
 
 " {{{1 Deoplete
 " Enable deoplete when InsertEnter.
