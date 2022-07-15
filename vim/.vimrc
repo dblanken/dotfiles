@@ -4,6 +4,27 @@ if !has('nvim')
   source $VIMRUNTIME/defaults.vim
 endif
 
+" {{{1 vim-plug bootstrap
+let vimplug_exists=expand('~/.vim/autoload/plug.vim')
+if has('win32')&&!has('win64')
+  let curl_exists=expand('C:\Windows\Sysnative\curl.exe')
+else
+  let curl_exists=expand('curl')
+endif
+
+if !filereadable(vimplug_exists)
+  if !executable(curl_exists)
+    echoerr "You have to install curl or first install vim-plug yourself!"
+    execute "q!"
+  endif
+  echo "Installing Vim-Plug..."
+  echo ""
+  silent exec "!"curl_exists" -fLo " . shellescape(vimplug_exists) . " --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+  let g:not_finish_vimplug = "yes"
+
+  autocmd VimEnter * PlugInstall
+endif
+
 " {{{1 Mapleaders
 let mapleader=' '
 let maploadloeader='\\'
@@ -11,6 +32,15 @@ let maploadloeader='\\'
 " {{{1 Options
 set clipboard=unnamed
 set completeopt=menu,menuone,noselect
+set encoding=utf-8
+set fileencoding=utf-8
+set fileencodings=utf-8
+set hidden
+set hlsearch
+set incsearch
+set ignorecase
+set smartcase
+set ttyfast
 set expandtab
 set foldmethod=marker
 set number
@@ -22,6 +52,68 @@ set signcolumn=yes
 set softtabstop=2
 set tabstop=2
 set colorcolumn=80
+set backupcopy=yes                      " overwrite files to update, instead of renaming + rewriting
+
+set nobackup                            " don't make backups before writing
+set nowritebackup                       " don't keep backups after writing
+
+if !empty($SUDO_USER) && $USER !=# $SUDO_USER
+  setglobal viminfo=
+  setglobal directory-=~/tmp
+  setglobal backupdir-=~/tmp
+elseif exists('+undodir') && !has('nvim-0.5')
+  if !empty($XDG_DATA_HOME)
+    let s:data_home = substitute($XDG_DATA_HOME, '/$', '', '') . '/vim/'
+  elseif has('win32')
+    let s:data_home = expand('~/AppData/Local/vim/')
+  else
+    let s:data_home = expand('~/.local/share/vim/')
+  endif
+  let &undodir = s:data_home . 'undo//'
+  let &directory = s:data_home . 'swap//'
+  let &backupdir = s:data_home . 'backup//'
+  if !isdirectory(&undodir) | call mkdir(&undodir, 'p') | endif
+  if !isdirectory(&directory) | call mkdir(&directory, 'p') | endif
+  if !isdirectory(&backupdir) | call mkdir(&backupdir, 'p') | endif
+endif
+
+set noswapfile                          " don't create swap files
+
+if has('viminfo') " ie. Vim.
+  let s:viminfo='viminfo'
+elseif has('shada') " ie. Neovim.
+  let s:viminfo='shada'
+endif
+
+if exists('s:viminfo')
+  if exists('$SUDO_USER')
+    " Don't create root-owned files.
+    execute 'set ' . s:viminfo . '='
+    execute 'set ' . s:viminfo . 'file=NONE'
+  else
+    " Defaults:
+    "   Vim:    '100,<50,s10,h
+    "
+    " - ! save/restore global variables (only all-uppercase variables)
+    " - '100 save/restore marks from last 100 files
+    " - <50 save/restore 50 lines from each register
+    " - s10 max item size 10KB
+    " - h do not save/restore 'hlsearch' setting
+    "
+    " Our overrides:
+    " - '0 store marks for 0 files
+    " - <0 don't save registers
+    " - f0 don't store file marks
+    " - n: store or ~/.vim/
+    "
+    execute 'set ' . s:viminfo . "='0,<0,f0,n~/.cache/vim/" . s:viminfo
+    if !empty(glob('~/.cache/vim/' . s:viminfo))
+      if !filereadable(expand('~/.cache/vim/' . s:viminfo))
+        echoerr 'warning: ~/.cache/vim/' . s:viminfo . ' exists but is not readable'
+      endif
+    endif
+  endif
+endif
 
 " {{{1 Common remaps
 nnoremap Q @q
@@ -29,7 +121,8 @@ nnoremap <Leader>= migg=G`i
 nnoremap Y y$
 nnoremap <Leader>h :nohl<CR>
 nnoremap <Leader><Leader> <C-^>
-
+vnoremap p "_dp
+vnoremap p "_dP
 
 tnoremap <Esc> <C-\><C-n>
 
@@ -78,39 +171,74 @@ let g:rubycomplete_buffer_loading = 1
 let g:rubycomplete_classes_in_global = 1
 let g:rubycomplete_rails = 1
 
-" {{{1 Plugin loading
-set rtp+=/usr/local/opt/fzf
+" {{{1 Plugin syncing
+set runtimepath^=~/.local/share/vim runtimepath+=~/.local/share/vim/after
+let &packpath = &runtimepath
+call plug#begin(s:data_home .. 'plugged')
 
-packadd! ale
-packadd! deoplete.nvim
-packadd! emmet-vim
-packadd! fzf.vim
-packadd! markdown-preview.nvim
-packadd! nvim-yarp
-packadd! ultisnips
-packadd! vim-bundler
-packadd! vim-commentary
-packadd! vim-dispatch
-packadd! vim-endwise
-packadd! vim-eunuch
-packadd! vim-fugitive
-packadd! vim-hug-neovim-rpc
-packadd! vim-pandoc
-packadd! vim-pandoc-syntax
-packadd! vim-projectionist
-packadd! vim-rails
-packadd! vim-rake
-packadd! vim-repeat
-packadd! vim-ruby
-packadd! vim-sensible
-packadd! vim-snippets
-packadd! vim-surround
-packadd! vim-test
-packadd! vim-tmux-navigator
-packadd! vim-transparent
-packadd! vim-unimpaired
-packadd! vim-vinegar
-packadd! vimwiki
+" Completion and snippets
+Plug 'Shougo/deoplete.nvim'
+Plug 'roxma/nvim-yarp'
+Plug 'roxma/vim-hug-neovim-rpc'
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+Plug 'tpope/vim-endwise'
+
+" Rails
+Plug 'tpope/vim-rails'
+Plug 'tpope/vim-rake'
+Plug 'tpope/vim-bundler'
+Plug 'vim-ruby/vim-ruby'
+Plug 'andrewradev/splitjoin.vim'
+Plug 'ecomba/vim-ruby-refactoring', {'tag': 'main'}
+
+" Testing and Linting
+Plug 'dense-analysis/ale'
+Plug 'tpope/vim-dispatch'
+Plug 'vim-test/vim-test'
+
+" Markdown
+Plug 'vimwiki/vimwiki'
+Plug 'vim-pandoc/vim-pandoc'
+Plug 'vim-pandoc/vim-pandoc-syntax'
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+
+" HTML
+Plug 'mattn/emmet-vim'
+
+" Colorschemes and statusbar
+Plug 'chriskempson/base16-vim'
+Plug 'tribela/vim-transparent'
+Plug 'morhetz/gruvbox'
+Plug 'tpope/vim-flagship'
+
+" Text Manipulation
+Plug 'tpope/vim-abolish'
+Plug 'tpope/vim-commentary'
+Plug 'godlygeek/tabular'
+Plug 'tpope/vim-surround'
+
+" Traversal
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'ludovicchabant/vim-gutentags'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-projectionist'
+Plug 'tpope/vim-unimpaired'
+Plug 'tpope/vim-vinegar'
+
+" Utility
+Plug 'tpope/vim-eunuch'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-sensible'
+
+if isdirectory('/usr/local/opt/fzf')
+  Plug '/usr/local/opt/fzf' | Plug 'junegunn/fzf.vim'
+else
+  Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
+  Plug 'junegunn/fzf.vim'
+endif
+
+call plug#end()
 
 " {{{1 ALE
 nnoremap ]d <Plug>(ale_next)
@@ -124,6 +252,36 @@ let g:ale_fixers = {
       \ '*': ['remove_trailing_lines'],
       \ 'ruby': ['rubocop']
       \ }
+
+function! LinterStatus() abort
+  let l:counts = ale#statusline#Count(bufnr(''))
+
+  let l:all_errors = l:counts.error + l:counts.style_error
+  let l:all_non_errors = l:counts.total - l:all_errors
+
+  return l:counts.total == 0 ? 'OK' : printf(
+        \ '%dW %dE',
+        \ all_non_errors,
+        \ all_errors
+        \)
+endfunction
+
+function! CreateLSPBufferMappings() abort
+  nnoremap <buffer> <silent> gd <Plug>(ale_go_to_definition)
+  nnoremap <buffer> <silent> <Leader>e <Plug>(ale_hover)
+  nnoremap <buffer> <silent> <Leader>rn :ALERename<CR>
+  nnoremap <buffer> <silent> ]d <Plug>(ale_next)
+  nnoremap <buffer> <silent> [d <Plug>(ale_previous)
+  nnoremap <buffer> <silent> <Leader>= <Plug>(ale_fix)
+  nnoremap <buffer> <silent> gr <Plug>(ale_find_references)
+endfunction
+
+let s:ale_running = 0
+augroup AleFlagship
+  autocmd!
+  autocmd User Flags call Hoist("buffer", "LinterStatus")
+  autocmd User ALELSPStarted call CreateLSPBufferMappings()
+augroup END
 
 " {{{1 FZF
 let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
@@ -139,6 +297,7 @@ nmap <silent> <leader>t :TestNearest<CR>
 nmap <silent> <leader>T :TestFile<CR>
 nmap <silent> <leader>a :TestSuite<CR>
 nmap <silent> <leader>l :TestLast<CR>
+let g:test#strategy = 'dispatch'
 
 " {{{1 Deoplete
 " Enable deoplete when InsertEnter.
@@ -206,4 +365,9 @@ let g:vimwiki_list = [{'path': '~/vimwiki', 'syntax': 'markdown', 'ext': '.md'},
 " {{{1 Colorscheme
 let g:gruvbox_italic = 1
 set background=dark
-colorscheme gruvbox
+" colorscheme gruvbox
+
+if filereadable(expand("~/.vimrc_background"))
+  let base16colorspace=256
+  source ~/.vimrc_background
+endif

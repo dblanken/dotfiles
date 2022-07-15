@@ -111,7 +111,8 @@ compdef _c c
 
 # {{{1 Path
 # Set local path for playlist and other bins
-export PATH="./bin":"$PATH":"$HOME/bin":"$HOME/.bin":"$HOME/.local/bin"
+export GOPATH="$HOME/.go"
+export PATH="./bin":"$PATH":"$HOME/bin":"$HOME/.bin":"$HOME/.local/bin":$(go env GOPATH)/bin
 export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
 
 # {{{1 Edit command line

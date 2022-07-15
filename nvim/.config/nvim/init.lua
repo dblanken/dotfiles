@@ -1,30 +1,38 @@
-require "user.globals"
-require "user.keymaps"
-require "user.plugins"
-require "user.autocommands"
-require "user.colorscheme"
-require "user.options"
-require "user.providers"
-require "user.builtins"
+--disable builtin plugins
+local disabled_built_ins = {
+  "2html_plugin",
+  "getscript",
+  "getscriptPlugin",
+  "gzip",
+  "logipat",
+  "netrw",
+  "netrwPlugin",
+  "netrwSettings",
+  "netrwFileHandlers",
+  "matchit",
+  "tar",
+  "tarPlugin",
+  "rrhelper",
+  "spellfile_plugin",
+  "vimball",
+  "vimballPlugin",
+  "zip",
+  "zipPlugin",
+}
 
--- Plugin specific
--- Lua plugin
-require "user.impatient"
-require "user.treesitter"
-require "user.telescope"
-require "user.autopairs"
-require "user.endwise"
-require "user.lsp"
-require "user.cmp"
-require "user.surround"
-require "user.gps"
-require "user.lualine"
-require "user.gitsigns"
-require "user.nvim-web-devicons"
-require "user.dap"
+for _, plugin in pairs(disabled_built_ins) do
+  vim.g["loaded_" .. plugin] = 1
+end
 
--- Non lua
-require "user.rails"
-require "user.rhubarb"
-require "user.test"
-require "user.vimwiki"
+-- load options, mappings, and plugins
+local dblanken_modules = {
+  "options",
+  "mappings",
+  "autocmds",
+  "packer_compiled",
+}
+
+for i = 1, #dblanken_modules, 1 do
+  pcall(require, dblanken_modules[i])
+end
+
