@@ -90,8 +90,17 @@ return packer.startup(function()
   }
 
   use {
+        "ahmedkhalf/project.nvim",
+    config = function()
+      require('plugins.project')
+    end
+  }
+
+  use {
     "nvim-telescope/telescope.nvim",
     cmd = "Telescope",
+    keys = {"<Leader>ff", "<Leader>fg"},
+    module = "telescope",
     requires = {
       {
         "nvim-telescope/telescope-fzf-native.nvim",
@@ -194,6 +203,38 @@ return packer.startup(function()
     'godlygeek/tabular',
     event = "VimEnter"
   }
+
+  use {
+    'folke/which-key.nvim',
+    config = function()
+      require('plugins.which-key')
+    end
+  }
+
+  use {
+    'goolord/alpha-nvim',
+    config = function()
+      require('plugins.alpha')
+    end
+  }
+
+  use {
+    'norcalli/nvim-colorizer.lua',
+    config = function()
+      require('plugins.colorizer')
+    end
+  }
+
+  -- use {
+  --   'rcarriga/nvim-dap-ui', requires = {
+  --     'mfussenegger/nvim-dap'
+  --   },
+  --   ft = { "ruby", "rails" },
+  --   config = function()
+  --     require('plugins.nvim-dap')
+  --   end
+  -- }
+
   use { "tpope/vim-eunuch" }
   use { "tpope/vim-surround" }
   use { "tpope/vim-commentary" }

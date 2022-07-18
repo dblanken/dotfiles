@@ -61,7 +61,7 @@ telescope.setup {
    },
 }
 
-local extensions = { "themes", "terms", "fzf" }
+local extensions = { "themes", "terms", "fzf", "project" }
 local packer_repos = [["extensions", "telescope-fzf-native.nvim"]]
 
 pcall(function()
@@ -70,3 +70,5 @@ pcall(function()
    end
 end)
 
+vim.api.nvim_set_keymap('n', '<Leader>ff', "<cmd>lua require('telescope.builtin').find_files()<CR>", { noremap = true, silent = true, desc = "Find files" })
+vim.api.nvim_set_keymap('n', '<Leader>fg', "<cmd>lua require('telescope.builtin').live_grep()<CR>", { noremap = true, silent = true, desc = "Live Grep" })
