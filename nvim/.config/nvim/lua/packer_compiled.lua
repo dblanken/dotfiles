@@ -179,8 +179,13 @@ _G.packer_plugins = {
     path = "/Users/dblanken/.local/share/nvim/site/pack/packer/opt/markdown-preview.nvim",
     url = "https://github.com/iamcco/markdown-preview.nvim"
   },
+  ["null-ls.nvim"] = {
+    loaded = true,
+    path = "/Users/dblanken/.local/share/nvim/site/pack/packer/start/null-ls.nvim",
+    url = "https://github.com/jose-elias-alvarez/null-ls.nvim"
+  },
   ["nvim-cmp"] = {
-    after = { "LuaSnip", "cmp-nvim-lsp", "cmp-path", "cmp-rg", "cmp-treesitter", "cmp-nvim-lua" },
+    after = { "cmp-nvim-lsp", "cmp-nvim-lua", "cmp-path", "cmp-rg", "cmp-treesitter", "LuaSnip" },
     config = { "\27LJ\2\n+\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\16plugins.cmp\frequire\0" },
     load_after = {
       ["friendly-snippets"] = true
@@ -202,7 +207,7 @@ _G.packer_plugins = {
     url = "https://github.com/williamboman/nvim-lsp-installer"
   },
   ["nvim-lspconfig"] = {
-    config = { "\27LJ\2\n1\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\22plugins.lspconfig\frequire\0" },
+    config = { "\27LJ\2\n+\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\16plugins.lsp\frequire\0" },
     load_after = {},
     loaded = true,
     needs_bufread = false,
@@ -450,18 +455,6 @@ if not vim.g.packer_custom_loader_enabled then
   vim.g.packer_custom_loader_enabled = true
 end
 
--- Config for: nvim-treesitter
-time([[Config for nvim-treesitter]], true)
-try_loadstring("\27LJ\2\n2\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\23plugins.treesitter\frequire\0", "config", "nvim-treesitter")
-time([[Config for nvim-treesitter]], false)
--- Config for: nvim-colorizer.lua
-time([[Config for nvim-colorizer.lua]], true)
-try_loadstring("\27LJ\2\n1\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\22plugins.colorizer\frequire\0", "config", "nvim-colorizer.lua")
-time([[Config for nvim-colorizer.lua]], false)
--- Config for: alpha-nvim
-time([[Config for alpha-nvim]], true)
-try_loadstring("\27LJ\2\n-\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\18plugins.alpha\frequire\0", "config", "alpha-nvim")
-time([[Config for alpha-nvim]], false)
 -- Config for: which-key.nvim
 time([[Config for which-key.nvim]], true)
 try_loadstring("\27LJ\2\n1\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\22plugins.which-key\frequire\0", "config", "which-key.nvim")
@@ -470,13 +463,25 @@ time([[Config for which-key.nvim]], false)
 time([[Config for project.nvim]], true)
 try_loadstring("\27LJ\2\n/\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\20plugins.project\frequire\0", "config", "project.nvim")
 time([[Config for project.nvim]], false)
+-- Config for: alpha-nvim
+time([[Config for alpha-nvim]], true)
+try_loadstring("\27LJ\2\n-\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\18plugins.alpha\frequire\0", "config", "alpha-nvim")
+time([[Config for alpha-nvim]], false)
+-- Config for: nvim-treesitter
+time([[Config for nvim-treesitter]], true)
+try_loadstring("\27LJ\2\n2\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\23plugins.treesitter\frequire\0", "config", "nvim-treesitter")
+time([[Config for nvim-treesitter]], false)
+-- Config for: nvim-colorizer.lua
+time([[Config for nvim-colorizer.lua]], true)
+try_loadstring("\27LJ\2\n1\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\22plugins.colorizer\frequire\0", "config", "nvim-colorizer.lua")
+time([[Config for nvim-colorizer.lua]], false)
 -- Load plugins in order defined by `after`
 time([[Sequenced loading]], true)
 vim.cmd [[ packadd nvim-lsp-installer ]]
 vim.cmd [[ packadd nvim-lspconfig ]]
 
 -- Config for: nvim-lspconfig
-try_loadstring("\27LJ\2\n1\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\22plugins.lspconfig\frequire\0", "config", "nvim-lspconfig")
+try_loadstring("\27LJ\2\n+\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\16plugins.lsp\frequire\0", "config", "nvim-lspconfig")
 
 time([[Sequenced loading]], false)
 
@@ -495,17 +500,17 @@ vim.cmd [[augroup packer_load_aucmds]]
 vim.cmd [[au!]]
   -- Filetype lazy-loads
 time([[Defining lazy-load filetype autocommands]], true)
-vim.cmd [[au FileType ruby ++once lua require("packer.load")({'vim-dispatch', 'vim-test', 'vim-rake', 'splitjoin.vim', 'vim-bundler', 'vim-rails', 'vim-ruby-refactoring'}, { ft = "ruby" }, _G.packer_plugins)]]
+vim.cmd [[au FileType ruby ++once lua require("packer.load")({'splitjoin.vim', 'vim-rake', 'vim-ruby-refactoring', 'vim-bundler', 'vim-dispatch', 'vim-test', 'vim-rails'}, { ft = "ruby" }, _G.packer_plugins)]]
+vim.cmd [[au FileType eruby ++once lua require("packer.load")({'vim-ragtag', 'vim-rake', 'vim-bundler', 'emmet-vim', 'vim-test', 'vim-rails'}, { ft = "eruby" }, _G.packer_plugins)]]
+vim.cmd [[au FileType rails ++once lua require("packer.load")({'splitjoin.vim', 'vim-rake', 'vim-ruby-refactoring', 'vim-bundler', 'vim-dispatch', 'vim-test', 'vim-rails'}, { ft = "rails" }, _G.packer_plugins)]]
 vim.cmd [[au FileType erb ++once lua require("packer.load")({'vim-dispatch'}, { ft = "erb" }, _G.packer_plugins)]]
-vim.cmd [[au FileType eruby ++once lua require("packer.load")({'vim-test', 'emmet-vim', 'vim-ragtag', 'vim-rake', 'vim-bundler', 'vim-rails'}, { ft = "eruby" }, _G.packer_plugins)]]
-vim.cmd [[au FileType markdown ++once lua require("packer.load")({'markdown-preview.nvim', 'vim-pandoc', 'vim-pandoc-syntax'}, { ft = "markdown" }, _G.packer_plugins)]]
-vim.cmd [[au FileType html ++once lua require("packer.load")({'vim-dispatch', 'vim-test', 'emmet-vim', 'vim-ragtag'}, { ft = "html" }, _G.packer_plugins)]]
-vim.cmd [[au FileType rails ++once lua require("packer.load")({'vim-dispatch', 'vim-test', 'vim-rake', 'splitjoin.vim', 'vim-bundler', 'vim-rails', 'vim-ruby-refactoring'}, { ft = "rails" }, _G.packer_plugins)]]
-vim.cmd [[au FileType vimwiki ++once lua require("packer.load")({'markdown-preview.nvim', 'vim-pandoc', 'vim-pandoc-syntax'}, { ft = "vimwiki" }, _G.packer_plugins)]]
+vim.cmd [[au FileType html ++once lua require("packer.load")({'vim-ragtag', 'emmet-vim', 'vim-dispatch', 'vim-test'}, { ft = "html" }, _G.packer_plugins)]]
+vim.cmd [[au FileType vimwiki ++once lua require("packer.load")({'vim-pandoc-syntax', 'vim-pandoc', 'markdown-preview.nvim'}, { ft = "vimwiki" }, _G.packer_plugins)]]
+vim.cmd [[au FileType markdown ++once lua require("packer.load")({'vim-pandoc-syntax', 'vim-pandoc', 'markdown-preview.nvim'}, { ft = "markdown" }, _G.packer_plugins)]]
 time([[Defining lazy-load filetype autocommands]], false)
   -- Event lazy-loads
 time([[Defining lazy-load event autocommands]], true)
-vim.cmd [[au VimEnter * ++once lua require("packer.load")({'vim-fugitive', 'tabular', 'vimwiki', 'vim-unimpaired'}, { event = "VimEnter *" }, _G.packer_plugins)]]
+vim.cmd [[au VimEnter * ++once lua require("packer.load")({'tabular', 'vim-fugitive', 'vimwiki', 'vim-unimpaired'}, { event = "VimEnter *" }, _G.packer_plugins)]]
 vim.cmd [[au InsertEnter * ++once lua require("packer.load")({'friendly-snippets'}, { event = "InsertEnter *" }, _G.packer_plugins)]]
 time([[Defining lazy-load event autocommands]], false)
 vim.cmd("augroup END")

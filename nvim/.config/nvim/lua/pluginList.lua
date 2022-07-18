@@ -22,8 +22,9 @@ return packer.startup(function()
   use {
     "neovim/nvim-lspconfig",
     after = "nvim-lsp-installer",
+    requires = { "jose-elias-alvarez/null-ls.nvim" },
     config = function()
-      require "plugins.lspconfig"
+      require "plugins.lsp"
     end,
   }
 

@@ -73,13 +73,6 @@ lsp_installer.on_server_ready(function(server)
    server:setup(opts)
    vim.cmd [[ do User LspAttachBuffers ]]
 end)
-
--- Solargraph doesn't work well with lsp_installer, so manually set it up
-lspconfig["solargraph"].setup {
-   on_attach = on_attach,
-   capabilities = capabilities
-}
-
 -- replace the default lsp diagnostic symbols
 local function lspSymbol(name, icon)
    vim.fn.sign_define("LspDiagnosticsSign" .. name, { text = icon, numhl = "LspDiagnosticsDefaul" .. name })
@@ -118,3 +111,31 @@ vim.notify = function(msg, log_level, _opts)
    end
 end
 
+local servers = {
+   "sumneko_lua",
+   "cssls",
+   "html",
+   "tsserver",
+   "pyright",
+   "bashls",
+   "jsonls",
+   "yamlls",
+}
+
+local server_opts = {}
+
+for _, server in pairs(servers) do
+   server_opts = {
+   on_attach = on_attach,
+   capabilities = capabilities
+   }
+
+   if server == "sumneko_lua" then
+      local sumneko_opts = require "plugins.lsp.settings.sumneko_lua"
+      server_opts = vim.tbl_deep_extend("force", sumneko_opts, server_opts)
+   end
+
+   lspconfig[server].setup(server_opts)
+end
+
+require 'plugins.lsp.null-ls'
