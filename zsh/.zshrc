@@ -1,5 +1,5 @@
 # {{{1 Tmux
-if [ "$TMUX" = "" ]; then tmux attach || tmux new -s $(hostname) && exit; fi
+if [ "$TMUX" = "" ]; then tmux attach || tmux -2 new -s $(hostname) && exit; fi
 
 # {{{1 Completion
 autoload -Uz compinit && compinit
@@ -96,7 +96,7 @@ BASE16_SHELL="$HOME/.config/base16-shell/"
 . /usr/local/opt/asdf/libexec/asdf.sh
 
 # {{{1 NVIM
-export EDITOR=nvim
+export EDITOR=vim
 export VISUAL="$EDITOR"
 
 # {{{1 Vi mode
@@ -109,11 +109,14 @@ c() { cd ~/code/$1; }
 _c() { _files -W ~/code -/; }
 compdef _c c
 
-# {{{1 Path
+# {{{1 Exports
 # Set local path for playlist and other bins
 export GOPATH="$HOME/.go"
-export PATH="./bin":"$PATH":"$HOME/bin":"$HOME/.bin":"$HOME/.local/bin":$(go env GOPATH)/bin
+export PATH="./bin":"$HOME/bin":"$HOME/.bin":"$HOME/.local/bin":"$PATH":$(go env GOPATH)/bin
 export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
+export THOR_MERGE="vimdiff"
+export GOPATH="$HOME/.go"
+export RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
 
 # {{{1 Edit command line
 autoload -U edit-command-line
@@ -169,3 +172,14 @@ alias gcb="g checkout -b"
 alias gco="g checkout"
 alias gst="g st"
 alias gb="g branch"
+alias coverage="COVERAGE=true be rails test"
+alias '?'=duck
+alias '??'=google
+alias '???'=bing
+alias nvimrc="nvim ~/.config/nvim/init.lua"
+
+# {{{1 FZF
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# {{{1 gitignore.io
+function gi() { curl -sLw "\n" https://www.toptal.com/developers/gitignore/api/"$@" ;}
