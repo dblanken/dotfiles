@@ -153,7 +153,6 @@ zle -N fg-bg
 bindkey '^Z' fg-bg
 
 # {{{1 Aliases
-alias git=hub
 alias g=git
 alias v=vim
 alias vimrc="v ~/.vimrc"
