@@ -9,6 +9,7 @@
   excludefiles = /Users/dblanken/.gitignore
 [push]
   default = upstream
+	autoSetupRemote = true
 [merge]
   ff = only
 [fetch]
