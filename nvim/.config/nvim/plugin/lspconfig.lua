@@ -48,7 +48,7 @@ if cmp_status_ok then
   capabilities = cmp_nvim_lsp.update_capabilities(capabilities)
 end
 
-local servers = { 'solargraph', 'tsserver', 'bashls', 'gopls', 'pyright', 'rust_analyzer', 'vimls' }
+local servers = { 'tsserver', 'bashls', 'gopls', 'pyright', 'rust_analyzer', 'vimls' }
 for _, server in ipairs(servers) do
   lspconfig[server].setup{
     on_attach = on_attach,
@@ -56,6 +56,20 @@ for _, server in ipairs(servers) do
     capabilities = capabilities
   }
 end
+
+local solargraph_opts = {
+  cmd = { "bundle", "exec", "solargraph", "stdio" },
+  settings = {
+    solargraph = {
+      diagnostics = true,
+    },
+  },
+  on_attach = on_attach,
+  flags = lsp_flags,
+  capabilities = capabilities,
+}
+
+lspconfig['solargraph'].setup(solargraph_opts)
 
 local vscode_capabilities = vim.lsp.protocol.make_client_capabilities()
 vscode_capabilities.textDocument.completion.completionItem.snippetSupport = true
