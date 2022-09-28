@@ -195,6 +195,10 @@ let g:rubycomplete_buffer_loading = 1
 let g:rubycomplete_classes_in_global = 1
 let g:rubycomplete_rails = 1
 
+" {{{1 Ruby filetypes
+" Make ?s part of words
+autocmd FileType ruby,eruby,yaml setlocal iskeyword+=?
+
 " {{{1 Plugin syncing
 set runtimepath^=~/.local/share/vim runtimepath+=~/.local/share/vim/after
 let &packpath = &runtimepath
@@ -212,8 +216,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-projectionist'
 Plug 'tpope/vim-ragtag'
 Plug 'tpope/vim-rake'
-" Plug 'tpope/vim-rails'
-Plug '~/code/vim-rails'
+Plug 'tpope/vim-rails'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-rhubarb'
 if !has('nvim')
@@ -250,7 +253,8 @@ endif
 
 call plug#end()
 
-" {{{1 ALE
+" {{{1 Plugin Configuration
+" {{{2 [ale]
 if &rtp =~ 'ale'
   nnoremap ]d <Plug>(ale_next)
   nnoremap [d <Plug>(ale_previous)
@@ -300,7 +304,7 @@ if &rtp =~ 'ale'
   augroup END
 endif
 
-" {{{1 vim-test
+" {{{2 [vim-test]
 if &rtp =~ 'vim-test'
   nmap <silent> <leader>t :TestNearest<CR>
   nmap <silent> <leader>T :TestFile<CR>
@@ -309,7 +313,7 @@ if &rtp =~ 'vim-test'
   let g:test#strategy = 'dispatch'
 endif
 
-" {{{1 ultisnips
+" {{{2 [ultisnips]
 if &rtp =~ 'ultisnips'
   " Trigger configuration. You need to change this to something other than <tab> if you use one of the following:
   " - https://github.com/Valloric/YouCompleteMe
@@ -322,7 +326,7 @@ if &rtp =~ 'ultisnips'
   let g:UltiSnipsEditSplit="vertical"
 endif
 
-" {{{1 deoplete
+" {{{2 [deoplete]
 if &rtp =~ 'deoplete'
   " Enable deoplete when InsertEnter.
   let g:deoplete#enable_at_startup = 0
@@ -382,17 +386,13 @@ if &rtp =~ 'deoplete'
   inoremap <expr> <CR> pumvisible() ? "\<C-R>=ExpandSnippetOrCarriageReturn()\<CR>" : "\<CR>\<C-R>=EndwiseDiscretionary()\<CR>"
 endif
 
-" {{{1 Vimwiki
+" {{{2 [vimwiki]
 if &rtp =~ 'vimwiki'
   let g:vimwiki_list = [{'path': '~/vimwiki', 'syntax': 'markdown', 'ext': '.md', 'diary_rel_path': '../.diary'},
         \ {'path': '~/code/vimwiki', 'syntax': 'markdown', 'ext': '.md'}]
 endif
 
-" {{{1 Ruby
-" Make ?s part of words
-autocmd FileType ruby,eruby,yaml setlocal iskeyword+=?
-
-" {{{1 [coc.nvim]
+" {{{2 [coc.nvim]
 if &rtp =~ 'coc.nvim'
   " Use tab for trigger completion with characters ahead and navigate.
   " Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
@@ -511,7 +511,7 @@ if &rtp =~ 'coc.nvim'
   let g:airline#extensions#tabline#enabled = 1
 endif
 
-" {{{1 [vim-rails]
+" {{{2 [vim-rails]
 " Since you cannot create an alternate file, we will try to make our own.
 command! Coverage :Dispatch COVERAGE=true bundle exec rails test
 command! Rubycritic :Dispatch! bundle exec rubycritic
@@ -519,10 +519,11 @@ command! Critic :Dispatch! critic
 
 let g:rails_uri_scheme = 'https'
 " }}}
-" {{{1 Rhubarb
+" {{{2 [vim-rhubarb]
 if &rtp =~ 'vim-rhubarb'
   let g:github_enterprise_urls = ['https://github.iu.edu']
 endif
+
 " {{{1 Colorscheme
 let g:gruvbox_italic = 1
 set background=dark
