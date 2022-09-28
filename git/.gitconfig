@@ -25,3 +25,7 @@
   st = status
   unstage = reset
 	hub = !hub
+[mergetool "fugitive"]
+	cmd = vim -f -c \"Gdiff\" \"$MERGED\"
+[merge]
+	tool = fugitive
