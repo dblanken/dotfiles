@@ -156,18 +156,21 @@ end
 vim.cmd [[
   nnoremap Q @q
   nnoremap <Leader>= migg=G`i
-  nnoremap Y y$
+  nnoremap Y yg$
+nnoremap n nzzzv
+nnoremap N Nzzzv
   nnoremap <Leader>h :nohl<CR>
   nnoremap <Leader><Leader> <C-^>
   nnoremap / /\v
-  vnoremap p "_dp
-  vnoremap p "_dP
+  xnoremap <leader>p "_dp
+  nnoremap <leader>d "_d
+  vnoremap <leader>d "_d
   vnoremap / /\v
   tnoremap <Esc> <C-\><C-n>
   " Emacs-like beginning and end of line.
   imap <C-e> <C-o>$
   imap <C-a> <C-o>^
- 
+
   " Removes all whitespace from the buffer
   function! TrimWhitespace() abort
     let l:save = winsaveview()
