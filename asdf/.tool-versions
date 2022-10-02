@@ -7,3 +7,5 @@ rust stable
 golang 1.18.3
 clojure 1.10.3.1087
 lein 2.9.8
+elixir 1.14
+erlang 25.1
