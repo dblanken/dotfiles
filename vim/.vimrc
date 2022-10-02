@@ -5,7 +5,14 @@ if !has('nvim')
 endif
 
 " {{{1 vim-plug bootstrap
-let vimplug_exists=expand('~/.vim/autoload/plug.vim')
+if has('nvim')
+  let vim_location=expand('~/.config/nvim')
+  let vim_name='nvim'
+else
+  let vim_location=expand('~/.vim')
+  let vim_name='vim'
+endif
+let vimplug_exists=expand(vim_location . '/autoload/plug.vim')
 if has('win32')&&!has('win64')
   let curl_exists=expand('C:\Windows\Sysnative\curl.exe')
 else
@@ -81,13 +88,13 @@ if !empty($SUDO_USER) && $USER !=# $SUDO_USER
   setglobal viminfo=
   setglobal directory-=~/tmp
   setglobal backupdir-=~/tmp
-elseif exists('+undodir') && !has('nvim-0.5')
+else
   if !empty($XDG_DATA_HOME)
-    let s:data_home = substitute($XDG_DATA_HOME, '/$', '', '') . '/vim/'
+    let s:data_home = substitute($XDG_DATA_HOME, '/$', '', '') . '/'.vim_name.'/'
   elseif has('win32')
-    let s:data_home = expand('~/AppData/Local/vim/')
+    let s:data_home = expand('~/AppData/Local/'.vim_name.'/')
   else
-    let s:data_home = expand('~/.local/share/vim/')
+    let s:data_home = expand('~/.local/share/'.vim_name.'/')
   endif
   let &undodir = s:data_home . 'undo//'
   let &directory = s:data_home . 'swap//'
@@ -126,10 +133,10 @@ if exists('s:viminfo')
     " - f0 don't store file marks
     " - n: store or ~/.vim/
     "
-    execute 'set ' . s:viminfo . "='0,<0,f0,n~/.cache/vim/" . s:viminfo
-    if !empty(glob('~/.cache/vim/' . s:viminfo))
-      if !filereadable(expand('~/.cache/vim/' . s:viminfo))
-        echoerr 'warning: ~/.cache/vim/' . s:viminfo . ' exists but is not readable'
+    execute 'set ' . s:viminfo . "='0,<0,f0,n~/.cache/".vim_name."/" . s:viminfo
+    if !empty(glob('~/.cache/'.vim_name.'/' . s:viminfo))
+      if !filereadable(expand('~/.cache/'.vim_name.'/' . s:viminfo))
+        echoerr 'warning: ~/.cache/'.vim_name.'/' . s:viminfo . ' exists but is not readable'
       endif
     endif
   endif
