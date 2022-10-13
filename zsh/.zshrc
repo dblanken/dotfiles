@@ -1,6 +1,12 @@
 # {{{1 Tmux
 if [ "$TMUX" = "" ]; then tmux attach || tmux -2 new -s $(hostname) && exit; fi
 
+export HASBREW=$(command -v brew &> /dev/null)
+
+if [[ "$HASBREW" == "" ]]; then
+  fpath=($HOME/.asdf/completions $fpath)
+fi
+
 # {{{1 Completion
 autoload -Uz compinit && compinit
 
@@ -90,10 +96,14 @@ export LSCOLORS=gafacadabaegedabagacad
 BASE16_SHELL="$HOME/.config/base16-shell/"
 [ -n "$PS1" ] && \
     [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
-        eval "$("$BASE16_SHELL/profile_helper.sh")"
+        source "$BASE16_SHELL/profile_helper.sh"
 
 # {{{1 ASDF
-. /usr/local/opt/asdf/libexec/asdf.sh
+if [ "$HASBREW" != "" ]; then
+  . /usr/local/opt/asdf/libexec/asdf.sh
+else
+  . $HOME/.asdf/asdf.sh
+fi
 
 # {{{1 NVIM
 export EDITOR=nvim
@@ -112,8 +122,13 @@ compdef _c c
 # {{{1 Exports
 # Set local path for playlist and other bins
 export GOPATH="$HOME/.go"
-export PATH="./bin":"$HOME/bin":"$HOME/.bin":"$HOME/.local/bin":"$PATH":$(go env GOPATH)/bin
-export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
+export PATH="./bin":"$HOME/bin":"$HOME/.bin":"$HOME/.local/bin":"$PATH"
+if [ "$(command -v go &> /dev/null)" ]; then
+  export PATH="$PATH":$(go env GOPATH)/bin
+fi
+if [ "$HASBREW" != "" ]; then
+  export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
+fi
 export THOR_MERGE="vimdiff"
 export GOPATH="$HOME/.go"
 export RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
