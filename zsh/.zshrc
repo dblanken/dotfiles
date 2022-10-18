@@ -7,6 +7,59 @@ if [[ "$HASBREW" == "" ]]; then
   fpath=($HOME/.asdf/completions $fpath)
 fi
 
+typeset -A __DBLANKEN
+__DBLANKEN[ITALIC_ON]=$'\e[3m'
+__DBLANKEN[ITALIC_OFF]=$'\e[23m'
+
+# {{{1 Exports
+# Set local path for playlist and other bins
+export GOPATH="$HOME/.go"
+export PATH="./bin":"$HOME/bin":"$HOME/.bin":"$HOME/.local/bin":"$PATH"
+if [ "$(command -v go &> /dev/null)" ]; then
+  export PATH="$PATH":$(go env GOPATH)/bin
+fi
+if [ "$HASBREW" != "" ]; then
+  export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
+fi
+export THOR_MERGE="vimdiff"
+export GOPATH="$HOME/.go"
+export RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
+
+if [ "$(uname)" = "Darwin" ]; then
+  # Set 60 fps key repeat rate
+  #
+  # Equivalent to the fatest rate acheivable with:
+  #
+  #     defaults write NSGlobalDomain KeyRepeat -int 1
+  #
+  # But doesn't require a logout and will get restored every time we open a
+  # shell (for example, if somebody manipulates the slider in the UI).
+  #
+  # Fastest rate available from UI corresponds to:
+  #
+  #     defaults write NSGlobalDomain KeyRepeat -int 2
+  #
+  # Slowest rate available from UI corresponds to:
+  #
+  #     defaults write NSGlobalDomain KeyRepeat -int 120
+  #
+  # Values at each slider position in UI, from slowest to fastest:
+  #
+  # - 120 -> 2 seconds (ie. .5 fps)
+  # - 90 -> 1.5 seconds (ie .6666 fps)
+  # - 60 -> 1 second (ie 1 fps)
+  # - 30 -> 0.5 seconds (ie. 2 fps)
+  # - 12 -> 0.2 seconds (ie. 5 fps)
+  # - 6 -> 0.1 seconds (ie. 10 fps)
+  # - 2 -> 0.03333 seconds (ie. 30 fps)
+  #
+  # See: https://github.com/mathiasbynens/dotfiles/issues/687
+  #
+  if command -v dry &> /dev/null; then
+    dry 0.0166666666667 > /dev/null
+  fi
+fi
+
 # {{{1 Completion
 autoload -Uz compinit && compinit
 
@@ -30,7 +83,7 @@ zstyle ':completion:*:complete:(cd|pushd):*' tag-order 'local-directories named-
 
 # Categorize completion suggestions with headings:
 zstyle ':completion:*' group-name ''
-zstyle ':completion:*:descriptions' format %F{default}%B%{$__WINCENT[ITALIC_ON]%}--- %d ---%{$__WINCENT[ITALIC_OFF]%}%b%f
+zstyle ':completion:*:descriptions' format %F{default}%B%{$__DBLANKEN[ITALIC_ON]%}--- %d ---%{$__DBLANKEN[ITALIC_OFF]%}%b%f
 
 # Enable keyboard navigation of completions in menu
 # (not just tab/shift-tab but cursor keys as well):
@@ -119,20 +172,6 @@ c() { cd ~/code/$1; }
 _c() { _files -W ~/code -/; }
 compdef _c c
 
-# {{{1 Exports
-# Set local path for playlist and other bins
-export GOPATH="$HOME/.go"
-export PATH="./bin":"$HOME/bin":"$HOME/.bin":"$HOME/.local/bin":"$PATH"
-if [ "$(command -v go &> /dev/null)" ]; then
-  export PATH="$PATH":$(go env GOPATH)/bin
-fi
-if [ "$HASBREW" != "" ]; then
-  export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
-fi
-export THOR_MERGE="vimdiff"
-export GOPATH="$HOME/.go"
-export RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
-
 # {{{1 Edit command line
 autoload -U edit-command-line
 zle -N edit-command-line
@@ -190,10 +229,11 @@ alias coverage="COVERAGE=true be rails test"
 alias '?'=duck
 alias '??'=google
 alias '???'=bing
-alias nvimrc="nvim ~/.config/nvim/init.lua"
+# alias nvimrc="nvim ~/.config/nvim/init.lua"
 
 # {{{1 FZF
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # {{{1 gitignore.io
 function gi() { curl -sLw "\n" https://www.toptal.com/developers/gitignore/api/"$@" ;}
+function nvimrc() { cd ~/.config/nvim && v init.lua }

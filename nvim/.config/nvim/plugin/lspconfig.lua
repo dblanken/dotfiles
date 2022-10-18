@@ -3,6 +3,27 @@ if not status_ok then
   return
 end
 
+local status_ok, mason = pcall(require, 'mason')
+if status_ok then
+  mason.setup()
+end
+
+local status_ok, mason_lspconfig = pcall(require, 'mason-lspconfig')
+if status_ok then
+  mason_lspconfig.setup()
+end
+
+local status_ok, null_ls = pcall(require, 'null-ls')
+if status_ok then
+  null_ls.setup({
+    sources = {
+      null_ls.builtins.diagnostics.erb_lint,
+      null_ls.builtins.diagnostics.write_good,
+      null_ls.builtins.diagnostics.gitlint
+    }
+  })
+end
+
 -- Mappings.
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
 local opts = { noremap=true, silent=true }
@@ -34,7 +55,7 @@ local on_attach = function(client, bufnr)
   vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, bufopts)
   vim.keymap.set('n', '<space>ca', vim.lsp.buf.code_action, bufopts)
   vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
-  vim.keymap.set('n', '<space>f', vim.lsp.buf.formatting, bufopts)
+  vim.keymap.set('n', '<space>f', vim.lsp.buf.format, bufopts)
 end
 
 local lsp_flags = {
@@ -45,10 +66,10 @@ local lsp_flags = {
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 local cmp_status_ok, cmp_nvim_lsp = pcall(require, 'cmp_nvim_lsp')
 if cmp_status_ok then
-  capabilities = cmp_nvim_lsp.update_capabilities(capabilities)
+  capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
 end
 
-local servers = { 'tsserver', 'bashls', 'gopls', 'pyright', 'rust_analyzer', 'vimls' }
+local servers = { 'tsserver', 'bashls', 'gopls', 'pyright', 'rust_analyzer', 'vimls', 'clangd', 'omnisharp', 'sqls' }
 for _, server in ipairs(servers) do
   lspconfig[server].setup{
     on_attach = on_attach,
@@ -80,7 +101,6 @@ for _, server in ipairs(vscode_servers) do
     capabilities = vscode_capabilities,
     on_attach = on_attach,
     flags = lsp_flags,
-    capabilities = capabilities
   }
 end
 

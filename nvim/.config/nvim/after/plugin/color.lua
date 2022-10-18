@@ -1,10 +1,15 @@
 vim.opt.background = 'dark'
-vim.cmd('source ~/.vimrc_background')
+
+if vim.fn.exists(vim.env["BASE16_THEME"]) and
+  vim.g.colors_name == ''
+  or vim.g.colors_name ~= "base16-" .. vim.env["BASE16_THEME"] then
+  vim.cmd("colorscheme base16-" .. vim.env["BASE16_THEME"])
+
+  -- Hide (or at least make less obvious) the EndOfBuffer region
+  -- vim.cmd('highlight! EndOfBuffer ctermbg=bg ctermfg=bg guibg=bg guifg=bg')
+end
 
 local dark = vim.o.background == 'dark'
-
--- Hide (or at least make less obvious) the EndOfBuffer region
-vim.cmd('highlight! EndOfBuffer ctermbg=bg ctermfg=bg guibg=bg guifg=bg')
 
 -- Grey, just like we used to get with https://github.com/Yggdroot/indentLine
 vim.cmd('highlight clear Conceal')

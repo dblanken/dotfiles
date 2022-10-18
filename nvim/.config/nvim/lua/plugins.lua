@@ -53,12 +53,17 @@ return require('packer').startup(function(use)
   use 'tpope/vim-surround'
   use 'tpope/vim-unimpaired'
   use 'tpope/vim-vinegar'
+  use 'tribela/vim-transparent'
   use 'vim-pandoc/vim-pandoc'
   use 'vim-ruby/vim-ruby'
   use 'vim-test/vim-test'
   use 'vimwiki/vimwiki'
   use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
   use {'iamcco/markdown-preview.nvim', run = 'cd app && yarn install'}
+  use { "williamboman/mason.nvim" }
+  use { "williamboman/mason-lspconfig.nvim" }
+  use { "jose-elias-alvarez/null-ls.nvim" }
+  use { "wincent/loupe" }
   use {
     'nvim-telescope/telescope.nvim', tag = '0.1.0',
     -- or                            , branch = '0.1.x',

@@ -26,6 +26,7 @@ local windowCount = nil
 local leftDisplay = nil
 local rightDisplay = nil
 local debugMsg = nil
+local ivantiStarted = false
 
 local screenCount = #hs.screen.allScreens()
 
@@ -203,6 +204,13 @@ local layoutConfig = {
     else
       local leftscreen = hs.screen{x=-1,y=0}
       hs.grid.set(window, grid.fullScreen, leftscreen)
+    end
+  end),
+
+  ['net.pulsesecure.Pulse-Secure'] = (function(window, forceScreenCount)
+    if ivantiStarted == false then
+      ivantiStarted = true
+      window:close()
     end
   end),
 
