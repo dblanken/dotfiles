@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [[ $# -ne 1 ]]; then
+  echo "This allows you to add a git submodule to a new nvim plugin given a repo."
+  echo "Usage: $0 user/repo"
+  exit 1
+fi
+
+add_submodule() {
+  local user=${1%/*}
+  local repo=${1##*/}
+
+  git submodule add --name "$repo" "https://github.com/$user/$repo" "nvim/.config/nvim/pack/bundle/opt/$repo"
+}
+
+add_submodule "$1"

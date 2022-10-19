@@ -1,8 +1,0 @@
-\.git
-root
-setup
-^.*~
-bin
-Brewfile
-.gitignore
-.gitmodules
