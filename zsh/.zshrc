@@ -1,7 +1,7 @@
 # {{{1 Tmux
 if [ "$TMUX" = "" ]; then tmux attach || tmux -2 new -s $(hostname) && exit; fi
 
-export HASBREW=$(command -v brew &> /dev/null)
+export HASBREW="$(command -v brew)"
 
 if [[ "$HASBREW" == "" ]]; then
   fpath=($HOME/.asdf/completions $fpath)
@@ -153,7 +153,7 @@ BASE16_SHELL="$HOME/.config/base16-shell/"
 
 # {{{1 ASDF
 if [ "$HASBREW" != "" ]; then
-  . /usr/local/opt/asdf/libexec/asdf.sh
+  . "$(brew --prefix asdf)/asdf.sh"
 else
   . $HOME/.asdf/asdf.sh
 fi
