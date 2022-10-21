@@ -11,7 +11,7 @@ function! s:SourceConfigFilesIn(directory)
 	endfor
 endfunction
 
-set shell=/usr/local/bin/zsh
+set shell=/bin/zsh
 
 call plug#begin('~/.local/share/vim/bundle')
 call s:SourceConfigFilesIn('rcplugins')

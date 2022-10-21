@@ -1,4 +1,8 @@
-export ZPLUG_HOME="$(brew --prefix zplug)"
+if [[ $OSTYPE == 'darwin'* ]]; then
+  export ZPLUG_HOME="$(brew --prefix zplug)"
+else
+  export ZPLUG_HOME="$HOME/.zplug"
+fi
 source $ZPLUG_HOME/init.zsh
 
 zplug 'mafredri/zsh-async'
@@ -14,6 +18,10 @@ for zsh_source in $HOME/.zsh/configs/*.zsh; do
 	source $zsh_source
 done
 
-source "$(brew --prefix asdf)/asdf.sh"
+if [[ $OSTYPE == 'darwin'* ]]; then
+  source "$(brew --prefix asdf)/asdf.sh"
+else
+  source $HOME/.asdf/asdf.sh
+fi
 
 ensure_tmux_is_running
