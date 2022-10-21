@@ -1,0 +1,1 @@
+Plug 'thoughtbot/vim-rspec'
