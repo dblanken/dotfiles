@@ -1,0 +1,31 @@
+[user]
+  name = David Blankenship
+  email = dblanken@iu.edu
+	signingkey = 85AAB0DD66AC92E3
+[hub]
+  host = github.iu.edu
+[core]
+  autocrlf = input
+  excludefiles = /Users/dblanken/.gitignore
+[push]
+  default = upstream
+	autoSetupRemote = true
+[merge]
+  ff = only
+[fetch]
+  prune = true
+[commit]
+  template = ~/.gitmessage
+	gpgsign = true
+[alias]
+  b = branch
+  ca = commit -v -a
+  cb = checkout -b
+  co = checkout
+  st = status
+  unstage = reset
+	hub = !hub
+[mergetool "fugitive"]
+	cmd = vim -f -c \"Gdiff\" \"$MERGED\"
+[merge]
+	tool = fugitive
