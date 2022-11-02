@@ -1,0 +1,1 @@
+Plug 'tribela/vim-transparent'

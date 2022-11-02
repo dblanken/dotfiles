@@ -8,7 +8,7 @@ endif
 let g:ale_echo_msg_format = '[%linter%] %code: %%s'
 let g:ale_fix_on_save = 1
 let g:ale_linters = {
-			\ 'ruby': ['reek', 'brakeman', 'cspell', 'debride'],
+			\ 'ruby': ['rubocop', 'reek', 'brakeman', 'cspell', 'debride'],
 			\ 'javascript': ['tsserver']
 			\ }
 let g:ale_fixers = {
