@@ -5,3 +5,10 @@ sz() { source ~/.zshrc }
 first() { awk '{print $1}' }
 second() { awk '{print $2}' }
 sum() { paste -sd+ - | bc }
+
+alias u="cd .."
+alias cl="clear"
+
+alias -g G='| grep'
+alias -g L='| less'
+alias -g M='| more'
