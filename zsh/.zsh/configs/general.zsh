@@ -1,3 +1,5 @@
+export PATH="$HOME/.local/bin:$PATH"
+
 # General ZSH functions
 #
 sz() { source ~/.zshrc }
@@ -8,6 +10,7 @@ sum() { paste -sd+ - | bc }
 
 alias u="cd .."
 alias cl="clear"
+alias l="ls"
 
 alias -g G='| grep'
 alias -g L='| less'

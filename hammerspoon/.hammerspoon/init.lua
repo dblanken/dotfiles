@@ -56,6 +56,7 @@ local terminal_bundles = {
   iTerm2 = 'com.googlecode.iterm2',
   Terminal = 'com.apple.Terminal',
   Alacritty = 'io.alacritty',
+  Alacritty_alt = 'Alacritty',
   Kitty = 'net.kovidgoyal.kitty'
 }
 
@@ -198,6 +199,16 @@ local layoutConfig = {
   end),
 
   ['io.alacritty'] = (function(window, forceScreenCount)
+    local count = forceScreenCount or screenCount
+    if count == 1 then
+      hs.grid.set(window, grid.fullScreen)
+    else
+      local leftscreen = hs.screen{x=-1,y=0}
+      hs.grid.set(window, grid.fullScreen, leftscreen)
+    end
+  end),
+
+  ['Alacritty'] = (function(window, forceScreenCount)
     local count = forceScreenCount or screenCount
     if count == 1 then
       hs.grid.set(window, grid.fullScreen)
