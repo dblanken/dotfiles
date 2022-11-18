@@ -21,7 +21,7 @@ done
 if [[ $OSTYPE == 'darwin'* ]]; then
   source "$(brew --prefix asdf)/asdf.sh"
 else
-  source $HOME/.asdf/asdf.sh
+  . /opt/asdf-vm/asdf.sh
 fi
 
 ensure_tmux_is_running
