@@ -3,5 +3,6 @@ alias down='tmux send-keys -t :playlist 999'
 alias up='tmux send-keys -t :playlist 000'
 alias mute='tmux send-keys -t :playlist m'
 alias unmute='mute'
+alias stop='tmux send-keys -t :playlist C-c'
 
 alias n='next'
