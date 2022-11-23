@@ -4,6 +4,8 @@ _not_inside_tmux() {
 
 ensure_tmux_is_running() {
 	if _not_inside_tmux; then
-		tmux attach || tmux -2 new -s $(hostname) && exit
+    if [ "$(tty)" != "/dev/tty1" ]; then
+      tmux attach || tmux -2 new -s $(hostname) && exit
+    fi
 	fi
 }
