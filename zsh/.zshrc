@@ -1,9 +1,11 @@
 if [[ $OSTYPE == 'darwin'* ]]; then
   export ZPLUG_HOME="$(brew --prefix zplug)"
+  export ZPLUG_LOC="$ZPLUG_HOME"
 else
   export ZPLUG_HOME="$HOME/.zplug"
+  export ZPLUG_LOC="/usr/share/zsh/scripts/zplug"
 fi
-source $ZPLUG_HOME/init.zsh
+source $ZPLUG_LOC/init.zsh
 
 zplug 'mafredri/zsh-async'
 zplug 'sindresorhus/pure'
