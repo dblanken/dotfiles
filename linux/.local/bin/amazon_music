@@ -1,3 +1,0 @@
-#!/bin/bash
-
-/usr/bin/wine "$HOME/.wine/drive_c/users/dblanken/AppData/Local/Amazon Music/Amazon Music.exe"
