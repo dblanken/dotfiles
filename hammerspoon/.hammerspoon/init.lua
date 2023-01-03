@@ -3,7 +3,7 @@ hs.grid.MARGINX = 0
 hs.grid.MARGINY = 0
 hs.window.animationDuration = 0 -- disable animations
 
-local debug = false
+local debug = true
 
 local events = require 'events'
 local log = require 'log'
@@ -55,8 +55,7 @@ local grid = {
 local terminal_bundles = {
   iTerm2 = 'com.googlecode.iterm2',
   Terminal = 'com.apple.Terminal',
-  Alacritty = 'io.alacritty',
-  Alacritty_alt = 'Alacritty',
+  Alacritty = 'org.alacritty',
   Kitty = 'net.kovidgoyal.kitty'
 }
 
@@ -81,7 +80,9 @@ end
 
 local function read_file(path)
   local file = open_file(path, "rb") -- r read mode and b binary mode
-  if not file then return nil end
+  if not file then
+    return nil
+  end
   local content = file:read "*a" -- *a or *all reads the whole file
   file:close()
   return content
@@ -209,6 +210,16 @@ local layoutConfig = {
   end),
 
   ['Alacritty'] = (function(window, forceScreenCount)
+    local count = forceScreenCount or screenCount
+    if count == 1 then
+      hs.grid.set(window, grid.fullScreen)
+    else
+      local leftscreen = hs.screen{x=-1,y=0}
+      hs.grid.set(window, grid.fullScreen, leftscreen)
+    end
+  end),
+
+  ['org.alacritty'] = (function(window, forceScreenCount)
     local count = forceScreenCount or screenCount
     if count == 1 then
       hs.grid.set(window, grid.fullScreen)
@@ -511,35 +522,35 @@ chain = (function(movements)
   --   debugMsg(current_application:bundleID())
   -- end))
 
-  -- hs.hotkey.bind({'cmd'}, '1', (function()
-  --   local console_app = read_file(os.getenv("HOME") .. "/.config/terminal")
-  --   local bundleID = terminal_bundles[console_app:gsub("%s+", "")]
-  --   if bundleID then
-  --     hs.application.launchOrFocusByBundleID(bundleID)
-  --   else
-  --     debugMsg("No bundle ID found for " .. console_app)
-  --   end
-  -- end))
+  hs.hotkey.bind({'cmd'}, '1', (function()
+    local console_app = read_file(os.getenv("HOME") .. "/.config/terminal")
+    local bundleID = terminal_bundles[console_app:gsub("%s+", "")]
+    if bundleID then
+      hs.application.launchOrFocusByBundleID(bundleID)
+    else
+      debugMsg("No bundle ID found for " .. console_app)
+    end
+  end))
 
-  -- hs.hotkey.bind({'cmd'}, '2', (function()
-  --   local bundleID = "com.apple.Safari"
-  --   hs.application.launchOrFocusByBundleID(bundleID)
-  -- end))
+  hs.hotkey.bind({'cmd'}, '2', (function()
+    local bundleID = "com.apple.Safari"
+    hs.application.launchOrFocusByBundleID(bundleID)
+  end))
 
-  -- hs.hotkey.bind({'cmd'}, '3', (function()
-  --   local bundleID = "com.apple.mail"
-  --   hs.application.launchOrFocusByBundleID(bundleID)
-  -- end))
+  hs.hotkey.bind({'cmd'}, '3', (function()
+    local bundleID = "com.apple.mail"
+    hs.application.launchOrFocusByBundleID(bundleID)
+  end))
 
-  -- hs.hotkey.bind({'cmd'}, '4', (function()
-  --   local bundleID = "com.apple.MobileSMS"
-  --   hs.application.launchOrFocusByBundleID(bundleID)
-  -- end))
+  hs.hotkey.bind({'cmd'}, '4', (function()
+    local bundleID = "com.apple.MobileSMS"
+    hs.application.launchOrFocusByBundleID(bundleID)
+  end))
 
-  -- hs.hotkey.bind({'cmd'}, '5', (function()
-  --   local bundleID = "com.microsoft.SkypeForBusiness"
-  --   hs.application.launchOrFocusByBundleID(bundleID)
-  -- end))
+  hs.hotkey.bind({'cmd'}, '5', (function()
+    local bundleID = "com.microsoft.teams"
+    hs.application.launchOrFocusByBundleID(bundleID)
+  end))
 
   for _, app in pairs(ignoreAlwaysApps) do
     -- Ignore some stuff for warnings
