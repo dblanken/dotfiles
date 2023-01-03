@@ -82,6 +82,10 @@ ZSH_TMUX_AUTOSTART=true
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git asdf tmux bundler vi-mode cd_code dry base16-shell)
 
+ZSH_CACHE_DIR=$HOME/.cache/oh-my-zsh
+if [[ ! -d $ZSH_CACHE_DIR ]]; then
+	mkdir $ZSH_CACHE_DIR
+fi
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
