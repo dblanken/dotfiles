@@ -80,7 +80,7 @@ ZSH_TMUX_AUTOSTART=true
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git asdf tmux bundler vi-mode cd_code dry base16-shell)
+plugins=(git asdf tmux bundler vi-mode cd_code dry base16-shell fzf)
 
 ZSH_CACHE_DIR=$HOME/.cache/oh-my-zsh
 if [[ ! -d $ZSH_CACHE_DIR ]]; then
@@ -115,3 +115,9 @@ fi
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias v="$EDITOR"
 alias vim="nvim"
+alias python=/usr/bin/python3
+alias pip=/usr/bin/pip3
+
+# Make golang sit in a corner
+export GOPATH="$HOME/.local/share/go"
+export PATH="$HOME/.local/share/go/bin:$PATH"

@@ -3,7 +3,7 @@ hs.grid.MARGINX = 0
 hs.grid.MARGINY = 0
 hs.window.animationDuration = 0 -- disable animations
 
-local debug = true
+local debug = false
 
 local events = require 'events'
 local log = require 'log'
@@ -517,7 +517,7 @@ chain = (function(movements)
   end))
 
   -- Uncomment to learn the bundle id of an active app
-  -- hs.hotkey.bind({'cmd'}, 'w', (function()
+  -- hs.hotkey.bind({'cmd', 'shift'}, 'w', (function()
   --   local current_application = hs.application.frontmostApplication()
   --   debugMsg(current_application:bundleID())
   -- end))

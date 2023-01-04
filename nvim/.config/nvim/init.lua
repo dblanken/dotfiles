@@ -6,13 +6,12 @@ if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
 end
 
 local packer_group = vim.api.nvim_create_augroup('Packer', { clear = true })
-vim.api.nvim_create_autocmd('BufWritePost', { command = 'source <afile> | PackerCompile', group = packer_group, pattern = 'init.lua' })
+vim.api.nvim_create_autocmd('BufWritePost', { command = 'source <afile> | PackerCompile', group = packer_group, pattern = '~/.config/nvim/init.lua' })
 
 require('packer').startup(function(use)
   use 'wbthomason/packer.nvim' -- Package manager
   use 'tpope/vim-fugitive' -- Git commands in nvim
   use 'tpope/vim-rhubarb' -- Fugitive-companion to interact with github
-  --use 'numToStr/Comment.nvim' -- "gc" to comment visual regions/lines
   use 'tpope/vim-commentary' -- I like this better than Comment.nvim
   use 'ludovicchabant/vim-gutentags' -- Automatic tags management
   -- UI to select things (files, grep results, open buffers...)
@@ -46,6 +45,12 @@ require('packer').startup(function(use)
   use 'wincent/base16-nvim' -- For nvim and terminal color matching
   use 'vimwiki/vimwiki' -- For documentation
   use 'tribela/vim-transparent' -- Transparency
+  use 'tpope/vim-ragtag' -- HTML/XML mappings
+  use 'tpope/vim-projectionist' -- Gruanual project navigation and configuration
+  use 'tpope/vim-repeat' -- Enable repeating plugin maps with "."
+  use 'tpope/vim-jdaddy' -- JSON manipulation and pretty printing
+  use 'tpope/vim-vinegar' -- Easier traversal with netrw
+  use 'christoomey/vim-tmux-navigator' -- Easy Tmux/vim navigation
 end)
 
 --Show a color column
