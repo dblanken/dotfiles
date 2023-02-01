@@ -117,6 +117,7 @@ local numberOpenings = {
 	'com.apple.mail',
 	'com.apple.MobileSMS',
 	'com.microsoft.teams',
+	'com.amazon.music',
 }
 
 local layoutConfig = {
@@ -536,6 +537,8 @@ chain = (function(movements)
   --   debugMsg(current_application:bundleID())
   -- end))
 
+  -- Maps the numberOpenings to CMD-# where # is a number 1-9
+  -- for easy switching
   for key, value in pairs(numberOpenings) do
 	hs.hotkey.bind({'cmd'}, tostring(key), (function()
 		hs.application.launchOrFocusByBundleID(value)

@@ -11,6 +11,10 @@ else
 	echo "No Oh-My-Zsh found."
 fi
 
+if type brew &>/dev/null; then
+	FPATH=$(brew --prefix)/share/zsh-completions:$(brew --prefix)/share/zsh/site-functions:$FPATH
+fi
+
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
@@ -96,11 +100,12 @@ source $ZSH/oh-my-zsh.sh
 # export LANG=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
-if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='vim'
-else
-  export EDITOR='nvim'
-fi
+# if [[ -n $SSH_CONNECTION ]]; then
+#   export EDITOR='vim'
+# else
+#  export EDITOR='vim'
+# fi
+export EDITOR='nvim'
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
@@ -114,9 +119,12 @@ fi
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias v="$EDITOR"
-alias vim="nvim"
-alias python=/usr/bin/python3
-alias pip=/usr/bin/pip3
+if [[ $EDITOR == 'vim' ]]; then
+	alias vimrc="v ~/.vimrc"
+else
+	alias vimrc="v ~/.config/nvim/init.lua"
+fi
+alias zshrc="v ~/.zshrc"
 
 # Make golang sit in a corner
 export GOPATH="$HOME/.local/share/go"
