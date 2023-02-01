@@ -65,6 +65,10 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter-textobjects',
     dependences = { 'nvim-treesitter' },
   },
+  {
+    'nvim-treesitter/nvim-treesitter-context',
+    dependencies = { 'nvim-treesitter' },
+  },
 
   -- Git related plugins
   'tpope/vim-fugitive',
