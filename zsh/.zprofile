@@ -3,4 +3,4 @@ eval "$(/usr/local/bin/brew shellenv)"
 
 export THOR_MERGE='nvim -d'
 
-. $HOME/.zshrc
+source ~/.zprofile.local

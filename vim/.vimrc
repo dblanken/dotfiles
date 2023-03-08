@@ -221,6 +221,7 @@ Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-eunuch'
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-git'
 Plug 'tpope/vim-projectionist'
 Plug 'tpope/vim-ragtag'
 Plug 'tpope/vim-rake'
@@ -238,6 +239,10 @@ Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-vinegar'
 
 Plug 'MaxMEllon/vim-jsx-pretty'
+Plug 'ap/vim-css-color'
+Plug 'pangloss/vim-javascript'
+Plug 'StanAngeloff/php.vim'
+Plug 'elzr/vim-json'
 Plug 'andrewradev/splitjoin.vim'
 Plug 'chriskempson/base16-vim'
 Plug 'christoomey/vim-tmux-navigator'
@@ -249,6 +254,7 @@ Plug 'vim-pandoc/vim-pandoc'
 Plug 'vim-test/vim-test'
 Plug 'vimwiki/vimwiki'
 Plug 'tribela/vim-transparent'
+Plug 'nelsyeung/twig.vim'
 
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
@@ -259,10 +265,10 @@ else
   Plug 'roxma/nvim-yarp'
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
+" Plug 'neoclide/coc.nvim', { 'branch': 'release' }
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'ap/vim-css-color'
 
 call plug#end()
 
@@ -343,6 +349,10 @@ endif
 if &rtp =~ 'deoplete'
   " Enable deoplete when InsertEnter.
   let g:deoplete#enable_at_startup = 0
+
+  " Disable autocomplete so we can use tab-completion when we want
+  call deoplete#custom#option('auto_complete', 0)
+
   augroup deopleter
     au!
     autocmd InsertEnter * call deoplete#enable()
@@ -388,7 +398,7 @@ if &rtp =~ 'deoplete'
   "      then allow a tab (no autocomplete needed)
   "      if we are not at the beginning of the line and the character before is not
   "        a space, attempt a deoplete completion.
-  inoremap <silent><expr> <TAB> pumvisible() ? "\<C-n>" : <SID>check_last_char_was_space() ? "\<TAB>" : deoplete#mappings#manual_complete()
+  inoremap <silent><expr> <TAB> pumvisible() ? "\<C-n>" : <SID>check_last_char_was_space() ? "\<TAB>" : deoplete#manual_complete()
   inoremap <expr>   <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"| " Shift-Tab is previous entry if completion menu open.
 
   " If CR is pressed:

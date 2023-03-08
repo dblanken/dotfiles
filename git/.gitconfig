@@ -25,5 +25,6 @@
 	st = status
 	unstage = reset
 	hub = !hub
+	mylog = log --oneline --decorate --graph
 [mergetool "vimdiff"]
 	cmd = "nvim -d $MERGED $LOCAL $BASE $REMOTE -c 'wincmd J | wincmd ='"

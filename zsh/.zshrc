@@ -225,6 +225,7 @@ alias gcb="g checkout -b"
 alias gco="g checkout"
 alias gst="g st"
 alias gb="g branch"
+alias glog="g mylog"
 alias coverage="COVERAGE=true be rails test"
 alias '?'=duck
 alias '??'=google
@@ -237,3 +238,8 @@ alias '???'=bing
 # {{{1 gitignore.io
 function gi() { curl -sLw "\n" https://www.toptal.com/developers/gitignore/api/"$@" ;}
 function nvimrc() { cd ~/.config/nvim && v init.lua }
+export PATH="/usr/local/opt/mysql-client/bin:$PATH"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
