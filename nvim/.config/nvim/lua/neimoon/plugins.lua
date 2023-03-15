@@ -83,4 +83,20 @@ require("lazy").setup({
       require('colorizer').setup()
     end,
   },
+  { 'mfussenegger/nvim-dap' },
+  { 'rcarriga/nvim-dap-ui' },
+  { 'theHamsta/nvim-dap-virtual-text' },
+  { 'nvim-telescope/telescope-dap.nvim' },
+  {
+    'iamcco/markdown-preview.nvim',
+    build = function() vim.fn["mkdp#util#install"]() end
+  },
+  {
+    'mxsdev/nvim-dap-vscode-js',
+  },
+  {
+    'microsoft/vscode-js-debug',
+    lazy = true,
+    build = "npm install --legacy-peer-deps && npx gulp vsDebugServerBundle && mv dist out"
+  }
 })
