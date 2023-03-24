@@ -73,6 +73,7 @@ require("lazy").setup({
   { 'tpope/vim-rails' },
   { 'tpope/vim-bundler' },
   { 'tpope/vim-rake' },
+  { 'tpope/vim-abolish' },
   { 'tribela/vim-transparent' },
   { 'vimwiki/vimwiki' },
   { 'christoomey/vim-tmux-navigator' },
@@ -98,5 +99,6 @@ require("lazy").setup({
     'microsoft/vscode-js-debug',
     lazy = true,
     build = "npm install --legacy-peer-deps && npx gulp vsDebugServerBundle && mv dist out"
-  }
+  },
+  { 'burnettk/vim-angular' },
 })
