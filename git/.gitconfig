@@ -1,7 +1,7 @@
 [user]
 	name = David Blankenship
 	email = dblanken@iu.edu
-	signingkey = 85AAB0DD66AC92E3
+	#signingkey = 85AAB0DD66AC92E3
 [hub]
 	host = github.iu.edu
 [core]
@@ -16,7 +16,7 @@
 	prune = true
 [commit]
 	template = ~/.gitmessage
-	gpgsign = true
+	#gpgsign = true
 [alias]
 	b = branch
 	ca = commit -v -a
