@@ -18,6 +18,6 @@ fi
 
 export THOR_MERGE='nvim -d'
 
-if [[ -f .zprofile.local ]]; then
+if [[ -f "$HOME/.zprofile.local" ]]; then
 	source ~/.zprofile.local
 fi

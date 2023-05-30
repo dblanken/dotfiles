@@ -169,7 +169,7 @@ set -o vi
 # Taken from rbates: https://github.com/ryanb/dotfiles/blob/master/oh-my-zsh/custom/plugins/rbates/rbates.plugin.zsh
 # Allows you to easily cd into code directory with completion
 c() { cd ~/code/$1; }
-_c() { _files -W ~/code -/; }
+_c() { _path_files -W ~/code -/; }
 compdef _c c
 
 # {{{1 Edit command line
@@ -217,16 +217,25 @@ fi
 alias zshrc="v ~/.zshrc"
 alias dot="cd ~/.dotfiles"
 alias tmuxconf="v ~/.tmux.conf"
+# Rails
 alias be="bundle exec"
 alias b="bundle"
 alias r="bundle exec rails"
+alias coverage="COVERAGE=true be rails test"
+# Git
 alias gca="g commit -a"
 alias gcb="g checkout -b"
 alias gco="g checkout"
 alias gst="g st"
 alias gb="g branch"
 alias glog="g mylog"
-alias coverage="COVERAGE=true be rails test"
+alias gdiff="g diff"
+# Lando
+alias l="lando"
+alias lcr="l drush cr"
+alias lrs="l restart"
+alias lrb="l rebuild -y"
+# Searching
 alias '?'=duck
 alias '??'=google
 alias '???'=bing
@@ -243,3 +252,11 @@ export PATH="/usr/local/opt/mysql-client/bin:$PATH"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+export PATH="/opt/homebrew/opt/libxml2/bin:$PATH"
+
+export LDFLAGS="-L/opt/homebrew/opt/libxml2/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/libxml2/include"
+
+export PKG_CONFIG_PATH="$PK_CONFIG_PATH:/opt/homebrew/opt/libxml2/lib/pkgconfig"
+export GPG_TTY=$(tty)

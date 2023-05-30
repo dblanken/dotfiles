@@ -29,3 +29,16 @@ vim.opt.isfname:append("@-@")
 vim.opt.updatetime = 50
 
 vim.opt.colorcolumn = "80"
+
+
+function _G.set_formatoptions()
+  vim.opt.formatoptions:remove("c")
+  vim.opt.formatoptions:remove("r")
+  vim.opt.formatoptions:remove("o")
+end
+
+vim.cmd("augroup FormatOptions")
+vim.cmd("autocmd!")
+vim.cmd("autocmd FileType * lua set_formatoptions()")
+vim.cmd("augroup END")
+

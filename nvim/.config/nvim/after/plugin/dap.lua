@@ -4,6 +4,12 @@ dap.adapters.chrome = {
   command = 'node',
   args = {os.getenv('HOME') .. '/code/microsoft/vscode-chrome-debug/out/src/chromeDebug.js'}
 }
+dap.adapters.php = {
+  type = "executable",
+  command = "node",
+  args = { os.getenv("HOME") .. "/code/vscode-php-debug/out/phpDebug.js" }
+}
+
 dap.configurations.typescriptreact = {
   {
     type = "chrome",
@@ -15,6 +21,24 @@ dap.configurations.typescriptreact = {
     port = 9222,
     webRoot = "${workspaceFolder}",
   }
+}
+
+local php_configurations = {
+    type = "php",
+    request = "launch",
+    name = "Listen for Xdebug",
+    port = 9003,
+    pathMappings = {
+      ["/app/"] = "${workspaceFolder}"
+    }
+}
+
+dap.configurations.php = {
+  php_configurations,
+}
+
+dap.configurations.twig = {
+  php_configurations,
 }
 -- require('dap-vscode-js').setup({
 --   debugger_path = os.getenv('HOME') .. "/.local/share/nvim/lazy/vscode-js-debug", -- Path to vscode-js-debug installation.
