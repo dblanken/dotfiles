@@ -53,8 +53,12 @@ require("lazy").setup({
       { 'hrsh7th/cmp-nvim-lua' },     -- Optional
 
       -- Snippets
-      { 'L3MON4D3/LuaSnip' },             -- Required
-      { 'rafamadriz/friendly-snippets' }, -- Optional
+      {
+        'L3MON4D3/LuaSnip',
+        dependencies = {
+          { 'rafamadriz/friendly-snippets' },
+        },
+      },             -- Required
     },
   },
   {
@@ -137,7 +141,22 @@ require("lazy").setup({
     build = "npm install --legacy-peer-deps && npx gulp vsDebugServerBundle && mv dist out"
   },
   { 'burnettk/vim-angular' },
-  { 'github/copilot.vim' },
+--  { 'github/copilot.vim' },
+  {
+    'zbirenbaum/copilot.lua',
+    config = function()
+      require('copilot').setup({
+        suggestion = {enabled = false},
+        panel = {enabled = false},
+      })
+    end
+  },
+  {
+    "zbirenbaum/copilot-cmp",
+    config = function ()
+      require("copilot_cmp").setup()
+    end
+  },
   { 'nvim-lualine/lualine.nvim' },
   { 'nvim-tree/nvim-web-devicons' },
   {
@@ -204,6 +223,12 @@ require("lazy").setup({
     main = "nvim-surround",
     config = function()
       require("nvim-surround").setup()
+    end,
+  },
+  {
+    "nvim-lua/lsp-status.nvim",
+    config = function()
+      require("lsp-status").register_progress()
     end,
   },
 })
