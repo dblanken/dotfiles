@@ -20,6 +20,8 @@ local handleWindowEvent = nil
 local hide = nil
 local initEventHandling = nil
 local internalDisplay = nil
+local externalOfficeDisplay = nil
+local externalDisplay = nil
 local prepareScreencast = nil
 local tearDownEventHandling = nil
 local windowCount = nil
@@ -314,9 +316,18 @@ end)
 
 local macBookPro16_2019 = '3072x1920'
 local asus_ve278 = '1920x1080'
+local l238Dph = '1920x1080'
 
 internalDisplay = (function()
   return hs.screen.find(macBookPro16_2019)
+end)
+
+externalOfficeDisplay = (function()
+  return hs.screen.find(l238Dph)
+end)
+
+externalDisplay = (function()
+  return hs.screen.find(asus_ve278)
 end)
 
 leftDisplay = (function()

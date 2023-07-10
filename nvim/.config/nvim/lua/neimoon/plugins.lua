@@ -124,7 +124,11 @@ require("lazy").setup({
   {
     'norcalli/nvim-colorizer.lua',
     main = 'colorizer',
-    config = true,
+    config = function()
+      require('colorizer').setup({
+        '*';
+      }, { css = true })
+    end,
   },
   { 'mfussenegger/nvim-dap' },
   { 'rcarriga/nvim-dap-ui' },
@@ -230,5 +234,8 @@ require("lazy").setup({
     config = function()
       require("lsp-status").register_progress()
     end,
+  },
+  {
+    "jamestthompson3/nvim-remote-containers"
   },
 })

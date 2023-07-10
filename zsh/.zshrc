@@ -214,6 +214,7 @@ if [[ "$EDITOR" == "nvim" || "$EDITOR" == "lvim" ]]; then
   alias v=$EDITOR
   alias vimrc="v ~/.config/nvim/init.lua"
 fi
+alias switch-vim=". ~/.local/bin/switch-vim"
 alias zshrc="v ~/.zshrc"
 alias dot="cd ~/.dotfiles"
 alias tmuxconf="v ~/.tmux.conf"

@@ -5,6 +5,7 @@
 [core]
 	autocrlf = input
 	excludefiles = /Users/db2553/.gitignore
+	excludesfile = /Users/db2553/.gitignore
 [push]
 	default = upstream
 	autoSetupRemote = true
