@@ -5,6 +5,13 @@ local lsp = require('lsp-zero').preset({
   -- suggest_lsp_servers = true,
 })
 
+lsp.ensure_installed({
+  'lua_ls',
+  'tsserver',
+  'eslint',
+  'intelephense',
+})
+
 lsp.on_attach(function(client, bufnr)
   lsp.default_keymaps({buffer = bufnr})
 
@@ -26,31 +33,14 @@ local cmp_mappings = lsp.defaults.cmp_mappings({
   }),
 })
 
+-- Helps with copilot
 cmp_mappings['<Tab>'] = nil
 cmp_mappings['<S-Tab>'] = nil
 
-local cmp_sources = {
-  {name = 'copilot'},
-  {name = 'nvim_lsp'},
-}
-
--- Get lsp-zero's default sources
-local lsp_sources = lsp.defaults.cmp_sources()
---append to cmp_sources
-for _, source in ipairs(lsp_sources) do
-  table.insert(cmp_sources, source)
-end
-
 lsp.setup_nvim_cmp({
   mapping = cmp_mappings,
-  sources = cmp_sources
 })
 
--- Solargraph wigs out if you modify rubocop's defaults
--- So let's do this ourselves; this doesn't check for install
-lsp.configure('solargraph', {
-  force_setup = true
-})
 -- (Optional) Configure lua language server for neovim
 require('lspconfig').lua_ls.setup(lsp.nvim_lua_ls())
 
