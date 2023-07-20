@@ -41,6 +41,14 @@ lsp.setup_nvim_cmp({
   mapping = cmp_mappings,
 })
 
+-- Intelephense like to create a directory on my home directory
+-- I don't like this.
+require('lspconfig').intelephense.setup {
+  init_options = {
+    globalStoragePath = os.getenv('HOME') .. '/.local/share/intelephense'
+  }
+}
+
 -- (Optional) Configure lua language server for neovim
 require('lspconfig').lua_ls.setup(lsp.nvim_lua_ls())
 
