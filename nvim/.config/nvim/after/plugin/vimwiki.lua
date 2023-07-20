@@ -1,11 +1,11 @@
 vim.g.vimwiki_list = {
   {
-    path = '~/vimwiki',
+    path = '~/.vimwiki',
     syntax = 'markdown',
     ext = '.md'
   },
   {
-    path = '~/code/vimwiki',
+    path = '~/Documents/vimwiki',
     syntax = 'markdown',
     ext = '.md'
   }
