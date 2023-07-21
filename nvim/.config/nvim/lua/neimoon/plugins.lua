@@ -13,24 +13,15 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   { 'folke/lazy.nvim' },
-  {
+  {                                                 -- Fallback Colorscheme
     'rose-pine/neovim',
     as = 'rose-pine',
-    -- config = function()
-    --   vim.cmd('colorscheme rose-pine')
-    -- end
   },
-  -- {
-  --   'wincent/base16-nvim',
-  --   config = function()
-  --     vim.cmd('colorscheme base16-' .. vim.env["BASE16_THEME"])
-  --   end
-  -- },
-  {
+  {                                                 -- Fuzzy finding
     'nvim-telescope/telescope.nvim',
     dependencies = { { 'nvim-lua/plenary.nvim' } },
   },
-  {
+  {                                                 -- lsp/completion/snippets
     'VonHeikemen/lsp-zero.nvim',
     branch = 'v2.x',
     dependencies = {
@@ -61,7 +52,7 @@ require("lazy").setup({
       },             -- Required
     },
   },
-  {
+  {                                                   -- diagnostics in quickfix
     "folke/trouble.nvim",
     config = function()
       require("trouble").setup {
@@ -69,28 +60,25 @@ require("lazy").setup({
       }
     end,
   },
-  {
+  {                                                   -- better highlighting and more
     'nvim-treesitter/nvim-treesitter',
     run = ':TSUpdate'
   },
-  { 'nvim-treesitter/nvim-treesitter-context' },
-  { 'tpope/vim-fugitive' },
-  { 'tpope/vim-commentary' },
-  { 'tpope/vim-projectionist' },
-  { 'tpope/vim-dispatch' },
-  { 'tpope/vim-sleuth' },
-  { 'tpope/vim-unimpaired' },
-  { 'tpope/vim-eunuch' },
-  { 'tpope/vim-repeat' },
-  { 'tpope/vim-vinegar' },
-  { 'tpope/vim-apathy' },
-  { 'tpope/vim-rails' },
-  { 'tpope/vim-bundler' },
-  { 'tpope/vim-rake' },
-  { 'tpope/vim-abolish' },
-  { 'tribela/vim-transparent' },
-  { 'vimwiki/vimwiki' },
-  {
+  { 'nvim-treesitter/nvim-treesitter-context' },      -- better contexts
+  { 'tpope/vim-fugitive' },                           -- git
+  { 'tpope/vim-commentary' },                         -- commenting
+  { 'tpope/vim-projectionist' },                      -- easy traversal
+  { 'tpope/vim-dispatch' },                           -- async "make"
+  { 'tpope/vim-sleuth' },                             -- tabstops based on files around it
+  { 'tpope/vim-unimpaired' },                         -- [] commands
+  { 'tpope/vim-eunuch' },                             -- Unix cmds in vim
+  { 'tpope/vim-repeat' },                             -- . command plugin repeat
+  { 'tpope/vim-vinegar' },                            -- '-' for netrw
+  { 'tpope/vim-apathy' },                             -- find paths automagically
+  { 'tpope/vim-abolish' },                            -- Fix/substitution
+  { 'tribela/vim-transparent' },                      -- Make vim transparent
+  { 'vimwiki/vimwiki' },                              -- Notes
+  {                                                   -- vim-tmux-navigator
     'numToStr/Navigator.nvim',
     config = true,
     keys = {
@@ -120,8 +108,8 @@ require("lazy").setup({
       },
     },
   },
-  { 'vim-test/vim-test' },
-  {
+  { 'vim-test/vim-test' },                              -- Easier testing
+  {                                                     -- colorize hex colors
     'norcalli/nvim-colorizer.lua',
     main = 'colorizer',
     config = function()
@@ -130,23 +118,21 @@ require("lazy").setup({
       }, { css = true })
     end,
   },
-  { 'mfussenegger/nvim-dap' },
-  { 'rcarriga/nvim-dap-ui' },
-  { 'theHamsta/nvim-dap-virtual-text' },
-  { 'nvim-telescope/telescope-dap.nvim' },
-  {
+  { 'mfussenegger/nvim-dap' },                          -- Debug adapter
+  { 'rcarriga/nvim-dap-ui' },                           -- UI for dap
+  { 'theHamsta/nvim-dap-virtual-text' },                -- Virtual text for dap
+  { 'nvim-telescope/telescope-dap.nvim' },              -- Telescope dap
+  {                                                     -- See markdown while editing
     'iamcco/markdown-preview.nvim',
     build = function() vim.fn["mkdp#util#install"]() end
   },
-  { 'mxsdev/nvim-dap-vscode-js' },
-  {
+  { 'mxsdev/nvim-dap-vscode-js' },                      -- dap adapter for vscode-js-debug
+  {                                                     -- vscode-js-debug
     'microsoft/vscode-js-debug',
     lazy = true,
     build = "npm install --legacy-peer-deps && npx gulp vsDebugServerBundle && mv dist out"
   },
-  { 'burnettk/vim-angular' },
---  { 'github/copilot.vim' },
-  {
+  {                                                     -- lua copilot
     'zbirenbaum/copilot.lua',
     config = function()
       require('copilot').setup({
@@ -155,7 +141,7 @@ require("lazy").setup({
       })
     end
   },
-  {
+  {                                                     -- copilot for cmp
     "zbirenbaum/copilot-cmp",
     config = function ()
       require("copilot_cmp").setup()
@@ -213,5 +199,8 @@ require("lazy").setup({
   },
   {
     "jamestthompson3/nvim-remote-containers"
+  },
+  {
+    "jay-babu/mason-nvim-dap.nvim",
   },
 })
