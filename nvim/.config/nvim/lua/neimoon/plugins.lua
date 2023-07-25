@@ -201,6 +201,9 @@ require("lazy").setup({
     "jamestthompson3/nvim-remote-containers"
   },
   {
-    "jay-babu/mason-nvim-dap.nvim",
+    "jay-babu/mason-nvim-dap.nvim"
+  },
+  {
+    'dense-analysis/ale',
   },
 })
