@@ -2,11 +2,11 @@ require 'neimoon.sets'
 require 'neimoon.remaps'
 require 'neimoon.plugins'
 
-function P(v)
+P = function(v)
   print(vim.inspect(v))
   return v
 end
 
-function R(name)
+R = function(name)
   require("plenary.reload").reload_module(name)
 end
