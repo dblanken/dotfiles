@@ -8,6 +8,8 @@ vim.g.ale_php_phpcs_options = '--extensions=php,module,inc,install,test,profile,
 vim.g.ale_php_phpcbf_standard = 'Drupal,DrupalPractice'
 vim.g.ale_php_phpcbf_options = '--extensions=php,module,inc,install,test,profile,theme,info,txt'
 
+vim.g.ale_linters_explicit = 1
+
 vim.g.ale_fixers = {
   ['*'] = {
     'remove_trailing_lines',
@@ -15,10 +17,6 @@ vim.g.ale_fixers = {
   },
   php = {
     'phpcbf'
-  },
-  javascript = {
-    'eslint',
-    'prettier'
   },
   twig = {
     'twigcs'
