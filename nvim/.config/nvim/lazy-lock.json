@@ -54,5 +54,6 @@
   "vim-vinegar": { "branch": "master", "commit": "bb1bcddf43cfebe05eb565a84ab069b357d0b3d6" },
   "vimwiki": { "branch": "dev", "commit": "09804c2a5f1009fde29e32c5f3a6093e4684433a" },
   "vscode-js-debug": { "branch": "main", "commit": "df0247e2df0dc816e0b2b8a38a37867673a75815" },
-  "winbar.nvim": { "branch": "main", "commit": "13739fdb31be51a1000486189662596f07a59a31" }
+  "winbar.nvim": { "branch": "main", "commit": "13739fdb31be51a1000486189662596f07a59a31" },
+  "zen-mode.nvim": { "branch": "main", "commit": "68f554702de63f4b7b6b6d4bcb10178f41a0acc7" }
 }

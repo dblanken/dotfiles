@@ -206,4 +206,7 @@ require("lazy").setup({
   {
     'dense-analysis/ale',
   },
+  {
+    "folke/zen-mode.nvim",
+  },
 })
