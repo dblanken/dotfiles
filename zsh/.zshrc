@@ -231,6 +231,8 @@ alias gst="g st"
 alias gb="g branch"
 alias glog="g mylog"
 alias gdiff="g diff"
+alias gp="g pull --rebase"
+alias gpa="g pull --rebase --all"
 # Lando
 alias l="lando"
 alias lcr="l drush cr"
