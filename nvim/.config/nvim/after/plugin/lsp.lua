@@ -15,6 +15,10 @@ lsp.ensure_installed({
 lsp.on_attach(function(client, bufnr)
   lsp.default_keymaps({buffer = bufnr})
 
+  if client.name == 'intelephense' then
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<F3>', '<cmd>ALEFix<cr>', {noremap = true, silent = true})
+  end
+
   if client.server_capabilities.documentSymbolProvider then
     require('nvim-navic').attach(client, bufnr)
   end
