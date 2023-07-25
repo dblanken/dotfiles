@@ -37,8 +37,21 @@ local cmp_mappings = lsp.defaults.cmp_mappings({
 cmp_mappings['<Tab>'] = nil
 cmp_mappings['<S-Tab>'] = nil
 
+local cmp_sources = {
+  {name = 'copilot'},
+  {name = 'nvim_lsp'},
+}
+-- Get lsp-zero's default sources
+local lsp_sources = lsp.defaults.cmp_sources()
+--append to cmp_sources
+for _, source in ipairs(lsp_sources) do
+  table.insert(cmp_sources, source)
+end
+
+
 lsp.setup_nvim_cmp({
   mapping = cmp_mappings,
+  sources = cmp_sources,
 })
 
 -- Intelephense like to create a directory on my home directory
