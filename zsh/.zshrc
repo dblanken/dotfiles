@@ -4,7 +4,8 @@ if [ "$TMUX" = "" ]; then tmux attach || tmux -2 new -s $(hostname) && exit; fi
 export HASBREW="$(command -v brew)"
 
 if [[ "$HASBREW" == "" ]]; then
-  fpath=($HOME/.asdf/completions $fpath)
+  FPATH=($HOME/.asdf/completions $FPATH)
+  FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 fi
 
 typeset -A __DBLANKEN
