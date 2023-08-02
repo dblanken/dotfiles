@@ -3,7 +3,7 @@ hs.grid.MARGINX = 0
 hs.grid.MARGINY = 0
 hs.window.animationDuration = 0 -- disable animations
 
-local debug = true
+local debug = false
 
 local events = require 'events'
 local log = require 'log'
