@@ -1,0 +1,3 @@
+#!/bin/bash
+
+alacritty_replace_value.sh 0.85 1.0
