@@ -20,25 +20,6 @@ require("lazy").setup({
   {                                                 -- Fuzzy finding
     'nvim-telescope/telescope.nvim',
     dependencies = { { 'nvim-lua/plenary.nvim' } },
-    cmd = {
-      "Telescope",
-    },
-    keys = {
-      { '<leader>?', function() require('telescope.builtin').oldfiles() end, desc = '[?] Find recently opened files' },
-      { '<leader><space>', function() require('telescope.builtin').buffers() end, desc = '[ ] Find existing buffers' },
-      { '<Leader>/', function()
-        -- You can pass additional configuration to telescope to change theme, layout, etc.
-        require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-          winblend = 10,
-          previewer = false,
-        })
-      end, desc = '[/] Fuzzily search in the current buffer' },
-      { '<Leader>sf', function() require('telescope.builtin').find_files({ hidden = true }) end, desc = '[S]earch [F]iles' },
-      { '<Leader>sh', function() require('telescope.builtin').help_tags() end, desc = '[S]earch [H]elp' },
-      { '<leader>sw', function() require('telescope.builtin').grep_string() end, desc = '[S]earch current [W]ord' },
-      { '<leader>sg', function() require('telescope.builtin').live_grep() end, desc = '[S]earch by [G]rep' },
-      { '<leader>sd', function() require('telescope.builtin').diagnostics() end, desc = '[S]earch [D]iagnostics' },
-    },
   },
   {                                                 -- lsp/completion/snippets
     'VonHeikemen/lsp-zero.nvim',
@@ -68,86 +49,8 @@ require("lazy").setup({
         dependencies = {
           { 'rafamadriz/friendly-snippets' },
         },
-        config = function()
-          require("luasnip.loaders.from_vscode").lazy_load()
-        end
       },             -- Required
     },
-    config = function()
-      local lsp = require('lsp-zero').preset({
-        name = 'recommended',
-        set_lsp_keymaps = true,
-        manage_nvim_cmp = true,
-        suggest_lsp_servers = true,
-      })
-
-      lsp.ensure_installed({
-        'lua_ls',
-        'tsserver',
-        'eslint',
-        'intelephense',
-      })
-
-      lsp.on_attach(function(client, bufnr)
-        lsp.default_keymaps({buffer = bufnr})
-
-        if client.name == 'intelephense' then
-          vim.api.nvim_buf_set_keymap(bufnr, 'n', '<F3>', '<cmd>ALEFix<cr>', {noremap = true, silent = true})
-        end
-
-        if client.server_capabilities.documentSymbolProvider then
-          require('nvim-navic').attach(client, bufnr)
-        end
-      end)
-
-      local cmp = require('cmp')
-      local cmp_select = {behavior = cmp.SelectBehavior.Select}
-      local cmp_mappings = lsp.defaults.cmp_mappings({
-        ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
-        ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
-        ['<C-y>'] = cmp.mapping.confirm({ select = true }),
-        ["<C-Space>"] = cmp.mapping.complete(),
-        ['<CR>'] = cmp.mapping.confirm({
-          behavior = cmp.ConfirmBehavior.Replace,
-          select = false,
-        }),
-      })
-
-      -- Helps with copilot
-      cmp_mappings['<Tab>'] = nil
-      cmp_mappings['<S-Tab>'] = nil
-
-      local cmp_sources = {
-        {name = 'copilot'},
-        {name = 'nvim_lua'},
-      }
-      -- Get lsp-zero's default sources
-      local lsp_sources = lsp.defaults.cmp_sources()
-      --append to cmp_sources
-      for _, source in ipairs(lsp_sources) do
-        table.insert(cmp_sources, source)
-      end
-
-
-      lsp.setup_nvim_cmp({
-        mapping = cmp_mappings,
-        sources = cmp_sources,
-      })
-
-      -- Intelephense like to create a directory on my home directory
-      -- I don't like this.
-      require('lspconfig').intelephense.setup {
-        init_options = {
-          globalStoragePath = os.getenv('HOME') .. '/.local/share/intelephense'
-        }
-      }
-
-      -- (Optional) Configure lua language server for neovim
-      require('lspconfig').lua_ls.setup(lsp.nvim_lua_ls())
-
-      lsp.setup()
-
-    end
   },
   {                                                   -- diagnostics in quickfix
     "folke/trouble.nvim",
@@ -159,148 +62,12 @@ require("lazy").setup({
   },
   {                                                   -- better highlighting and more
     'nvim-treesitter/nvim-treesitter',
-    run = ':TSUpdate',
-    config = function()
-      require('nvim-treesitter.configs').setup {
-        -- Add languages to be installed here that you want installed for treesitter
-        ensure_installed = { 'lua', 'python', 'tsx', 'typescript', 'vimdoc', 'vim', 'ruby', 'php', 'twig', 'css', 'html' },
-
-        -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
-        auto_install = false,
-
-        highlight = { enable = true },
-        indent = { enable = true, disable = { 'python' } },
-        incremental_selection = {
-          enable = true,
-          keymaps = {
-            init_selection = '<c-space>',
-            node_incremental = '<c-space>',
-            scope_incremental = '<c-s>',
-            node_decremental = '<M-space>',
-          },
-        },
-        textobjects = {
-          select = {
-            enable = true,
-            lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
-            keymaps = {
-              -- You can use the capture groups defined in textobjects.scm
-              ['aa'] = '@parameter.outer',
-              ['ia'] = '@parameter.inner',
-              ['af'] = '@function.outer',
-              ['if'] = '@function.inner',
-              ['ac'] = '@class.outer',
-              ['ic'] = '@class.inner',
-            },
-          },
-          move = {
-            enable = true,
-            set_jumps = true, -- whether to set jumps in the jumplist
-            goto_next_start = {
-              [']m'] = '@function.outer',
-              [']]'] = '@class.outer',
-            },
-            goto_next_end = {
-              [']M'] = '@function.outer',
-              [']['] = '@class.outer',
-            },
-            goto_previous_start = {
-              ['[m'] = '@function.outer',
-              ['[['] = '@class.outer',
-            },
-            goto_previous_end = {
-              ['[M'] = '@function.outer',
-              ['[]'] = '@class.outer',
-            },
-          },
-          swap = {
-            enable = true,
-            swap_next = {
-              ['<leader>a'] = '@parameter.inner',
-            },
-            swap_previous = {
-              ['<leader>A'] = '@parameter.inner',
-            },
-          },
-        },
-      }
-    end
+    run = ':TSUpdate'
   },
   { 'nvim-treesitter/nvim-treesitter-context' },      -- better contexts
-  {
-    'tpope/vim-fugitive',
-    keys = {
-      { 'gh', '<cmd>diffget //2<CR>' },
-      { 'gk', '<cmd>diffget //3<CR>' },
-      { '<Leader>gs', vim.cmd.Git },
-    },
-    cmd = {
-      "Git",
-      "G",
-    },
-    config = function()
-      local dblanken_fugitive = vim.api.nvim_create_augroup("dblanken_fugitive", {})
-
-      local autocmd = vim.api.nvim_create_autocmd
-      autocmd("BufWinEnter", {
-        group = dblanken_fugitive,
-        pattern = "*",
-        callback = function()
-          if vim.bo.ft ~= "fugitive" then
-            return
-          end
-
-          local bufnr = vim.api.nvim_get_current_buf()
-          local opts = {buffer = bufnr, remap = false}
-
-          -- Push
-          vim.keymap.set("n", "<leader>p", function()
-            vim.cmd [[ Git push ]]
-          end, opts)
-
-          -- Pull with rebase
-          vim.keymap.set("n", "<leader>P", function()
-            vim.cmd [[ Git pull --rebase ]]
-          end, opts)
-
-          -- Easy branch pushing
-          vim.keymap.set("n", "<leader>t", ":Git push -u origin ", opts);
-        end,
-      })
-    end
-  },
+  { 'tpope/vim-fugitive' },                           -- git
   { 'tpope/vim-commentary' },                         -- commenting
-  {                                                   -- easy traversal
-    'tpope/vim-projectionist',
-    config = function()
-      vim.g.projectionist_heuristics = {
-        ["&pantheon.yml"] = {
-          ["*"] = { ["dispatch"] = "lando drush cr" }
-        },
-        ["&atomic.info.yml"] = {
-          ["*"] = { ["dispatch"] = "lando drush cr" },
-          ["templates/*.html.twig"] = {
-            ["type"] = "template",
-          },
-        },
-        ["webpack/webpack.common.js"] = {
-          ["*"] = { ["dispatch"] = "npm run build" },
-          ["components/*.twig"] = {
-            ["type"] = "components",
-          },
-          ["components/*.scss"] = {
-            ["type"] = "scss",
-          },
-          ["components/*.js"] = {
-            ["type"] = "js",
-          },
-          ["components/*.yml"] = {
-            ["type"] = "yml"
-          },
-        },
-      }
-    end
-  },
+  { 'tpope/vim-projectionist' },                      -- easy traversal
   { 'tpope/vim-dispatch' },                           -- async "make"
   { 'tpope/vim-sleuth' },                             -- tabstops based on files around it
   { 'tpope/vim-unimpaired' },                         -- [] commands
@@ -310,29 +77,7 @@ require("lazy").setup({
   { 'tpope/vim-apathy' },                             -- find paths automagically
   { 'tpope/vim-abolish' },                            -- Fix/substitution
   { 'tribela/vim-transparent' },                      -- Make vim transparent
-  {
-    'vimwiki/vimwiki',
-    config = function()
-      vim.g.vimwiki_key_mappings = {
-        table_mappings = 0,
-      }
-      vim.g.vimwiki_list = {
-        {
-          path = '~/.vimwiki',
-          syntax = 'markdown',
-          ext = '.md'
-        },
-        {
-          path = '~/Documents/vimwiki',
-          syntax = 'markdown',
-          ext = '.md'
-        }
-      }
-
-      -- Reload variables since vimwiki needs it before it loads usually
-      vim.fn['vimwiki#vars#init']()
-    end
-  },                              -- Notes
+  { 'vimwiki/vimwiki' },                              -- Notes
   {                                                   -- vim-tmux-navigator
     'numToStr/Navigator.nvim',
     config = true,
@@ -363,21 +108,7 @@ require("lazy").setup({
       },
     },
   },
-  {
-    'vim-test/vim-test',
-    keys = {
-      { '<Leader>t', '<cmd>:TestNearest<CR>' },
-      { '<Leader>T', '<cmd>:TestFile<CR>' },
-      { '<Leader>a', '<cmd>:TestSuite<CR>' },
-      { '<Leader>l', '<cmd>:TestLast<CR>' },
-    },
-    config = function()
-      vim.g["test#strategy"] = 'dispatch'
-
-      -- Don't run over and over; run once and allow me to test a different area the next time
-      vim.g["test#javascript#reactscripts#executable"] = "node_modules/.bin/react-scripts test --watchAll=false"
-    end
-  },                              -- Easier testing
+  { 'vim-test/vim-test' },                              -- Easier testing
   {                                                     -- colorize hex colors
     'norcalli/nvim-colorizer.lua',
     main = 'colorizer',
@@ -387,67 +118,10 @@ require("lazy").setup({
       }, { css = true })
     end,
   },
-  {
-    'mfussenegger/nvim-dap',                            -- Debug protocol
-    dependencies = {
-      {
-          'rcarriga/nvim-dap-ui',
-          keys = {
-              { "<Leader>de", function() require('dapui').eval() end, desc = "Evaluate" },
-              { "<leader>dE", function() require('dapui').eval(vim.fn.input "[DAP] Expression > ") end, desc = "Evaluate with expression" },
-          },
-          config = function()
-              local dap = require('dap')
-              local dapui = require('dapui')
-
-              dap.listeners.after.event_initialized["dapui_config"] = function()
-                  require('dapui').open()
-              end
-
-              dap.listeners.before.event_terminated["dapui_config"] = function()
-                  require('dapui').close()
-              end
-
-              dap.listeners.before.event_exited["dapui_config"] = function()
-                  require('dapui').close()
-              end
-          end
-      },                       -- UI for dap
-      { 'theHamsta/nvim-dap-virtual-text' },            -- Virtual text for dap
-      { 'nvim-telescope/telescope-dap.nvim' },          -- Telescope dap
-      {
-        'jay-babu/mason-nvim-dap.nvim',
-        opts = {
-          automatic_installation = true,
-
-          handlers = {},
-
-          ensure_installed = {
-            'node2',
-            'chrome',
-            'firefox',
-            'php',
-            'js',
-            'bash',
-          },
-        }
-      },
-    },
-    cmd = {
-      'DapContinue',
-      'DapInstall',
-      'DapUninstall',
-    },
-    keys = {
-      { '<F11>', function() require('dap').step_into() end, desc = 'Step Into' },
-      { '<F10>', function() require('dap').step_over() end, desc = 'Step Over' },
-      { '<F12>', function() require('dap').step_out() end, desc = 'Step Out' },
-      { '<F5>', function() require('dap').continue() end, desc = 'Continue' },
-      { '<Leader>dr', function() require('dap').repl.open() end, desc = 'Open REPL' },
-      { '<Leader>b', function() require('dap').toggle_breakpoint() end, desc = 'Toggle Breakpoint' },
-      { '<Leader>B', function() require('dap').set_breakpoint(vim.fn.input '[DAP] Condition > ') end, desc = "Breakpoint with Condition" },
-    },
-  },
+  { 'mfussenegger/nvim-dap' },                          -- Debug adapter
+  { 'rcarriga/nvim-dap-ui' },                           -- UI for dap
+  { 'theHamsta/nvim-dap-virtual-text' },                -- Virtual text for dap
+  { 'nvim-telescope/telescope-dap.nvim' },              -- Telescope dap
   {                                                     -- See markdown while editing
     'iamcco/markdown-preview.nvim',
     build = function() vim.fn["mkdp#util#install"]() end
@@ -481,63 +155,8 @@ require("lazy").setup({
       vim.cmd('colorscheme base16-' .. vim.env["BASE16_THEME"])
     end
   },
-  {
-    'fgheng/winbar.nvim',
-    config = function()
-      require('winbar').setup({
-        enabled = true,
-
-        show_file_path = true,
-        show_symbols = true,
-
-        colors = {
-          path = '', -- You can customize colors like #c946fd
-          file_name = '',
-          symbols = '',
-        },
-
-        icons = {
-          file_icon_default = '',
-          seperator = '>',
-          editor_state = '●',
-          lock_icon = '',
-        },
-
-        exclude_filetype = {
-          'help',
-          'startify',
-          'dashboard',
-          'packer',
-          'neogitstatus',
-          'NvimTree',
-          'Trouble',
-          'alpha',
-          'lir',
-          'Outline',
-          'spectre_panel',
-          'toggleterm',
-          'qf',
-        }
-      })
-    end
-  },
-  {
-    'SmiteshP/nvim-navic',
-    config = function()
-      local navic = require('nvim-navic')
-
-      require('lualine').setup({
-        options = { theme = 'base16' },
-        winbar = {
-          lualine_c = {
-            "navic",
-            color_correction = nil,
-            navic_opts = nil
-          }
-        }
-      })
-    end
-  },
+  { 'fgheng/winbar.nvim' },
+  { 'SmiteshP/nvim-navic' },
   {
     'Wansmer/treesj',
     keys = {
@@ -586,33 +205,8 @@ require("lazy").setup({
   },
   {
     'dense-analysis/ale',
-    config = function()
-      vim.g.ale_disable_lsp = 1
-      vim.g.ale_echo_msg_format = '[%linter%] %code: %%s'
-      vim.g.ale_use_neovim_diagnostics_api = 1
-
-      vim.g.ale_php_phpcs_standard = 'Drupal,DrupalPractice'
-      vim.g.ale_php_phpcs_options = '--extensions=php,module,inc,install,test,profile,theme,info,txt'
-
-      vim.g.ale_php_phpcbf_standard = 'Drupal,DrupalPractice'
-      vim.g.ale_php_phpcbf_options = '--extensions=php,module,inc,install,test,profile,theme,info,txt'
-
-      vim.g.ale_linters_explicit = 1
-
-      vim.g.ale_fixers = {
-        ['*'] = {
-          'remove_trailing_lines',
-          'trim_whitespace'
-        },
-        php = {
-          'phpcbf'
-        },
-        twig = {
-          'twigcs'
-        },
-      }
-    end
   },
-}, {
-    lazy = true,
-  })
+  {
+    "folke/zen-mode.nvim",
+  },
+})

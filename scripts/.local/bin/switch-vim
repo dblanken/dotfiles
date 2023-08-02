@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+if [ "$EDITOR" = "nvim" ]; then
+    export EDITOR="vim"
+else
+    export EDITOR="nvim"
+fi
+
+alias v=$EDITOR
+alias vimrc="v ~/.config/nvim/init.lua"
+
+echo "Switched editor to $EDITOR"
