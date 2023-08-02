@@ -4,7 +4,8 @@ if [ "$TMUX" = "" ]; then tmux attach || tmux -2 new -s $(hostname) && exit; fi
 export HASBREW="$(command -v brew)"
 
 if [[ "$HASBREW" == "" ]]; then
-  fpath=($HOME/.asdf/completions $fpath)
+ fpath+=("$(brew --prefix)/share/zsh/site-functions")
+ fpath+=("$HOME/.asdf/completions")
 fi
 
 typeset -A __DBLANKEN
@@ -99,30 +100,30 @@ autoload colors && colors
 # {{{1 Prompt
 # Taken and modified from https://github.com/wincent/wincent/blob/main/aspects/dotfiles/files/.zshrc
 # http://zsh.sourceforge.net/Doc/Release/User-Contributions.html
-setopt prompt_subst
-autoload -Uz vcs_info
-zstyle ':vcs_info:*' enable git
-zstyle ':vcs_info:*' check-for-changes true
-zstyle ':vcs_info:*' stagedstr "%F{green}●%f" # default 'S'
-zstyle ':vcs_info:*' unstagedstr "%F{red}●%f" # default 'U'
-zstyle ':vcs_info:*' use-simple true
-zstyle ':vcs_info:git+set-message:*' hooks git-untracked
-zstyle ':vcs_info:git*:*' formats '[%F{cyan}%b%f%m%c%u] ' # default ' (%s)-[%b]%c%u-'
-zstyle ':vcs_info:git*:*' actionformats '[%F{cyan}%b%f|%a%m%c%u] ' # default ' (%s)-[%b|%a]%c%u-'
+ setopt prompt_subst
+ autoload -Uz vcs_info
+ zstyle ':vcs_info:*' enable git
+ zstyle ':vcs_info:*' check-for-changes true
+ zstyle ':vcs_info:*' stagedstr "%F{green}●%f" # default 'S'
+ zstyle ':vcs_info:*' unstagedstr "%F{red}●%f" # default 'U'
+ zstyle ':vcs_info:*' use-simple true
+ zstyle ':vcs_info:git+set-message:*' hooks git-untracked
+ zstyle ':vcs_info:git*:*' formats '[%F{cyan}%b%f%m%c%u] ' # default ' (%s)-[%b]%c%u-'
+ zstyle ':vcs_info:git*:*' actionformats '[%F{cyan}%b%f|%a%m%c%u] ' # default ' (%s)-[%b|%a]%c%u-'
 
-function +vi-git-untracked() {
-  emulate -L zsh
-  if [[ -n $(git ls-files --exclude-standard --others 2> /dev/null) ]]; then
-    hook_com[unstaged]+="%F{blue}●%f"
-  fi
-}
+ function +vi-git-untracked() {
+   emulate -L zsh
+   if [[ -n $(git ls-files --exclude-standard --others 2> /dev/null) ]]; then
+     hook_com[unstaged]+="%F{blue}●%f"
+   fi
+ }
 
-precmd() {
-  vcs_info
-}
+ precmd() {
+   vcs_info
+ }
 
-export PROMPT=$'%{$fg[yellow]%}%n%{$reset_color%}@%{$fg[yellow]%}%m%{$reset_color%} %{$fg[blue]%}%1~%{$reset_color%}${vcs_info_msg_0_} %# '
-export SPROMPT="zsh: correct %F{red}'%R'%f to %F{red}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %B%Ue%u%bdit, %B%Ua%u%bbort]? "
+ export PROMPT=$'%{$fg[yellow]%}%n%{$reset_color%}@%{$fg[yellow]%}%m%{$reset_color%} %{$fg[blue]%}%1~%{$reset_color%}${vcs_info_msg_0_} %# '
+ export SPROMPT="zsh: correct %F{red}'%R'%f to %F{red}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %B%Ue%u%bdit, %B%Ua%u%bbort]? "
 
 # {{{1 Options
 setopt AUTO_PARAM_SLASH        # tab completing directory appends a slash
@@ -158,7 +159,7 @@ else
   . $HOME/.asdf/asdf.sh
 fi
 
-# {{{1 NVIM
+# {{{1 NVIM/VIM
 export EDITOR=nvim
 export VISUAL="$EDITOR"
 
@@ -263,3 +264,5 @@ export CPPFLAGS="-I/opt/homebrew/opt/libxml2/include"
 
 export PKG_CONFIG_PATH="$PK_CONFIG_PATH:/opt/homebrew/opt/libxml2/lib/pkgconfig"
 export GPG_TTY=$(tty)
+
+# bindkey -s ^f "tmux-sessionizer\n"
