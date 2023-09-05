@@ -139,7 +139,21 @@ require("lazy").setup({
       require('lspconfig').intelephense.setup {
         init_options = {
           globalStoragePath = os.getenv('HOME') .. '/.local/share/intelephense'
-        }
+        },
+        config = {
+          ["intelephense.environment.includePaths"] = {
+            "web/core/includes"
+          },
+          ["intelephense.files.associations"] = {
+            "*.inc",
+            "*.theme",
+            "*.install",
+            "*.module",
+            "*.profile",
+            "*.php",
+            "*.phtml"
+          },
+        },
       }
 
       -- (Optional) Configure lua language server for neovim
@@ -447,6 +461,32 @@ require("lazy").setup({
       { '<Leader>b', function() require('dap').toggle_breakpoint() end, desc = 'Toggle Breakpoint' },
       { '<Leader>B', function() require('dap').set_breakpoint(vim.fn.input '[DAP] Condition > ') end, desc = "Breakpoint with Condition" },
     },
+    config = function()
+      require('dapui').setup()
+
+      local dap = require('dap')
+      local dap_languages = { 'php', 'twig' }
+
+      dap.adapters.php = {
+        type = "executable",
+        command = "node",
+        args = { os.getenv("HOME") .. "/code/vscode-php-debug/out/phpDebug.js" }
+      }
+
+      for _, language in ipairs(dap_languages) do
+        dap.configurations[language] = {
+          {
+            type = "php",
+            request = "launch",
+            name = "Listen for Xdebug",
+            port = 9003,
+            pathMappings = {
+              ["/app/"] = "${workspaceFolder}"
+            },
+          }
+        }
+      end
+    end
   },
   {                                                     -- See markdown while editing
     'iamcco/markdown-preview.nvim',
@@ -598,6 +638,11 @@ require("lazy").setup({
       vim.g.ale_php_phpcbf_options = '--extensions=php,module,inc,install,test,profile,theme,info,txt'
 
       vim.g.ale_linters_explicit = 1
+      vim.g.ale_linters = {
+        php = {
+          'phpcs'
+        }
+      }
 
       vim.g.ale_fixers = {
         ['*'] = {

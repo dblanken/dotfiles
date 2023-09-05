@@ -119,7 +119,7 @@ local numberOpenings = {
 	'com.apple.mail',
 	'com.apple.MobileSMS',
 	'com.microsoft.teams',
-	'com.fluidapp.FluidApp2.Amazon Music Web',
+	'com.amazon.music',
 }
 
 local layoutConfig = {

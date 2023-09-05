@@ -239,11 +239,35 @@ alias l="lando"
 alias lcr="l drush cr"
 alias lrs="l restart"
 alias lrb="l rebuild -y"
+# alias llogin="l drush uli | pbcopy"
+alias ldr='l drush'
 # Searching
 alias '?'=duck
 alias '??'=google
 alias '???'=bing
 # alias nvimrc="nvim ~/.config/nvim/init.lua"
+
+function llogin() {
+  # If no args exist, then do a l drush uli | pbcopy
+  # otherwise, attempt to use terminus to get a uli
+  if [ $# -eq 0 ]; then
+    l drush uli | pbcopy
+  else
+    terminus drush "$@" -- user:login | pbcopy
+  fi
+
+  echo "login copied to clipboard"
+}
+
+function watchdog() {
+  if [ $# -eq 0 ]; then
+    echo "Executing watchdog locally"
+    l drush watchdog:tail
+  else
+    echo "Executing watchdog remotely"
+    terminus drush "$@" -- watchdog:tail
+  fi
+}
 
 # {{{1 FZF
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
@@ -266,3 +290,6 @@ export PKG_CONFIG_PATH="$PK_CONFIG_PATH:/opt/homebrew/opt/libxml2/lib/pkgconfig"
 export GPG_TTY=$(tty)
 
 # bindkey -s ^f "tmux-sessionizer\n"
+export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
+
+alias vo="NVIM_APPNAME=nvim_old v"
