@@ -41,4 +41,3 @@ vim.cmd("augroup FormatOptions")
 vim.cmd("autocmd!")
 vim.cmd("autocmd FileType * lua set_formatoptions()")
 vim.cmd("augroup END")
-

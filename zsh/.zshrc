@@ -5,7 +5,7 @@ export HASBREW="$(command -v brew)"
 
 if [[ "$HASBREW" == "" ]]; then
  fpath+=("$(brew --prefix)/share/zsh/site-functions")
- fpath+=("$HOME/.asdf/completions")
+ # fpath+=("$HOME/.asdf/completions")
 fi
 
 typeset -A __DBLANKEN
@@ -153,11 +153,11 @@ BASE16_SHELL="$HOME/.config/base16-shell/"
         source "$BASE16_SHELL/profile_helper.sh"
 
 # {{{1 ASDF
-if [ "$HASBREW" != "" ]; then
-  . "$(brew --prefix asdf)/libexec/asdf.sh"
-else
-  . $HOME/.asdf/asdf.sh
-fi
+# if [ "$HASBREW" != "" ]; then
+#   . "$(brew --prefix asdf)/libexec/asdf.sh"
+# else
+#   . $HOME/.asdf/asdf.sh
+# fi
 
 # {{{1 NVIM/VIM
 export EDITOR=nvim
@@ -247,6 +247,9 @@ alias '??'=google
 alias '???'=bing
 # alias nvimrc="nvim ~/.config/nvim/init.lua"
 
+# Get the login url copied to the clipboard
+# If a parameter is given it's assumed it is a terminus remote command to run
+# the same login retrieval on.
 function llogin() {
   # If no args exist, then do a l drush uli | pbcopy
   # otherwise, attempt to use terminus to get a uli
@@ -259,6 +262,8 @@ function llogin() {
   echo "login copied to clipboard"
 }
 
+# Tail the watchdog logs.  If a parameter is given it's assumed it is a terminus
+# remote command to run the same watchdog tail on.
 function watchdog() {
   if [ $# -eq 0 ]; then
     echo "Executing watchdog locally"
@@ -267,6 +272,25 @@ function watchdog() {
     echo "Executing watchdog remotely"
     terminus drush "$@" -- watchdog:tail
   fi
+}
+alias recompose="rm composer.lock; lando composer update"
+# Open the current local site
+function ysopen() {
+  local rootPath=$(git rev-parse --show-toplevel)
+  local landoFile="$rootPath/.lando.local.yml"
+  local siteName=$(cat $landoFile | grep name: | cut -d':' -f2- | awk '{$1=$1};1')
+
+  open "https://$siteName.lndo.site"
+}
+
+function yspull() {
+  # Get the git rootPath
+  local rootPath=$(git rev-parse --show-toplevel)
+  cd "$rootPath"
+  g pull --rebase
+  echo "$rootPath is now up to date"
+  cd atomic && g pull --rebase && cd "$rootPath" && echo "atomic is now up to date"
+  cd component-library-twig && g pull --rebase && cd "$rootPath" && echo "component-library-twig is now up to date"
 }
 
 # {{{1 FZF
@@ -291,5 +315,3 @@ export GPG_TTY=$(tty)
 
 # bindkey -s ^f "tmux-sessionizer\n"
 export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
-
-alias vo="NVIM_APPNAME=nvim_old v"
