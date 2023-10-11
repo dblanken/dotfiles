@@ -21,3 +21,5 @@ vim.keymap.set("n", "Y", "y$")
 
 vim.keymap.set("n", "<Leader>=", "migg=G`i")
 vim.keymap.set("n", "<Leader>f", "migg=G`i")
+
+vim.keymap.set("n", "<M-f>", ":silent !tmux neww tmux-sessionizer<CR>", { noremap = true })

@@ -1,11 +1,29 @@
+#
+# Start profiling (uncomment when necessary)
+#
+# See: https://stackoverflow.com/a/4351664/2103996
+
+# Per-command profiling:
+
+# zmodload zsh/datetime
+# setopt promptsubst
+# PS4='+$EPOCHREALTIME %N:%i> '
+# exec 3>&2 2> startlog.$$
+# setopt xtrace prompt_subst
+
+# Per-function profiling:
+
+# zmodload zsh/zprof
+
 # {{{1 Tmux
 if [ "$TMUX" = "" ]; then tmux attach || tmux -2 new -s $(hostname) && exit; fi
 
 export HASBREW="$(command -v brew)"
 
 if [[ "$HASBREW" == "" ]]; then
- fpath+=("$(brew --prefix)/share/zsh/site-functions")
- # fpath+=("$HOME/.asdf/completions")
+ # fpath+=("$(brew --prefix)/share/zsh/site-functions")
+ fpath+=("/opt/homebrew/share/zsh/site-functions")
+ fpath+=("$HOME/.asdf/completions")
 fi
 
 typeset -A __DBLANKEN
@@ -17,10 +35,12 @@ __DBLANKEN[ITALIC_OFF]=$'\e[23m'
 export GOPATH="$HOME/.go"
 export PATH="./bin":"$HOME/bin":"$HOME/.bin":"$HOME/.local/bin":"$PATH"
 if [ "$(command -v go &> /dev/null)" ]; then
-  export PATH="$PATH":$(go env GOPATH)/bin
+  # export PATH="$PATH":$(go env GOPATH)/bin
+  export PATH="$PATH":$HOME/.go/bin
 fi
 if [ "$HASBREW" != "" ]; then
-  export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
+  # export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
+  export RUBY_CONFIGURE_OPTS="--with-openssl-dir=/opt/homebrew/opt/openssl@1.1"
 fi
 export THOR_MERGE="vimdiff"
 export GOPATH="$HOME/.go"
@@ -62,7 +82,7 @@ if [ "$(uname)" = "Darwin" ]; then
 fi
 
 # {{{1 Completion
-autoload -Uz compinit && compinit
+autoload -Uz compinit && compinit -u
 
 # Make completion:
 # - Try exact (case-sensitive) match first.
@@ -100,30 +120,30 @@ autoload colors && colors
 # {{{1 Prompt
 # Taken and modified from https://github.com/wincent/wincent/blob/main/aspects/dotfiles/files/.zshrc
 # http://zsh.sourceforge.net/Doc/Release/User-Contributions.html
- setopt prompt_subst
- autoload -Uz vcs_info
- zstyle ':vcs_info:*' enable git
- zstyle ':vcs_info:*' check-for-changes true
- zstyle ':vcs_info:*' stagedstr "%F{green}●%f" # default 'S'
- zstyle ':vcs_info:*' unstagedstr "%F{red}●%f" # default 'U'
- zstyle ':vcs_info:*' use-simple true
- zstyle ':vcs_info:git+set-message:*' hooks git-untracked
- zstyle ':vcs_info:git*:*' formats '[%F{cyan}%b%f%m%c%u] ' # default ' (%s)-[%b]%c%u-'
- zstyle ':vcs_info:git*:*' actionformats '[%F{cyan}%b%f|%a%m%c%u] ' # default ' (%s)-[%b|%a]%c%u-'
+setopt prompt_subst
+autoload -Uz vcs_info
+zstyle ':vcs_info:*' enable git
+zstyle ':vcs_info:*' check-for-changes true
+zstyle ':vcs_info:*' stagedstr "%F{green}●%f" # default 'S'
+zstyle ':vcs_info:*' unstagedstr "%F{red}●%f" # default 'U'
+zstyle ':vcs_info:*' use-simple true
+zstyle ':vcs_info:git+set-message:*' hooks git-untracked
+zstyle ':vcs_info:git*:*' formats '[%F{cyan}%b%f%m%c%u] ' # default ' (%s)-[%b]%c%u-'
+zstyle ':vcs_info:git*:*' actionformats '[%F{cyan}%b%f|%a%m%c%u] ' # default ' (%s)-[%b|%a]%c%u-'
 
- function +vi-git-untracked() {
-   emulate -L zsh
-   if [[ -n $(git ls-files --exclude-standard --others 2> /dev/null) ]]; then
-     hook_com[unstaged]+="%F{blue}●%f"
-   fi
- }
+function +vi-git-untracked() {
+emulate -L zsh
+if [[ -n $(git ls-files --exclude-standard --others 2> /dev/null) ]]; then
+  hook_com[unstaged]+="%F{blue}●%f"
+fi
+}
 
- precmd() {
-   vcs_info
- }
+precmd() {
+  vcs_info
+}
 
- export PROMPT=$'%{$fg[yellow]%}%n%{$reset_color%}@%{$fg[yellow]%}%m%{$reset_color%} %{$fg[blue]%}%1~%{$reset_color%}${vcs_info_msg_0_} %# '
- export SPROMPT="zsh: correct %F{red}'%R'%f to %F{red}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %B%Ue%u%bdit, %B%Ua%u%bbort]? "
+export PROMPT=$'%{$fg[yellow]%}%n%{$reset_color%}@%{$fg[yellow]%}%m%{$reset_color%} %{$fg[blue]%}%1~%{$reset_color%}${vcs_info_msg_0_} %# '
+export SPROMPT="zsh: correct %F{red}'%R'%f to %F{red}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %B%Ue%u%bdit, %B%Ua%u%bbort]? "
 
 # {{{1 Options
 setopt AUTO_PARAM_SLASH        # tab completing directory appends a slash
@@ -153,11 +173,11 @@ BASE16_SHELL="$HOME/.config/base16-shell/"
         source "$BASE16_SHELL/profile_helper.sh"
 
 # {{{1 ASDF
-# if [ "$HASBREW" != "" ]; then
-#   . "$(brew --prefix asdf)/libexec/asdf.sh"
-# else
-#   . $HOME/.asdf/asdf.sh
-# fi
+if [ "$HASBREW" != "" ]; then
+  . "$(brew --prefix asdf)/libexec/asdf.sh"
+else
+  . $HOME/.asdf/asdf.sh
+fi
 
 # {{{1 NVIM/VIM
 export EDITOR=nvim
@@ -194,6 +214,15 @@ bindkey -M vicmd 'j' history-substring-search-down
 # {{{1 Searching history
 bindkey '^r' history-incremental-pattern-search-backward
 bindkey "^s" history-incremental-pattern-search-forward
+
+export LESS="-FXR"
+export LESS_TERMCAP_mb="[35m" # magenta
+export LESS_TERMCAP_md="[33m" # yellow
+export LESS_TERMCAP_me=""      # "0m"
+export LESS_TERMCAP_se=""      # "0m"
+export LESS_TERMCAP_so="[34m" # blue
+export LESS_TERMCAP_ue=""      # "0m"
+export LESS_TERMCAP_us="[4m"  # underline
 
 # {{{1 CTRL-Z
 # Make CTRL-Z background things and unbackground them.
@@ -315,3 +344,20 @@ export GPG_TTY=$(tty)
 
 # bindkey -s ^f "tmux-sessionizer\n"
 export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
+
+bindkey -s "^[f" "tmux-sessionizer\n"
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
+export PATH="/opt/homebrew/opt/imagemagick@6/bin:$PATH"
+
+#
+# End profiling (uncomment when necessary)
+#
+
+# Per-command profiling:
+
+# unsetopt xtrace
+# exec 2>&3 3>&-
+
+# Per-function profiling:
+
+# zprof
