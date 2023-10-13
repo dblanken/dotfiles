@@ -296,10 +296,10 @@ function llogin() {
 function watchdog() {
   if [ $# -eq 0 ]; then
     echo "Executing watchdog locally"
-    l drush watchdog:tail
+    l drush watchdog:tail --extended
   else
     echo "Executing watchdog remotely"
-    terminus drush "$@" -- watchdog:tail
+    terminus drush "$@" -- watchdog:tail --extended
   fi
 }
 alias recompose="rm composer.lock; lando composer update"

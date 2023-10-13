@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [[ -f ~/.transparent ]]; then
+    solid_terminal
+    if [[ $? -eq 0 ]]; then
+        rm ~/.transparent
+        echo "Disabled transparency"
+    else
+        echo "Failed to disable transparency"
+    fi
+    exit 0
+else
+    transparent_terminal
+    if [[ $? -eq 0 ]]; then
+        touch ~/.transparent
+        echo "Enabled transparency"
+    else
+        echo "Failed to enable transparency"
+    fi
+    exit 0
+fi
