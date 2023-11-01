@@ -8,6 +8,7 @@ return {
     'hrsh7th/cmp-cmdline',
     {
       'zbirenbaum/copilot-cmp',
+      -- commit='72fbaa03695779f8349be3ac54fa8bd77eed3ee3',
       config = function()
         require('copilot_cmp').setup()
       end,
