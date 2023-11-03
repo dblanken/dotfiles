@@ -173,6 +173,7 @@ BASE16_SHELL="$HOME/.config/base16-shell/"
         source "$BASE16_SHELL/profile_helper.sh"
 
 # {{{1 ASDF
+export ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY="latest_available" 
 if [ "$HASBREW" != "" ]; then
   . "$(brew --prefix asdf)/libexec/asdf.sh"
 else
@@ -263,18 +264,46 @@ alias glog="g mylog"
 alias gdiff="g diff"
 alias gp="g pull --rebase"
 alias gpa="g pull --rebase --all"
-# Lando
-alias l="lando"
-alias lcr="l drush cr"
-alias lrs="l restart"
-alias lrb="l rebuild -y"
-# alias llogin="l drush uli | pbcopy"
-alias ldr='l drush'
 # Searching
 alias '?'=duck
 alias '??'=google
 alias '???'=bing
 # alias nvimrc="nvim ~/.config/nvim/init.lua"
+
+# {{{1 FZF
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# {{{1 gitignore.io
+function gi() { curl -sLw "\n" https://www.toptal.com/developers/gitignore/api/"$@" ;}
+function nvimrc() { cd ~/.config/nvim && v init.lua }
+export PATH="/usr/local/opt/mysql-client/bin:$PATH"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm if it exists
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+export PATH="/opt/homebrew/opt/libxml2/bin:$PATH"
+
+export LDFLAGS="-L/opt/homebrew/opt/libxml2/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/libxml2/include"
+
+export PKG_CONFIG_PATH="$PK_CONFIG_PATH:/opt/homebrew/opt/libxml2/lib/pkgconfig"
+export GPG_TTY=$(tty)
+
+export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
+
+bindkey -s "^[f" "tmux-sessionizer\n"
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
+export PATH="/opt/homebrew/opt/imagemagick@6/bin:$PATH"
+
+# {{{1 YaleSites Specific
+
+# Lando
+alias l="lando"
+alias lcr="l drush cr"
+alias lrs="l restart"
+alias lrb="l rebuild -y"
+alias ldr='l drush'
 
 # Get the login url copied to the clipboard
 # If a parameter is given it's assumed it is a terminus remote command to run
@@ -322,33 +351,19 @@ function yspull() {
   cd component-library-twig && g pull --rebase && cd "$rootPath" && echo "component-library-twig is now up to date"
 }
 
-# {{{1 FZF
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# Attempts to git-checkout a YaleSite with the current branch
+gyst() {
+  local branch=$(git symbolic-ref --short HEAD)
 
-# {{{1 gitignore.io
-function gi() { curl -sLw "\n" https://www.toptal.com/developers/gitignore/api/"$@" ;}
-function nvimrc() { cd ~/.config/nvim && v init.lua }
-export PATH="/usr/local/opt/mysql-client/bin:$PATH"
+  if [ -z "$branch" ]; then
+    echo "Not in a git repo"
+    return
+  fi
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+  npm run local:git-checkout -- -b "$branch"
+}
 
-export PATH="/opt/homebrew/opt/libxml2/bin:$PATH"
-
-export LDFLAGS="-L/opt/homebrew/opt/libxml2/lib"
-export CPPFLAGS="-I/opt/homebrew/opt/libxml2/include"
-
-export PKG_CONFIG_PATH="$PK_CONFIG_PATH:/opt/homebrew/opt/libxml2/lib/pkgconfig"
-export GPG_TTY=$(tty)
-
-# bindkey -s ^f "tmux-sessionizer\n"
-export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
-
-bindkey -s "^[f" "tmux-sessionizer\n"
-export DOCKER_DEFAULT_PLATFORM=linux/amd64
-export PATH="/opt/homebrew/opt/imagemagick@6/bin:$PATH"
-
+# {{{1 Ending
 #
 # End profiling (uncomment when necessary)
 #
