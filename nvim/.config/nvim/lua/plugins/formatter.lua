@@ -12,11 +12,6 @@ return {
 				-- Formatter configurations for filetype "lua" go here
 				-- and will be executed in order
 				lua = {
-					-- "formatter.filetypes.lua" defines default configurations for the
-					-- "lua" filetype
-					require("formatter.filetypes.lua").stylua,
-
-					-- You can also define your own configuration
 					function()
 						-- Full specification of configurations is down below and in Vim help
 						-- files
@@ -35,10 +30,25 @@ return {
 				},
 
 				php = {
-					require("formatter.filetypes.php").phpcbf,
+					-- require("formatter.filetypes.php").phpcbf,
 					function()
+						local rootPath = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+
+						if rootPath == nil then
+							rootPath = masonPath
+						elseif vim.fn.filereadable(rootPath .. "/vendor/bin/phpcbf") == 1 then
+							rootPath = rootPath .. "/vendor/bin"
+						else
+							rootPath = masonPath
+						end
+
 						return {
-							exe = masonPath .. "/phpcbf",
+							exe = rootPath .. "/phpcbf",
+							args = {
+								"--standard=Drupal",
+								"--extensions=php,module,inc,install,test,profile,theme,info,txt",
+								"-",
+							},
 							stdin = true,
 							ignore_exitcode = true,
 						}
@@ -80,27 +90,29 @@ return {
 				-- Use the special "*" filetype for defining formatter configurations on
 				-- any filetype
 				["*"] = {
-					-- "formatter.filetypes.any" defines default configurations for any
-					-- filetype
 					require("formatter.filetypes.any").remove_trailing_whitespace,
-					function()
-						-- If there is an LSP present, use it to format
-						-- if vim.lsp.buf_get_clients() ~= nil then
-						-- 	return nil
-						-- end
-
-						-- If no lsp is loaded, run the formatprg defined for the current
-						if vim.bo.formatprg ~= "" then
-							return {
-								exe = vim.bo.formatprg,
-								stdin = true,
-							}
-						end
-
-						vim.lsp.buf.formatting()
-					end
 				},
 			},
+		})
+
+		local filetypes = {}
+		for key, _ in pairs(require("formatter.config").values.filetype) do
+			if key ~= "*" then
+				table.insert(filetypes, key)
+			end
+		end
+
+		vim.api.nvim_create_augroup("formatterNvim", {
+			clear = true
+		})
+
+		vim.api.nvim_create_autocmd("Filetype", {
+			group = 'formatterNvim',
+			pattern = table.concat(filetypes, ","),
+			callback = function()
+				vim.keymap.set({ "n", "v" }, "<leader>=", "<cmd>Format<CR>", { buffer = true })
+				vim.keymap.set({ "n", "v" }, "<leader>f", "<cmd>Format<CR>", { buffer = true })
+			end,
 		})
 	end,
 }
