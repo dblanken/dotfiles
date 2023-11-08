@@ -31,6 +31,7 @@ return {
       sh = { 'shellcheck' },
       yaml = { 'yamllint' },
       twig = { 'twigcs' },
+      javascript = { 'eslint_d' },
     }
 
     vim.api.nvim_create_autocmd({ "BufRead", "BufWritePost", "TextChanged", "InsertLeave" }, {
