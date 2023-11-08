@@ -9,12 +9,8 @@ return {
 
 		require("formatter").setup({
 			filetype = {
-				-- Formatter configurations for filetype "lua" go here
-				-- and will be executed in order
 				lua = {
 					function()
-						-- Full specification of configurations is down below and in Vim help
-						-- files
 						return {
 							exe = masonPath .. "/stylua",
 							args = {
@@ -30,7 +26,6 @@ return {
 				},
 
 				php = {
-					-- require("formatter.filetypes.php").phpcbf,
 					function()
 						local rootPath = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
 
@@ -87,8 +82,6 @@ return {
 					require("formatter.filetypes.yaml").prettierd,
 				},
 
-				-- Use the special "*" filetype for defining formatter configurations on
-				-- any filetype
 				["*"] = {
 					require("formatter.filetypes.any").remove_trailing_whitespace,
 				},
