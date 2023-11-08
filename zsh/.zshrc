@@ -363,6 +363,8 @@ gyst() {
   npm run local:git-checkout -- -b "$branch"
 }
 
+alias lazy='NVIM_APPNAME=lazyvim nvim'
+
 # {{{1 Ending
 #
 # End profiling (uncomment when necessary)
