@@ -239,7 +239,7 @@ bindkey '^Z' fg-bg
 
 # {{{1 Aliases
 alias g=git
-alias v=vim
+alias v=nvim
 alias vimrc="v ~/.vimrc"
 if [[ "$EDITOR" == "nvim" || "$EDITOR" == "lvim" ]]; then
   alias v=$EDITOR
@@ -308,16 +308,36 @@ alias ldr='l drush'
 # Get the login url copied to the clipboard
 # If a parameter is given it's assumed it is a terminus remote command to run
 # the same login retrieval on.
+# function llogin() {
+#   # If no args exist, then do a l drush uli | pbcopy
+#   # otherwise, attempt to use terminus to get a uli
+#   if [ $# -eq 0 ]; then
+#     l drush uli | pbcopy
+#   else
+#     terminus drush "$@" -- user:login | pbcopy
+#   fi
+
+#   echo "login copied to clipboard"
+# }
+
 function llogin() {
-  # If no args exist, then do a l drush uli | pbcopy
-  # otherwise, attempt to use terminus to get a uli
+  local url
+
   if [ $# -eq 0 ]; then
-    l drush uli | pbcopy
+    url=$(l drush uli)
+    url="${url::-1}"
   else
-    terminus drush "$@" -- user:login | pbcopy
+    url=$(terminus drush $@ -- user:login)
   fi
 
-  echo "login copied to clipboard"
+  if [ -z "$url" ]; then
+    echo "Failed to get login url"
+    return
+  fi
+
+  open "$url"
+
+  echo "opening login url"
 }
 
 # Tail the watchdog logs.  If a parameter is given it's assumed it is a terminus
@@ -363,7 +383,41 @@ gyst() {
   npm run local:git-checkout -- -b "$branch"
 }
 
+siteid() {
+  if [ $# -eq 0 ]; then
+    echo "Usage: $0 <site name>"
+    return
+  fi
+
+  local site_name="$1"
+  local site_info=$(terminus site:list --fields=id,name | grep "$site_name")
+
+  if [ -z "$site_info" ]; then
+    echo "Site not found: $site_name"
+    return
+  fi
+
+  local site_id=$(echo "$site_info" | awk '{print $1}')
+
+  echo "$site_id"
+}
+
+replace_name_with_folder() {
+  local folder_name=$(basename $(pwd))
+  local file_name='.lando.local.yml'
+
+  if [ ! -f "$file_name" ]; then
+    cp .lando.local.example.yml $file_name
+  fi
+
+  sed -i '' "s/name: .*/name: $folder_name/" $file_name
+  # Replace DRUSH_OPTIONS_URI with the folder name
+  sed -i '' "s/DRUSH_OPTIONS_URI: .*/DRUSH_OPTIONS_URI: \"https:\/\/$folder_name.lndo.site\/\"/" $file_name
+}
+
 alias lazy='NVIM_APPNAME=lazyvim nvim'
+export YALESITES_URL="http://e2etesting.lndo.site"
+export NO_COLOR=1
 
 # {{{1 Ending
 #
