@@ -11,6 +11,7 @@
 	autoSetupRemote = true
 [merge]
 	ff = only
+	tool = fugitive
 [fetch]
 	prune = true
 [commit]
@@ -36,3 +37,5 @@
 	status = auto
 	branch = auto
 	interactive = auto
+[mergetool "fugitive"]
+	cmd = nvim -f -c "Gvdiffsplit!" "$MERGED"
