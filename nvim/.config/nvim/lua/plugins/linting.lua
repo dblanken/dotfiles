@@ -27,11 +27,16 @@ return {
 
     lint.linters_by_ft = {
       php = { 'phpcs' },
-      markdown = { 'markdownlint' },
+      markdown = { 'markdownlint', 'write-good' },
       sh = { 'shellcheck' },
       yaml = { 'yamllint' },
       twig = { 'twigcs' },
       javascript = { 'eslint_d' },
+      html = { 'htmlhint' },
+      css = { 'stylelint' },
+      scss = { 'stylelint' },
+      sass = { 'stylelint' },
+      less = { 'stylelint' },
     }
 
     vim.api.nvim_create_autocmd({ "BufRead", "BufWritePost", "TextChanged", "InsertLeave" }, {
