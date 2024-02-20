@@ -315,11 +315,12 @@ canManageWindow = (function(window)
 end)
 
 local macBookPro16_2019 = '3072x1920'
+local macBookPro16_m1 = '3456x2234'
 local asus_ve278 = '1920x1080'
 local l238Dph = '1920x1080'
 
 internalDisplay = (function()
-  return hs.screen.find(macBookPro16_2019)
+  return hs.screen.find(macBookPro16_m1)
 end)
 
 externalOfficeDisplay = (function()
@@ -451,6 +452,9 @@ chain = (function(movements)
     local id = win:id()
     local now = hs.timer.secondsSinceEpoch()
     local screen = win:screen()
+
+    debugMsg('lastSeenWindow: ' .. tostring(lastSeenWindow))
+    debugMsg('sequence: ' .. tostring(sequenceNumber))
 
     if
       lastSeenChain ~= movements or
