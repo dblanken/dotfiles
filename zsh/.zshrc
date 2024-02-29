@@ -417,7 +417,8 @@ replace_name_with_folder() {
 
 alias lazy='NVIM_APPNAME=lazyvim nvim'
 export YALESITES_URL="http://e2etesting.lndo.site"
-export NO_COLOR=1
+export DEBUG_COLORS=0
+export FORCE_COLOR=0
 
 # {{{1 Ending
 #
