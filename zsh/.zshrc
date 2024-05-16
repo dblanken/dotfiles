@@ -21,9 +21,9 @@ if [ "$TMUX" = "" ]; then tmux attach || tmux -2 new -s $(hostname) && exit; fi
 export HASBREW="$(command -v brew)"
 
 if [[ "$HASBREW" == "" ]]; then
- # fpath+=("$(brew --prefix)/share/zsh/site-functions")
- fpath+=("/opt/homebrew/share/zsh/site-functions")
- fpath+=("$HOME/.asdf/completions")
+  # fpath+=("$(brew --prefix)/share/zsh/site-functions")
+  fpath+=("/opt/homebrew/share/zsh/site-functions")
+  fpath+=("$HOME/.asdf/completions")
 fi
 
 typeset -A __DBLANKEN
@@ -169,8 +169,8 @@ export LSCOLORS=gafacadabaegedabagacad
 # {{{1 Base16 Shell
 BASE16_SHELL="$HOME/.config/base16-shell/"
 [ -n "$PS1" ] && \
-    [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
-        source "$BASE16_SHELL/profile_helper.sh"
+  [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
+  source "$BASE16_SHELL/profile_helper.sh"
 
 # {{{1 ASDF
 export ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY="latest_available" 
@@ -181,7 +181,7 @@ else
 fi
 
 # {{{1 NVIM/VIM
-export EDITOR=nvim
+export EDITOR="NVIM_APPNAME=kickstart nvim"
 export VISUAL="$EDITOR"
 
 # {{{1 Vi mode
@@ -228,18 +228,18 @@ export LESS_TERMCAP_us="[4m"  # underline
 # {{{1 CTRL-Z
 # Make CTRL-Z background things and unbackground them.
 function fg-bg() {
-  if [[ $#BUFFER -eq 0 ]]; then
-    fg
-  else
-    zle push-input
-  fi
+if [[ $#BUFFER -eq 0 ]]; then
+  fg
+else
+  zle push-input
+fi
 }
 zle -N fg-bg
 bindkey '^Z' fg-bg
 
 # {{{1 Aliases
 alias g=git
-alias v=nvim
+alias v="NVIM_APPNAME=kickstart nvim"
 alias vimrc="v ~/.vimrc"
 if [[ "$EDITOR" == "nvim" || "$EDITOR" == "lvim" ]]; then
   alias v=$EDITOR
@@ -304,6 +304,7 @@ alias lcr="l drush cr"
 alias lrs="l restart"
 alias lrb="l rebuild -y"
 alias ldr='l drush'
+alias recompose="rm composer.lock; lando composer update"
 
 # Get the login url copied to the clipboard
 # If a parameter is given it's assumed it is a terminus remote command to run
@@ -322,12 +323,30 @@ alias ldr='l drush'
 
 function llogin() {
   local url
+  local copy
+  local args
 
-  if [ $# -eq 0 ]; then
+  copy=false
+  args=()
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --copy)
+        copy=true
+        shift
+        ;;
+      *)
+        args+=("$1")
+        shift
+        ;;
+    esac
+  done
+
+  if [ ${#args[@]} -eq 0 ]; then
     url=$(l drush uli)
     url="${url::-1}"
   else
-    url=$(terminus drush $@ -- user:login)
+    url=$(terminus drush $args[@] -- user:login)
   fi
 
   if [ -z "$url" ]; then
@@ -335,9 +354,15 @@ function llogin() {
     return
   fi
 
-  open "$url"
-
-  echo "opening login url"
+  # if the last argument is --copy, then copy the url to the clipboard
+  if [ $copy != false ]; then
+    echo "$url" | pbcopy
+    echo "login copied to clipboard"
+    return
+  else
+    open "$url"
+    echo "opening login url"
+  fi
 }
 
 # Tail the watchdog logs.  If a parameter is given it's assumed it is a terminus
@@ -351,7 +376,7 @@ function watchdog() {
     terminus drush "$@" -- watchdog:tail --extended
   fi
 }
-alias recompose="rm composer.lock; lando composer update"
+
 # Open the current local site
 function ysopen() {
   local rootPath=$(git rev-parse --show-toplevel)
@@ -361,6 +386,7 @@ function ysopen() {
   open "https://$siteName.lndo.site"
 }
 
+# update all three repos
 function yspull() {
   # Get the git rootPath
   local rootPath=$(git rev-parse --show-toplevel)
@@ -383,9 +409,10 @@ gyst() {
   npm run local:git-checkout -- -b "$branch"
 }
 
+# get the site id of a site
 siteid() {
   if [ $# -eq 0 ]; then
-    echo "Usage: $0 <site name>"
+    echo "Usage: $0 <site name without environment>"
     return
   fi
 
@@ -402,6 +429,7 @@ siteid() {
   echo "$site_id"
 }
 
+# Replace the name of the site referenced to the directory name
 replace_name_with_folder() {
   local folder_name=$(basename $(pwd))
   local file_name='.lando.local.yml'
@@ -416,9 +444,14 @@ replace_name_with_folder() {
 }
 
 alias lazy='NVIM_APPNAME=lazyvim nvim'
-export YALESITES_URL="http://e2etesting.lndo.site"
 export DEBUG_COLORS=0
 export FORCE_COLOR=0
+
+# Find the port that changes each time it's rebuilt for lando instances
+dbport() {
+  lando info --format json | jq '.[] | select(.service == "database").external_connection.port' | sed 's/[^0-9]//g' | pbcopy
+  echo "Database port copied to clipboard"
+}
 
 # {{{1 Ending
 #
