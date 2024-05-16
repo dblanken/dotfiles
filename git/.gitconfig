@@ -4,7 +4,6 @@
 	signingkey = /Users/db2553/.ssh/id_rsa.pub
 [core]
 	autocrlf = input
-	excludefiles = /Users/db2553/.gitignore
 	excludesfile = /Users/db2553/.gitignore
 [push]
 	default = upstream
