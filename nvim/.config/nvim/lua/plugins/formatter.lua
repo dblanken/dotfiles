@@ -96,11 +96,11 @@ return {
 		end
 
 		vim.api.nvim_create_augroup("formatterNvim", {
-			clear = true
+			clear = true,
 		})
 
 		vim.api.nvim_create_autocmd("Filetype", {
-			group = 'formatterNvim',
+			group = "formatterNvim",
 			pattern = table.concat(filetypes, ","),
 			callback = function()
 				vim.keymap.set({ "n", "v" }, "<leader>=", "<cmd>Format<CR>", { buffer = true })
