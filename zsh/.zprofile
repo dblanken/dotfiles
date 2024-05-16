@@ -21,3 +21,5 @@ export THOR_MERGE='nvim -d'
 if [[ -f "$HOME/.zprofile.local" ]]; then
 	source ~/.zprofile.local
 fi
+
+export YALESITES_URL="http://e2etesting.lndo.site"
