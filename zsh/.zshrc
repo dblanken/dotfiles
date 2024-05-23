@@ -314,7 +314,7 @@ bindkey '^Z' fg-bg
 
 # {{{1 Aliases
 alias g=git
-alias v="NVIM_APPNAME=tjdevries nvim"
+alias v="nvim"
 alias vimrc="v ~/.vimrc"
 if [[ "$EDITOR" == "nvim" || "$EDITOR" == "lvim" ]]; then
   alias v=$EDITOR
@@ -518,7 +518,6 @@ replace_name_with_folder() {
   sed -i '' "s/DRUSH_OPTIONS_URI: .*/DRUSH_OPTIONS_URI: \"https:\/\/$folder_name.lndo.site\/\"/" $file_name
 }
 
-alias lazy='NVIM_APPNAME=lazyvim nvim'
 export DEBUG_COLORS=0
 export FORCE_COLOR=0
 
