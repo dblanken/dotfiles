@@ -117,6 +117,9 @@ bindkey -M menuselect '^[[Z' reverse-menu-complete   # make Shift-tab go to prev
 # {{{1 Colors
 autoload colors && colors
 
+# {{{1 Hooks
+autoload -U add-zsh-hook
+
 # {{{1 Prompt
 # Taken and modified from https://github.com/wincent/wincent/blob/main/aspects/dotfiles/files/.zshrc
 # http://zsh.sourceforge.net/Doc/Release/User-Contributions.html
@@ -138,9 +141,65 @@ if [[ -n $(git ls-files --exclude-standard --others 2> /dev/null) ]]; then
 fi
 }
 
-precmd() {
+# If we have async, then async the version control statuses
+if [ -f "$HOME/.config/zsh/zsh-async/async.zsh" ]; then
+  source $HOME/.config/zsh/zsh-async/async.zsh
+
+  -start-async-vcs-info-worker() {
+    async_start_worker vcs_info
+    async_register_callback vcs_info -async-vcs-info-worker-done
+  }
+
+  -get-vcs-info-in-worker() {
+  # -q stops chpwd hook from being called:
+  cd -q $1
   vcs_info
-}
+  print ${vcs_info_msg_0_}
+  }
+
+  -async-vcs-info-worker-done() {
+  local job=$1
+  local return_code=$2
+  local stdout=$3
+  local more=$6
+  if [[ $job == '[async]' ]]; then
+    if [[ $return_code -eq 1 ]]; then
+      # Corrupt worker output.
+      return
+    elif [[ $return_code -eq 2 || $return_code -eq 3 || $return_code -eq 130 ]]; then
+      # 2 = ZLE watcher detected an error on the worker fd.
+      # 3 = Response from async_job when worker is missing.
+      # 130 = Async worker crashed, this should not happen but it can mean the
+      # file descriptor has become corrupt.
+      #
+      # Restart worker.
+      async_stop_worker vcs_info
+      -start-async-vcs-info-worker
+      return
+    fi
+  fi
+  vcs_info_msg_0_=$stdout
+  (( $more )) || zle reset-prompt
+  }
+
+  -clear-vcs-info-on-chpwd() {
+  vcs_info_msg_0_=
+  }
+
+  -trigger-vcs-info-run-in-worker() {
+  async_flush_jobs vcs_info
+  async_job vcs_info -get-vcs-info-in-worker $PWD
+  }
+
+  async_init
+  -start-async-vcs-info-worker
+  add-zsh-hook precmd -trigger-vcs-info-run-in-worker
+  add-zsh-hook chpwd -clear-vcs-info-on-chpwd
+else
+  precmd() {
+    vcs_info
+  }
+fi
 
 export PROMPT=$'%{$fg[yellow]%}%n%{$reset_color%}@%{$fg[yellow]%}%m%{$reset_color%} %{$fg[blue]%}%1~%{$reset_color%}${vcs_info_msg_0_} %# '
 export SPROMPT="zsh: correct %F{red}'%R'%f to %F{red}'%r'%f [%B%Uy%u%bes, %B%Un%u%bo, %B%Ue%u%bdit, %B%Ua%u%bbort]? "
@@ -199,10 +258,26 @@ autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '^x^x' edit-command-line
 
+bindkey ' ' magic-space # do history expansion on space
+
+# For speed:
+# https://github.com/zsh-users/zsh-autosuggestions#disabling-automatic-widget-re-binding
+ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+
 # {{{1 Plugins
 source ~/.config/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ~/.config/zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source ~/.config/zsh/zsh-history-substring-search/zsh-history-substring-search.zsh
+
+# Note that this will only ensure unique history if we supply a prefix
+# before hitting "up" (ie. we perform a "search"). HIST_FIND_NO_DUPS
+# won't prevent dupes from appearing when just hitting "up" without a
+# prefix (ie. that's "zle up-line-or-history" and not classified as a
+# "search"). So, we have HIST_IGNORE_DUPS to make life bearable for that
+# case.
+#
+# https://superuser.com/a/1494647/322531
+HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
 
 # {{{1 Traversing history
 bindkey '^[[A' history-substring-search-up
@@ -239,7 +314,7 @@ bindkey '^Z' fg-bg
 
 # {{{1 Aliases
 alias g=git
-alias v="NVIM_APPNAME=kickstart nvim"
+alias v="NVIM_APPNAME=tjdevries nvim"
 alias vimrc="v ~/.vimrc"
 if [[ "$EDITOR" == "nvim" || "$EDITOR" == "lvim" ]]; then
   alias v=$EDITOR
