@@ -38,3 +38,5 @@
 	interactive = auto
 [mergetool "fugitive"]
 	cmd = nvim -f -c "Gvdiffsplit!" "$MERGED"
+[rerere]
+	enabled = true
