@@ -176,7 +176,6 @@ return {
 					scss = { "stylelint" },
 					sh = { "shfmt" },
 					sql = { "sql_formatter" },
-					twig = { "twig-cs-fixer" },
 					vimwiki = { "markdownlint" },
 					yaml = { "yamlfmt" },
 				},

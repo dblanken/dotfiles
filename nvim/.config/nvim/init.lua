@@ -22,6 +22,9 @@ end
 ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
+vim.opt.shiftwidth = 2
+vim.opt.expandtab = true
+
 -- Set up lazy, and load my `lua/custom/plugins/` folder
 require("lazy").setup({ import = "custom/plugins" }, {
 	change_detection = {

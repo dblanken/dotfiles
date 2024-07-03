@@ -23,7 +23,7 @@ export HASBREW="$(command -v brew)"
 if [[ "$HASBREW" == "" ]]; then
   # fpath+=("$(brew --prefix)/share/zsh/site-functions")
   fpath+=("/opt/homebrew/share/zsh/site-functions")
-  fpath+=("$HOME/.asdf/completions")
+  # fpath+=("$HOME/.asdf/completions")
 fi
 
 typeset -A __DBLANKEN
@@ -45,6 +45,7 @@ fi
 export THOR_MERGE="vimdiff"
 export GOPATH="$HOME/.go"
 export RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
+export NVIM_APPNAME="nvim"
 
 if [ "$(uname)" = "Darwin" ]; then
   # Set 60 fps key repeat rate
@@ -232,15 +233,17 @@ BASE16_SHELL="$HOME/.config/base16-shell/"
   source "$BASE16_SHELL/profile_helper.sh"
 
 # {{{1 ASDF
-export ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY="latest_available" 
-if [ "$HASBREW" != "" ]; then
-  . "$(brew --prefix asdf)/libexec/asdf.sh"
-else
-  . $HOME/.asdf/asdf.sh
-fi
+# export ASDF_NODEJS_LEGACY_FILE_DYNAMIC_STRATEGY="latest_available" 
+# if [ "$HASBREW" != "" ]; then
+#   . "$(brew --prefix asdf)/libexec/asdf.sh"
+# else
+#   . $HOME/.asdf/asdf.sh
+# fi
+# {{{1 Mise
+eval "$(/opt/homebrew/bin/mise activate zsh)"
 
 # {{{1 NVIM/VIM
-export EDITOR="NVIM_APPNAME=kickstart nvim"
+export EDITOR="nvim"
 export VISUAL="$EDITOR"
 
 # {{{1 Vi mode
@@ -351,7 +354,7 @@ alias '???'=bing
 # {{{1 gitignore.io
 function gi() { curl -sLw "\n" https://www.toptal.com/developers/gitignore/api/"$@" ;}
 function nvimrc() { cd ~/.config/nvim && v init.lua }
-export PATH="/usr/local/opt/mysql-client/bin:$PATH"
+export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm if it exists
@@ -518,6 +521,37 @@ replace_name_with_folder() {
   sed -i '' "s/DRUSH_OPTIONS_URI: .*/DRUSH_OPTIONS_URI: \"https:\/\/$folder_name.lndo.site\/\"/" $file_name
 }
 
+# Since I always confim followed by cache clear
+confim() {
+	npm run confim && lcr
+}
+
+confex() {
+	npm run confex
+}
+
+dbandfiles() {
+  local multidev="${1:-dev}"
+  l pull --code=none --database="$multidev" --files="$multidev"
+  lcr
+}
+
+dbget() {
+  local multidev="${1:-dev}"
+  l pull --code=none --database="$multidev" --files=none
+  lcr
+}
+
+filesget() {
+  local multidev="${1:-dev}"
+  l pull --code=none --database=none --files="$multidev"
+  lcr
+}
+
+rebuild() {
+	l rebuild -y
+}
+
 export DEBUG_COLORS=0
 export FORCE_COLOR=0
 
@@ -526,6 +560,20 @@ dbport() {
   lando info --format json | jq '.[] | select(.service == "database").external_connection.port' | sed 's/[^0-9]//g' | pbcopy
   echo "Database port copied to clipboard"
 }
+
+export PKG_CONFIG_PATH="/opt/homebrew/opt/openssl/lib/pkgconfig"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/libtiff/lib/pkgconfig"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/gmp/lib/pkgconfig"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/libpng/lib/pkgconfig"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/ncurses/lib/pkgconfig"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/mpfr/lib/pkgconfig"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/libyaml/lib/pkgconfig"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/icu4c/lib/pkgconfig"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/readline4/lib/pkgconfig"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/webp/lib/pkgconfig"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/unixodbc/lib/pkgconfig"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/jpeg/lib/pkgconfig"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/libpq/lib/pkgconfig"
 
 # {{{1 Ending
 #

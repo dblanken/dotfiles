@@ -22,43 +22,45 @@ return {
 			vim.keymap.set("n", "<space>-", require("oil").toggle_float)
 		end,
 	},
-	"tpope/vim-projectionist",
-	config = function()
-		vim.g.projectionist_heuristics = {
-			["&pantheon.yml"] = {
-				["*"] = { ["dispatch"] = "lando drush cr" },
-				["web/core/modules/*.php"] = {
-					["type"] = "core",
+	{
+		"tpope/vim-projectionist",
+		config = function()
+			vim.g.projectionist_heuristics = {
+				["&pantheon.yml"] = {
+					["*"] = { ["dispatch"] = "lando drush cr" },
+					["web/core/modules/*.php"] = {
+						["type"] = "core",
+					},
+					["web/profiles/custom/yalesites_profile/modules/*.php"] = {
+						["type"] = "profile",
+					},
 				},
-				["web/profiles/custom/yalesites_profile/modules/*.php"] = {
-					["type"] = "profile",
+				["&atomic.info.yml"] = {
+					["*"] = { ["dispatch"] = "lando drush cr" },
+					["templates/*.html.twig"] = {
+						["type"] = "template",
+					},
 				},
-			},
-			["&atomic.info.yml"] = {
-				["*"] = { ["dispatch"] = "lando drush cr" },
-				["templates/*.html.twig"] = {
-					["type"] = "template",
+				["webpack/webpack.common.js"] = {
+					["*"] = { ["dispatch"] = "npm run build" },
+					["components/*.twig"] = {
+						["type"] = "components",
+					},
+					["components/*.scss"] = {
+						["type"] = "scss",
+					},
+					["components/*.js"] = {
+						["type"] = "js",
+					},
+					["components/*.yml"] = {
+						["type"] = "yml",
+					},
 				},
-			},
-			["webpack/webpack.common.js"] = {
-				["*"] = { ["dispatch"] = "npm run build" },
-				["components/*.twig"] = {
-					["type"] = "components",
-				},
-				["components/*.scss"] = {
-					["type"] = "scss",
-				},
-				["components/*.js"] = {
-					["type"] = "js",
-				},
-				["components/*.yml"] = {
-					["type"] = "yml",
-				},
-			},
-		}
-	end,
+			}
+		end,
+	},
 	"tpope/vim-rhubarb",
-	{ "nvim-lua/plenary.nvim" },
+	"nvim-lua/plenary.nvim",
 	{
 		"nvim-telescope/telescope.nvim",
 		dependencies = {
