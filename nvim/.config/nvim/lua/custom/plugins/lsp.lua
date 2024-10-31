@@ -34,6 +34,7 @@ return {
 				bashls = true,
 				lua_ls = true,
 				cssls = true,
+				-- phpactor = true,
 				intelephense = {
 					on_init = function(client)
 						client.server_capabilities.documentFormattingProvider = false
@@ -58,7 +59,7 @@ return {
 				},
 
 				-- Probably want to disable formatting for this lang server
-				tsserver = true,
+				ts_ls = true,
 
 				jsonls = {
 					settings = {
@@ -77,6 +78,7 @@ return {
 								url = "",
 							},
 							schemas = require("schemastore").yaml.schemas(),
+							yamlVersion = "1.1",
 						},
 					},
 				},

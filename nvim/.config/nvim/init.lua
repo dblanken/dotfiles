@@ -31,3 +31,5 @@ require("lazy").setup({ import = "custom/plugins" }, {
 		notify = false,
 	},
 })
+
+vim.g.ruby_host_prog = vim.fn.expand("~/.local/share/mise/shims/neovim-ruby-host")

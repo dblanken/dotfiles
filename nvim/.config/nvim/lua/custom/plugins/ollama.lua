@@ -1,22 +1,5 @@
 return {
 	{
-		"zbirenbaum/copilot.lua",
-		cmd = "Copilot",
-		event = "InsertEnter",
-		opts = {
-			suggestion = { enabled = false },
-			panel = { enabled = false },
-			copilot_node_command = os.getenv("HOME") .. "/.local/share/mise/installs/node/20.14/bin/node",
-		},
-	},
-	{
-		"zbirenbaum/copilot-cmp",
-		dependencies = { "zbirenbaum/copilot.lua" },
-		main = "copilot_cmp",
-		config = true,
-		event = "InsertEnter",
-	},
-	{
 		"nomnivore/ollama.nvim",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
@@ -92,7 +75,7 @@ return {
 				},
 
 				Generate_Commit_Message = {
-					prompt = "Generate a git commit message for the following $ftype diffs: $input\n\n",
+					prompt = "Generate a git commit message for the following $ftype diffs: $sel\n\n",
 					action = "display",
 					model = "codellama",
 				},
