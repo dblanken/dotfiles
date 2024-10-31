@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ -f .gitignore ]; then
+  mv .gitignore .gitignore.bak
+  echo ".gitignore exists, renaming to .gitignore.bak"
+elif [ -f .gitignore.bak ]; then
+  mv .gitignore.bak .gitignore
+  echo ".gitignore.bak exists, renaming to .gitignore"
+else
+  echo ".gitignore does not exist"
+fi

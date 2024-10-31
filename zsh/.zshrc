@@ -19,6 +19,7 @@
 if [ "$TMUX" = "" ]; then tmux attach || tmux -2 new -s $(hostname) && exit; fi
 
 export HASBREW="$(command -v brew)"
+export UNAME="$(uname)"
 
 if [[ "$HASBREW" == "" ]]; then
   # fpath+=("$(brew --prefix)/share/zsh/site-functions")
@@ -33,7 +34,7 @@ __DBLANKEN[ITALIC_OFF]=$'\e[23m'
 # {{{1 Exports
 # Set local path for playlist and other bins
 export GOPATH="$HOME/.go"
-export PATH="./bin":"$HOME/bin":"$HOME/.bin":"$HOME/.local/bin":"$PATH"
+export PATH="./bin":"$HOME/bin":"$HOME/.bin":"$HOME/.local/bin":"$HOME/.lando/bin":"$PATH"
 if [ "$(command -v go &> /dev/null)" ]; then
   # export PATH="$PATH":$(go env GOPATH)/bin
   export PATH="$PATH":$HOME/.go/bin
@@ -45,9 +46,10 @@ fi
 export THOR_MERGE="vimdiff"
 export GOPATH="$HOME/.go"
 export RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
-export NVIM_APPNAME="nvim"
+# export NVIM_APPNAME="nvim"
+export NVIM_APPNAME="lazyvim"
 
-if [ "$(uname)" = "Darwin" ]; then
+if [ "$UNAME" = "Darwin" ]; then
   # Set 60 fps key repeat rate
   #
   # Equivalent to the fatest rate acheivable with:
@@ -376,6 +378,9 @@ export PATH="/opt/homebrew/opt/imagemagick@6/bin:$PATH"
 
 # {{{1 YaleSites Specific
 
+# Pantheon still requires the use of mysql client 8.4 syntax, so have to use different version
+alias mysql8="/opt/homebrew/Cellar/mysql-client@8.4/8.4.2/bin/mysql"
+
 # Lando
 alias l="lando"
 alias lcr="l drush cr"
@@ -383,6 +388,8 @@ alias lrs="l restart"
 alias lrb="l rebuild -y"
 alias ldr='l drush'
 alias recompose="rm composer.lock; lando composer update"
+alias vlando="v .lando.local.yml"
+alias cyp="c yalesites-project"
 
 # Get the login url copied to the clipboard
 # If a parameter is given it's assumed it is a terminus remote command to run
@@ -523,33 +530,44 @@ replace_name_with_folder() {
 
 # Since I always confim followed by cache clear
 confim() {
-	npm run confim && lcr
+  npm run confim && lcr
 }
 
+# Shortcut for exporting configs
 confex() {
-	npm run confex
+  npm run confex
 }
 
+# NOTE: the following are made due to the NPM defaults being dev
+# This allows me to pull any db/files I wish
+# Get the database and files together from a multidev
 dbandfiles() {
   local multidev="${1:-dev}"
   l pull --code=none --database="$multidev" --files="$multidev"
   lcr
 }
 
+# Get only the database from a multidev
 dbget() {
   local multidev="${1:-dev}"
   l pull --code=none --database="$multidev" --files=none
   lcr
 }
 
+# Get only the files form a multidev
 filesget() {
   local multidev="${1:-dev}"
   l pull --code=none --database=none --files="$multidev"
   lcr
 }
 
+# Rebuild the lando site--useful when you change .lando.local.yml
 rebuild() {
-	l rebuild -y
+  l rebuild -y
+}
+
+ctags-php() {
+  ctags --langmap=php:.engine.inc.module.theme.install.php --php-kinds=cdfi --languages=php --recurse --fields=+l
 }
 
 export DEBUG_COLORS=0

@@ -40,3 +40,7 @@
 	cmd = nvim -f -c "Gvdiffsplit!" "$MERGED"
 [rerere]
 	enabled = true
+[pull]
+	rebase = true
+[checkout]
+	defaultRemote = origin
