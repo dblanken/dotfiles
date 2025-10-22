@@ -1,0 +1,6 @@
+#!/bin/zsh
+
+source ~/.zprofile.local.portkey
+
+echo "Portkey enabled for Claude Code"
+

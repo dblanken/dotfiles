@@ -48,6 +48,10 @@ export GOPATH="$HOME/.go"
 export RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
 # export NVIM_APPNAME="nvim"
 export NVIM_APPNAME="lazyvim"
+# opt out of azure telemetry
+export FUNCTIONS_CORE_TOOLS_TELEMETRY_OUTPUT=1
+
+FPATH="$HOME/.docker/completions:$FPATH"
 
 if [ "$UNAME" = "Darwin" ]; then
   # Set 60 fps key repeat rate
@@ -344,6 +348,8 @@ alias glog="g mylog"
 alias gdiff="g diff"
 alias gp="g pull --rebase"
 alias gpa="g pull --rebase --all"
+alias gmt="g mergetool"
+alias grc="g rebase --continue"
 # Searching
 alias '?'=duck
 alias '??'=google
@@ -482,6 +488,38 @@ function yspull() {
   cd component-library-twig && g pull --rebase && cd "$rootPath" && echo "component-library-twig is now up to date"
 }
 
+function gcbcreate() {
+  # Get the git rootPath
+  local rootPath=$(git rev-parse --show-toplevel)
+  cd "$rootPath"
+  local branch=$(git symbolic-ref --short HEAD)
+
+  if [ -z "$branch" ]; then
+    echo "Not in a git repo"
+    return
+  fi
+
+  if [ "$branch" = "develop" ]; then
+    echo "Cannot create a branch from develop"
+    return
+  fi
+
+  if [ "$branch" = "master" ]; then
+    echo "Cannot create a branch from master"
+    return
+  fi
+
+  if [ "$branch" = "main" ]; then
+    echo "Cannot create a branch from main"
+    return
+  fi
+
+  cd atomic; gcb "$branch"; gco "$branch";
+  cd "$rootPath" && echo "atomic is now up to date"
+  cd component-library-twig; gcb "$branch"; gco "$branch"
+  cd "$rootPath" && echo "component-library-twig is now up to date"
+}
+
 # Attempts to git-checkout a YaleSite with the current branch
 gyst() {
   local branch=$(git symbolic-ref --short HEAD)
@@ -501,7 +539,30 @@ siteid() {
     return
   fi
 
+  # check if they passed -f as an end argument to know if we need to disregard cache.
+  local force=false
+  if [ "${2}" = "-f" ]; then
+    force=true
+  fi
+
   local site_name="$1"
+
+  # See if the temp directory exists to store this site_id for the name.
+  if [ ! -d "$HOME/.local/share/siteids" ]; then
+    mkdir -p "$HOME/.local/share/siteids"
+  fi
+
+  if [ "$force" = true ]; then
+    # If we are forcing, then remove the siteid file so we can get a new one.
+    rm -f "$HOME/.local/share/siteids/$site_name"
+  fi
+
+  # Check if the siteid already exists in that directory for the filenamee so we don't have to look it up again.
+  if [ -f "$HOME/.local/share/siteids/$site_name" ]; then
+    cat "$HOME/.local/share/siteids/$site_name"
+    return
+  fi
+
   local site_info=$(terminus site:list --fields=id,name | grep "$site_name")
 
   if [ -z "$site_info" ]; then
@@ -510,6 +571,9 @@ siteid() {
   fi
 
   local site_id=$(echo "$site_info" | awk '{print $1}')
+
+  # Create the cache for the siteid so we never have to look it up again.
+  echo "$site_id" > "$HOME/.local/share/siteids/$site_name"
 
   echo "$site_id"
 }
@@ -551,7 +615,12 @@ dbandfiles() {
 dbget() {
   local multidev="${1:-dev}"
   l pull --code=none --database="$multidev" --files=none
+  l drush config:set cas.settings server.cert NULL -y
   lcr
+}
+
+fixcas() {
+  l drush config:set cas.settings server.cert NULL -y
 }
 
 # Get only the files form a multidev
@@ -566,17 +635,77 @@ rebuild() {
   l rebuild -y
 }
 
+# Keep up to date
+gfetchpull() {
+  g fetch --all
+  g pull
+}
+
+# Keep all yalesites up to date
+gpullall() {
+  gfetchpull
+  cd atomic
+  gfetchpull
+  cd ../component-library-twig
+  gfetchpull
+  cd ..
+  echo "All done"
+}
+
 ctags-php() {
   ctags --langmap=php:.engine.inc.module.theme.install.php --php-kinds=cdfi --languages=php --recurse --fields=+l
 }
 
 export DEBUG_COLORS=0
-export FORCE_COLOR=0
+# export FORCE_COLOR=0
 
 # Find the port that changes each time it's rebuilt for lando instances
 dbport() {
   lando info --format json | jq '.[] | select(.service == "database").external_connection.port' | sed 's/[^0-9]//g' | pbcopy
   echo "Database port copied to clipboard"
+}
+
+local-setup() {
+  replace_name_with_folder
+  npm run setup
+  gyst
+}
+
+rmys() {
+  local dirname
+
+  if [ -f composer.json ]; then
+    dirname=$(pwd)
+  else
+    dirname=$1
+  fi
+
+  # exit if dirname is not a valid directory
+  if [ ! -d "$dirname" ]; then
+    echo "Invalid directory: $dirname"
+    return
+  fi
+
+  cd "$dirname"
+  l destroy -y
+  cd ..
+  rm -rfI "$dirname"
+}
+
+running-yalesites() {
+  docker ps --format '{{.Names}}' | grep appserver | awk -F'_' '{print $1}' | sort -u
+}
+
+gtodo() {
+  gh pr list -B develop --search 'review-requested:@me status:pending label:"needs review" -label:"pass code review"'
+}
+
+gt() {
+  gtodo
+}
+
+grtm() {
+  gh pr list -B develop --search 'label:"ready to merge"'
 }
 
 export PKG_CONFIG_PATH="/opt/homebrew/opt/openssl/lib/pkgconfig"
@@ -592,6 +721,39 @@ export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/webp/lib/pkgconfig"
 export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/unixodbc/lib/pkgconfig"
 export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/jpeg/lib/pkgconfig"
 export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/libpq/lib/pkgconfig"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/imagemagick/lib/pkgconfig"
+
+# ImageMagick configuration for PHP builds
+export LDFLAGS="$LDFLAGS -L/opt/homebrew/opt/imagemagick/lib"
+export CPPFLAGS="$CPPFLAGS -I/opt/homebrew/opt/imagemagick/include"
+export PHP_CONFIGURE_OPTS="--with-imagick=/opt/homebrew/opt/imagemagick"
+
+SSH_ENV="$HOME/.ssh/agent-environment"
+
+function start_agent {
+  echo "Starting new SSH agent..."
+  /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+  echo "succeeded"
+  chmod 600 "${SSH_ENV}"
+  . "${SSH_ENV}" > /dev/null
+  /usr/bin/ssh-add;
+}
+
+if [ -f "$SSH_ENV" ]; then
+  . "${SSH_ENV}" > /dev/null
+  ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
+    start_agent;
+  }
+else
+  start_agent;
+fi
+
+# In case I use CTRL-S/CTRL-Q
+# Stop Terminal from taking over
+stty -ixon
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/db2553/.cache/lm-studio/bin"
 
 # {{{1 Ending
 #
@@ -606,3 +768,14 @@ export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/libpq/lib/pkgconfig"
 # Per-function profiling:
 
 # zprof
+
+# bun completions
+[ -s "/Users/db2553/.bun/_bun" ] && source "/Users/db2553/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# alias claude="/Users/db2553/.claude/local/claude"
+
+$HOME/.config/alacritty/switch-alacritty-theme.sh

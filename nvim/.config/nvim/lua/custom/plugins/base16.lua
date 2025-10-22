@@ -1,11 +1,17 @@
 return {
+	-- {
+	-- 	"RRethy/base16-nvim",
+	-- 	priority = 1000,
+	-- 	config = function()
+	-- 		local colorscheme = "base16-" .. vim.env["BASE16_THEME"]
+	-- 		-- vim.cmd.colorscheme(colorscheme)
+	-- 	end,
+	-- },
 	{
-		"RRethy/base16-nvim",
+		"folke/tokyonight.nvim",
 		priority = 1000,
 		config = function()
-			local colorscheme = "base16-" .. vim.env["BASE16_THEME"]
-			vim.cmd.colorscheme(colorscheme)
+			vim.cmd.colorscheme("tokyonight")
 		end,
 	},
-	{ "folke/tokyonight.nvim" },
 }

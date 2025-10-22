@@ -1,0 +1,17 @@
+#!/bin/bash
+# Save as ~/bin/ccusage-minimal
+
+ccusage statusline "$@" | awk -F' \\| ' '
+{
+    model = $1  # 🤖 Sonnet 4
+    brain = $4  # 🧠 context info
+    
+    # Extract just the time portion from the block info
+    block_info = $3
+    if (match(block_info, /\([^)]*left\)/)) {
+        time_left = substr(block_info, RSTART+1, RLENGTH-2)
+        printf "%s | %s | %s\n", model, time_left, brain
+    } else {
+        printf "%s | %s\n", model, brain
+    }
+}'

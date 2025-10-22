@@ -1,0 +1,8 @@
+#!/bin/zsh
+
+unset PORTKEY_API_KEY
+unset ANTHROPIC_BASE_URL
+unset ANTHROPIC_AUTH_TOKEN
+unset ANTHROPIC_CUSTOM_HEADERS
+
+echo "Portkey is disabled.  Using Claude directly."

@@ -1,9 +1,6 @@
 return {
 	{
 		"nvim-treesitter/nvim-treesitter",
-		dependencies = {
-			{ dir = "~/plugins/tree-sitter-lua" },
-		},
 		build = ":TSUpdate",
 		config = function()
 			local group = vim.api.nvim_create_augroup("custom-treesitter", { clear = true })
@@ -87,23 +84,6 @@ return {
 					if syntax_on[ft] then
 						vim.bo[bufnr].syntax = "on"
 					end
-				end,
-			})
-
-			vim.api.nvim_create_autocmd("User", {
-				pattern = "TSUpdate",
-				callback = function()
-					local parsers = require("nvim-treesitter.parsers")
-
-					parsers.lua = {
-						tier = 0,
-
-						---@diagnostic disable-next-line: missing-fields
-						install_info = {
-							path = "~/plugins/tree-sitter-lua",
-							files = { "src/parser.c", "src/scanner.c" },
-						},
-					}
 				end,
 			})
 		end,

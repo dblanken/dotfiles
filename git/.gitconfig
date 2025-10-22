@@ -44,3 +44,6 @@
 	rebase = true
 [checkout]
 	defaultRemote = origin
+[safe]
+	directory = /app
+	directory = /app
