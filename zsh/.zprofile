@@ -1,5 +1,12 @@
 export BASH_SILENCE_DEPRECATION_WARNING=1
 
+# XDG Base Directory Specification
+# https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_STATE_HOME="$HOME/.local/state"
+
 # Set PATH, MANPATH, etc., for Homebrew.
 export BREW_LOCATION="/opt/homebrew/bin/brew"
 
