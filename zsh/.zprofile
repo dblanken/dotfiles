@@ -22,4 +22,4 @@ if [[ -f "$HOME/.zprofile.local" ]]; then
 	source ~/.zprofile.local
 fi
 
-export YALESITES_URL="http://e2etesting.lndo.site"
+export YALESITES_URL="http://yalesites-mv482-dev.lndo.site"
