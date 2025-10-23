@@ -9,5 +9,7 @@ return {
         ext = ".md"
       }
     }
+
+    vim.treesitter.language.register('markdown', 'vimwiki')
   end
 }
