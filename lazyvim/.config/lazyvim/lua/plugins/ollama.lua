@@ -62,6 +62,12 @@ return {
 					model = "codellama",
 				},
 
+        Suggest_Simplified_Code = {
+          prompt = "Simplify the following $ftype code so that it is both easier to read and understand. " .. "\n\n```$ftype\n$sel```",
+          action = "display",
+          model = "codellama",
+        },
+
 				Modify_Code = {
 					prompt = "Modify this $ftype code in the following way: $input\n\n" .. "\n\n```$ftype\n$sel```",
 					action = "replace",
