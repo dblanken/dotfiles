@@ -1,3 +1,12 @@
 tags
 nvim/.config/nvim/plugin
 git/.local
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Local config files
+*.local
+.zprofile.local*
