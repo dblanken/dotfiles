@@ -1,19 +1,35 @@
 # dotfiles
 
-Personal dotfiles for macOS, managed with [GNU Stow](https://www.gnu.org/software/stow/).
+Personal dotfiles for **macOS** and **Linux**, managed with [GNU Stow](https://www.gnu.org/software/stow/).
 
 ![macOS](https://img.shields.io/badge/macOS-13+-blue)
+![Linux](https://img.shields.io/badge/Linux-Pop!_OS%20%7C%20Ubuntu-orange)
 ![Shell](https://img.shields.io/badge/shell-zsh-green)
 
 ## Overview
 
-This repository contains configuration files for a terminal-based development environment optimized for Drupal/YaleSites development at Yale University. The setup features:
+Cross-platform dotfiles for a terminal-based development environment optimized for Drupal/YaleSites development at Yale University. The same configuration works seamlessly on both macOS and Linux with automatic platform detection. The setup features:
 
 - **Terminal**: Alacritty with TokyoNight theme
 - **Multiplexer**: tmux with vim-aware navigation
 - **Shell**: Zsh with async git status and extensive YaleSites utilities
 - **Editor**: Neovim with LazyVim distribution
 - **Theme**: Consistent TokyoNight across all tools
+
+## Supported Platforms
+
+- ✅ **macOS** 13+ (Ventura and later)
+  - Intel and Apple Silicon (M1/M2/M3)
+  - Package manager: Homebrew
+
+- ✅ **Linux** (Debian/Ubuntu-based)
+  - Pop!_OS 22.04+ (tested)
+  - Ubuntu 22.04+ (tested)
+  - Other Debian derivatives (should work)
+  - Package manager: apt
+  - Display servers: X11 and Wayland both supported
+
+**📖 Linux Users**: See [README-LINUX.md](README-LINUX.md) for Linux-specific installation instructions.
 
 ## Quick Start
 
@@ -31,27 +47,21 @@ git submodule update --init --recursive
 
 ## Prerequisites
 
-### Required
+### macOS
 
-- **macOS** (Darwin) - tested on macOS 13+
+**Required:**
+- **macOS** 13+ (Ventura and later)
 - **Homebrew** - `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
 - **GNU Stow** - `brew install stow`
 - **Git** - `brew install git`
 
-### Recommended
-
+**Recommended packages:**
 ```bash
+# Core tools
+brew install tmux neovim zsh
+
 # Terminal emulator
 brew install --cask alacritty
-
-# Terminal multiplexer
-brew install tmux
-
-# Editor
-brew install neovim
-
-# Shell plugins (managed as git submodules, but need zsh)
-brew install zsh
 
 # Font (required for proper display)
 brew install --cask font-cascadia-code-nf
@@ -62,6 +72,35 @@ brew install mise
 # Additional utilities
 brew install fzf ripgrep fd bat eza
 ```
+
+**Or install all dependencies at once:**
+```bash
+cd ~/.dotfiles
+brew bundle  # Uses Brewfile in the repository
+```
+
+### Linux
+
+**Required:**
+- **Pop!_OS** 22.04+ or **Ubuntu** 22.04+ (or other Debian-based distributions)
+- **GNU Stow** - `sudo apt install stow`
+- **Git** - `sudo apt install git`
+
+**Install all system packages:**
+```bash
+cd ~/.dotfiles
+sudo apt update
+sudo apt install -y $(grep -v '^#' packages.linux.txt | tr '\n' ' ')
+```
+
+**Additional software** (not in apt, install separately):
+- **eza** - Install from GitHub releases or cargo
+- **mise** - `curl https://mise.run | sh`
+- **Alacritty** - `sudo snap install alacritty --classic` (or build from source)
+- **Cascadia Code Nerd Font** - Manual installation to `~/.local/share/fonts/`
+- **Lando** - Download .deb from https://lando.dev/download/
+
+**📖 See [README-LINUX.md](README-LINUX.md) for detailed Linux installation instructions.**
 
 ### Optional
 

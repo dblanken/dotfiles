@@ -4,7 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a personal dotfiles repository managed with **GNU Stow** for macOS (Darwin). The repository contains configuration files for a development environment centered around terminal-based workflows with tmux, Neovim (LazyVim), Alacritty, and Zsh.
+This is a personal dotfiles repository managed with **GNU Stow** for **macOS** and **Linux**. The repository contains cross-platform configuration files for a development environment centered around terminal-based workflows with tmux, Neovim (LazyVim), Alacritty, and Zsh.
+
+**Supported platforms:**
+- macOS 13+ (Ventura and later) - Intel and Apple Silicon
+- Linux (Debian/Ubuntu-based) - Pop!_OS 22.04+, Ubuntu 22.04+
+
+The same configuration works seamlessly on both platforms through automatic platform detection and conditional loading.
 
 ## Architecture and Structure
 
@@ -30,10 +36,47 @@ When stowed, files are symlinked from `~/.dotfiles/<package>/<path>` to `~/<path
 - `git/` - Git configuration and global gitignore
 - `scripts/` - Utility scripts in `.local/bin/`
 
+### Cross-Platform Architecture
+
+**Platform Detection:**
+The configuration automatically detects the operating system and loads platform-specific modules:
+
+1. **Early detection** in `.zprofile` sets `OS_TYPE` environment variable:
+   - `darwin` - macOS systems
+   - `linux` - Linux systems
+
+2. **Modular loading** in `.zshrc` loads modules in this order:
+   - `platform.zsh` - OS detection and wrapper functions (first)
+   - `env.zsh` - Cross-platform environment variables
+   - `env.$OS_TYPE.zsh` - Platform-specific environment (env.darwin.zsh or env.linux.zsh)
+   - `aliases.zsh` - Shell aliases
+   - `functions.zsh` - Shell functions
+   - `yalesites.zsh` - YaleSites-specific utilities
+   - Other modules as needed
+
+**Wrapper Functions:**
+Platform-specific commands are abstracted behind cross-platform wrapper functions in `platform.zsh`:
+
+- `clipboard_copy()` - pbcopy (macOS) or xclip/xsel/wl-clipboard (Linux)
+- `clipboard_paste()` - pbpaste (macOS) or xclip/xsel/wl-paste (Linux)
+- `open_file()` - open (macOS) or xdg-open (Linux)
+- Aliased as `pbcopy`, `pbpaste`, and `open` for compatibility
+
+**Platform-Specific Files:**
+- `env.darwin.zsh` - Homebrew paths, macOS build flags, mysql8 alias
+- `env.linux.zsh` - Linux package aliases (fd→fdfind, bat→batcat), distribution detection, Wayland detection
+- `clipboard` script - Standalone cross-platform clipboard utility for tmux
+
+**Package Management:**
+- **macOS**: `Brewfile` for Homebrew packages
+- **Linux**: `packages.linux.txt` for apt packages
+
+See [README-LINUX.md](README-LINUX.md) for Linux-specific installation details.
+
 ### Local Configuration Pattern
 
 Sensitive or machine-specific configs use `.local` suffix:
-- `.zprofile.local` - Not in repo, sourced if present (zsh/.zprofile:21-23)
+- `.zprofile.local` - Not in repo, sourced if present (example template: `.zprofile.local.example`)
 - `.zprofile.local.portkey` - Referenced by enable_portkey script
 - `.lando.local.yml` - YaleSites local environment (generated)
 
@@ -50,10 +93,21 @@ These files are gitignored and should never be committed.
 
 ### System Packages
 
-- **System packages**: Homebrew (`/opt/homebrew` on Apple Silicon)
-- **Runtime versions**: mise (formerly asdf) (zsh/.zshrc:249)
+**macOS:**
+- **Package Manager**: Homebrew (`/opt/homebrew` on Apple Silicon, `/usr/local` on Intel)
+- **Installation**: `brew bundle` uses `Brewfile` in repository root
+- **Packages**: tmux, neovim, zsh, alacritty, fzf, ripgrep, fd, bat, eza, mise
+
+**Linux:**
+- **Package Manager**: apt (Debian/Ubuntu)
+- **Installation**: `sudo apt install -y $(grep -v '^#' packages.linux.txt | tr '\n' ' ')`
+- **Packages**: Equivalent to macOS packages, some with different names (fd-find, batcat)
+- **Additional**: Some tools require manual installation (eza, mise, alacritty, lando, nerd fonts)
+
+**Cross-Platform:**
+- **Runtime versions**: mise (formerly asdf), conditionally loaded
 - **Editor**: LazyVim with custom configuration in `lazyvim/.config/lazyvim/`
-- **Node versions**: NVM loaded conditionally (zsh/.zshrc:367-369)
+- **Node versions**: NVM loaded conditionally if installed
 
 ### XDG Base Directories
 
@@ -67,22 +121,32 @@ Standard environment variables set in zsh/.zprofile:
 
 ### Shell Configuration (zsh/.zshrc)
 
+**Modular Architecture:**
+Configuration is split into focused modules in `zsh/.config/zsh/rc.d/`:
+- `platform.zsh` - OS detection and cross-platform wrapper functions
+- `env.zsh` - Cross-platform environment variables
+- `env.darwin.zsh` - macOS-specific configuration (Homebrew, build flags)
+- `env.linux.zsh` - Linux-specific configuration (package aliases, distro detection)
+- `aliases.zsh` - Shell aliases
+- `functions.zsh` - Utility functions
+- `yalesites.zsh` - YaleSites/Drupal development functions
+
 **Prompt**: Custom prompt with async git status using zsh-async
 
-**Plugins** (managed as git submodules, lines 277-279):
+**Plugins** (managed as git submodules):
 - `zsh-autosuggestions` - Command suggestions based on history
 - `zsh-syntax-highlighting` - Real-time syntax highlighting
 - `zsh-history-substring-search` - Better history search
 - `zsh-async` - Asynchronous task execution for VCS info
 
-**Vi mode**: Set with `set -o vi` (line 256)
+**Vi mode**: Set with `set -o vi`
 
 ### YaleSites-Specific Workflows
 
-This environment is heavily customized for YaleSites Drupal development (lines 385-725):
+This environment is heavily customized for YaleSites Drupal development in `yalesites.zsh`:
 
 **Key functions:**
-- `llogin [--copy] [terminus-args]` - Get Drupal login URL (local or remote via Terminus)
+- `llogin [--copy] [terminus-args]` - Get Drupal login URL (uses `clipboard_copy` and `open_file` wrappers)
 - `watchdog [terminus-args]` - Tail Drupal watchdog logs
 - `yspull` - Update all three YaleSites repos (project, atomic, component-library-twig)
 - `gyst` - Git checkout matching branch across all YaleSites repos
@@ -92,12 +156,16 @@ This environment is heavily customized for YaleSites Drupal development (lines 3
 - `confim` - Config import followed by cache rebuild
 - `local-setup` - Initialize new local YaleSites site
 - `siteid <site-name> [-f]` - Get Pantheon site ID with caching
+- `ysopen` - Open local site in browser (uses `open_file` wrapper)
+- `dbport` - Get database port for local MySQL connection (uses `clipboard_copy` wrapper)
 
-**Lando aliases** (lines 391-398):
+**Lando aliases:**
 - `l` = lando
 - `lcr` = lando drush cr
 - `ldr` = lando drush
 - `lrb` = lando rebuild -y
+
+**Note**: YaleSites functions use cross-platform wrapper functions for clipboard and file opening, making them work on both macOS and Linux.
 
 ### Tmux Configuration
 
@@ -114,7 +182,7 @@ This environment is heavily customized for YaleSites Drupal development (lines 3
 - `prefix + r` - Reload config
 - `Ctrl+Space Ctrl+Space` - Switch to last session
 
-**Copy mode**: Vi keys enabled, clipboard integration with pbcopy
+**Copy mode**: Vi keys enabled, cross-platform clipboard integration via `~/.local/bin/clipboard` script
 
 ### Terminal (Alacritty)
 
@@ -122,22 +190,39 @@ This environment is heavily customized for YaleSites Drupal development (lines 3
 - **Theme**: TokyoNight (imported from themes/)
 - **Window**: No decorations, maximized startup, left Option as Alt
 
-Theme switcher script: `alacritty/.config/alacritty/switch-alacritty-theme.sh` (run automatically in zsh/.zshrc:781)
+**Theme Detection:**
+- `switch-alacritty-theme.sh` automatically selects theme variant:
+  - **macOS**: Reads system dark mode preference via `defaults` command
+  - **Linux**: Defaults to dark theme (can be manually toggled)
+- Run automatically on shell startup
 
 ### Editor (Neovim/LazyVim)
 
-**Active config**: LazyVim via `NVIM_APPNAME=lazyvim` (zsh/.zshrc:50)
+**Active config**: LazyVim via `NVIM_APPNAME=lazyvim`
 **Location**: `lazyvim/.config/lazyvim/`
 **Structure**: Standard LazyVim structure with custom plugins/ and config/
+
+**Theme Detection:**
+- `colorscheme.lua` automatically selects TokyoNight variant:
+  - **macOS**: Reads system dark mode preference (day/night)
+  - **Linux**: Defaults to night theme
+- Toggle manually with `:ToggleStyle` command
 
 ## Utility Scripts
 
 Located in `scripts/.local/bin/`:
 
+**clipboard** - Cross-platform clipboard utility
+- Provides `copy` and `paste` subcommands
+- **macOS**: Uses pbcopy/pbpaste
+- **Linux**: Tries xclip, xsel, or wl-clipboard (X11/Wayland)
+- Used by tmux for copy-paste operations
+
 **tmux-sessionizer** - FZF-based tmux session switcher
-- Searches `~/code/*` directories
-- Includes `~/.config/nvim` and `~/.dotfiles`
-- Bound to `Alt+f` in zsh (zsh/.zshrc:381)
+- Searches directories under `~/code/`
+- Includes `$XDG_CONFIG_HOME/$NVIM_APPNAME` and `~/.dotfiles`
+- Bound to `Alt+f` in zsh
+- Uses `$NVIM_APPNAME` and `$XDG_CONFIG_HOME` for portability
 
 **enable_portkey** - Sources Portkey configuration for Claude Code
 
@@ -234,10 +319,12 @@ make restow-<package>   # Restow after editing configs
 - **Branching**: YSP-### pattern for issues
 
 ### Development Tools
-- **Containerization**: Lando (Docker-based local development)
+- **Containerization**: Lando (Docker-based local development, works on macOS and Linux)
 - **Hosting**: Pantheon (uses Terminus CLI)
 - **Version control**: Git with SSH signing (gpgsign enabled, SSH format)
-- **Database**: MySQL 8.4 client for Pantheon compatibility (aliased as mysql8)
+- **Database**:
+  - **macOS**: MySQL 8.4 client via Homebrew (aliased as mysql8 in env.darwin.zsh)
+  - **Linux**: mysql-client via apt (packages.linux.txt)
 
 ### File Modifications
 
@@ -249,6 +336,8 @@ When modifying configuration files:
 4. **Commit changes** - use conventional commits format
 5. **Never commit** `.local` files or sensitive data
 6. **Preserve existing patterns** - extensive customization exists for specific workflows
+7. **Cross-platform compatibility** - use wrapper functions (clipboard_copy, open_file) instead of platform-specific commands
+8. **Platform-specific code** - place in `env.darwin.zsh` or `env.linux.zsh`, not in shared modules
 
 ### Git Submodules (ZSH Plugins)
 
