@@ -1,10 +1,10 @@
 [user]
 	name = David Blankenship
 	email = david.blankenship@yale.edu
-	signingkey = /Users/db2553/.ssh/id_rsa.pub
+	signingkey = ~/.ssh/id_rsa.pub
 [core]
 	autocrlf = input
-	excludesfile = /Users/db2553/.gitignore
+	excludesfile = ~/.gitignore
 [push]
 	default = upstream
 	autoSetupRemote = true
@@ -45,5 +45,4 @@
 [checkout]
 	defaultRemote = origin
 [safe]
-	directory = /app
 	directory = /app
