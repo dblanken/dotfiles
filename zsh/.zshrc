@@ -779,3 +779,5 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 # alias claude="/Users/db2553/.claude/local/claude"
 
 $HOME/.config/alacritty/switch-alacritty-theme.sh
+
+alias claude="/Users/db2553/.claude/local/claude"
