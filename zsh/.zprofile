@@ -30,3 +30,8 @@ if [[ -f "$HOME/.zprofile.local" ]]; then
 fi
 
 export YALESITES_URL="http://yalesites-mv482-dev.lndo.site"
+
+# Switch Alacritty theme (only once per login session)
+if [[ -f "$HOME/.config/alacritty/switch-alacritty-theme.sh" ]]; then
+	$HOME/.config/alacritty/switch-alacritty-theme.sh
+fi
