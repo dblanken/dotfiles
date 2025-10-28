@@ -63,6 +63,19 @@ brew install mise
 brew install fzf ripgrep fd bat eza
 ```
 
+### Optional
+
+**tmux Plugin Manager (TPM)**: The tmux configuration declares plugins but TPM is optional. To enable tmux plugins:
+
+```bash
+# Install TPM
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+
+# Inside tmux, press prefix + I (capital i) to install plugins
+```
+
+Without TPM, tmux will still function normally - you'll just see a brief error message on startup about missing plugins.
+
 ## Repository Structure
 
 This repository uses **GNU Stow** for dotfile management. Each top-level directory is a "stow package" that mirrors your home directory structure:
@@ -294,6 +307,72 @@ ls -la ~/.config/lazyvim  # Should be a symlink
 # If it's a real directory, unstow and restow:
 rm -rf ~/.config/lazyvim  # Back up first if needed!
 stow lazyvim
+```
+
+### Shell is Slow to Start
+
+Profile your shell startup to identify bottlenecks:
+
+```bash
+# Enable profiling (uncomment lines in .zshrc)
+# Then restart shell and run:
+zprof
+
+# Or time the shell startup
+time zsh -i -c exit
+```
+
+Common causes:
+- Slow plugin loading
+- Network calls during startup (check for API calls)
+- Too many PATH modifications
+
+### mise/NVM/Bun Not Found
+
+Ensure the tools are installed:
+
+```bash
+# Install mise
+brew install mise
+
+# Install nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+# Install bun
+curl -fsSL https://bun.sh/install | bash
+```
+
+The .zshrc has conditional checks, so missing tools won't cause errors.
+
+### Lando Commands Failing
+
+```bash
+# Check Docker is running
+docker ps
+
+# Check Lando is installed
+lando version
+
+# Rebuild if issues persist
+lando rebuild -y
+```
+
+### Modular ZSH Configuration Issues
+
+If you encounter errors after the modular restructure:
+
+```bash
+# Check modules directory exists
+ls -la ~/.config/zsh/rc.d/
+
+# Verify all modules are sourced
+grep -r "source.*rc.d" ~/.zshrc
+
+# Check for syntax errors in modules
+zsh -n ~/.config/zsh/rc.d/env.zsh
+zsh -n ~/.config/zsh/rc.d/aliases.zsh
+zsh -n ~/.config/zsh/rc.d/functions.zsh
+zsh -n ~/.config/zsh/rc.d/yalesites.zsh
 ```
 
 ### Font Issues in Alacritty
