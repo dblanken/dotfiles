@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
 # Bootstrap script for dotfiles installation
+# Supports: macOS (Darwin) and Linux (Debian/Ubuntu-based)
 # Usage: ./install.sh
 
 set -e
@@ -14,6 +15,14 @@ NC='\033[0m' # No Color
 
 # Dotfiles directory
 DOTFILES_DIR="$HOME/.dotfiles"
+
+# Detect OS
+OS_TYPE="$(uname -s)"
+case "$OS_TYPE" in
+    Darwin) OS_NAME="macOS" ;;
+    Linux)  OS_NAME="Linux" ;;
+    *)      OS_NAME="Unknown" ;;
+esac
 
 # Print functions
 print_error() {
@@ -117,6 +126,7 @@ main() {
 EOF
     echo -e "${NC}"
     echo "Personal dotfiles installer"
+    echo "Platform: $OS_NAME"
     echo "This will install dotfiles to $HOME"
     echo
 
@@ -129,33 +139,79 @@ EOF
     # Check prerequisites
     print_header "Checking prerequisites"
 
-    # Check for macOS
-    if [[ "$(uname)" != "Darwin" ]]; then
-        print_error "This script is designed for macOS"
-        exit 1
-    fi
-    print_success "Running on macOS"
+    # Platform-specific checks
+    if [[ "$OS_TYPE" == "Darwin" ]]; then
+        print_success "Running on macOS"
 
-    # Check for Homebrew
-    if ! command_exists brew; then
-        print_error "Homebrew is not installed"
-        print_info "Install from: https://brew.sh"
-        exit 1
-    fi
-    print_success "Homebrew is installed"
-
-    # Check for GNU Stow
-    if ! command_exists stow; then
-        print_error "GNU Stow is not installed"
-        if ask_yes_no "Would you like to install it with Homebrew?"; then
-            brew install stow
-            print_success "Installed GNU Stow"
-        else
-            print_error "GNU Stow is required for installation"
+        # Check for Homebrew
+        if ! command_exists brew; then
+            print_error "Homebrew is not installed"
+            print_info "Install from: https://brew.sh"
             exit 1
         fi
+        print_success "Homebrew is installed"
+
+        # Check for GNU Stow
+        if ! command_exists stow; then
+            print_error "GNU Stow is not installed"
+            if ask_yes_no "Would you like to install it with Homebrew?"; then
+                brew install stow
+                print_success "Installed GNU Stow"
+            else
+                print_error "GNU Stow is required for installation"
+                exit 1
+            fi
+        else
+            print_success "GNU Stow is installed"
+        fi
+
+    elif [[ "$OS_TYPE" == "Linux" ]]; then
+        print_success "Running on Linux"
+
+        # Detect distribution
+        if [ -f /etc/os-release ]; then
+            . /etc/os-release
+            print_info "Distribution: $NAME $VERSION_ID"
+
+            # Check if Debian/Ubuntu-based
+            if [[ "$ID_LIKE" == *"debian"* ]] || [[ "$ID" == "ubuntu" ]] || [[ "$ID" == "pop" ]] || [[ "$ID" == "debian" ]]; then
+                print_success "Debian/Ubuntu-based distribution detected"
+            else
+                print_warning "This script is optimized for Debian/Ubuntu-based distributions"
+                print_warning "Your distribution: $NAME"
+                if ! ask_yes_no "Continue anyway?"; then
+                    exit 1
+                fi
+            fi
+        fi
+
+        # Check for apt
+        if ! command_exists apt; then
+            print_error "apt package manager not found"
+            print_error "This script requires a Debian/Ubuntu-based distribution"
+            exit 1
+        fi
+        print_success "apt package manager found"
+
+        # Check for GNU Stow
+        if ! command_exists stow; then
+            print_error "GNU Stow is not installed"
+            if ask_yes_no "Would you like to install it with apt?"; then
+                sudo apt update
+                sudo apt install -y stow
+                print_success "Installed GNU Stow"
+            else
+                print_error "GNU Stow is required for installation"
+                exit 1
+            fi
+        else
+            print_success "GNU Stow is installed"
+        fi
+
     else
-        print_success "GNU Stow is installed"
+        print_error "Unsupported operating system: $OS_TYPE"
+        print_info "This script supports macOS and Linux (Debian/Ubuntu-based)"
+        exit 1
     fi
 
     # Initialize git submodules
@@ -180,13 +236,21 @@ EOF
         "scripts:Utility scripts (tmux-sessionizer, etc.)"
     )
 
-    # Optional packages
-    local optional_packages=(
-        "alacritty:Terminal emulator configuration"
-        "lazyvim:Neovim LazyVim configuration"
-        "hammerspoon:macOS automation (requires Hammerspoon app)"
-        "karabiner:Keyboard customization (requires Karabiner-Elements)"
-    )
+    # Optional packages (platform-aware descriptions)
+    local optional_packages=()
+    if [[ "$OS_TYPE" == "Darwin" ]]; then
+        optional_packages=(
+            "alacritty:Terminal emulator configuration"
+            "lazyvim:Neovim LazyVim configuration"
+            "hammerspoon:macOS automation (requires Hammerspoon app)"
+            "karabiner:Keyboard customization (requires Karabiner-Elements)"
+        )
+    else
+        optional_packages=(
+            "alacritty:Terminal emulator configuration"
+            "lazyvim:Neovim LazyVim configuration"
+        )
+    fi
 
     # Rarely used packages
     local rare_packages=(
@@ -253,21 +317,44 @@ EOF
         print_info "TokyoNight theme is active, base16 may not be needed"
     fi
 
-    # Recommend packages to install
+    # Platform-specific package recommendations
     print_header "Recommended software"
     echo
-    echo "Consider installing these via Homebrew:"
-    echo
-    echo "Essential:"
-    echo "  brew install neovim tmux fzf ripgrep fd bat"
-    echo
-    echo "Fonts:"
-    echo "  brew install --cask font-cascadia-code-nf"
-    echo
-    echo "Optional:"
-    echo "  brew install --cask alacritty"
-    echo "  brew install eza mise"
-    echo
+
+    if [[ "$OS_TYPE" == "Darwin" ]]; then
+        echo "Consider installing these via Homebrew:"
+        echo
+        echo "Essential:"
+        echo "  brew install neovim tmux fzf ripgrep fd bat"
+        echo
+        echo "Fonts:"
+        echo "  brew install --cask font-cascadia-code-nf"
+        echo
+        echo "Optional:"
+        echo "  brew install --cask alacritty"
+        echo "  brew install eza mise"
+        echo
+        echo "Install all at once:"
+        echo "  brew bundle  # Uses Brewfile in repository"
+        echo
+
+    elif [[ "$OS_TYPE" == "Linux" ]]; then
+        echo "Install system packages:"
+        echo
+        echo "Essential packages from apt:"
+        echo "  sudo apt update"
+        echo "  sudo apt install -y \$(grep -v '^#' packages.linux.txt | tr '\\n' ' ')"
+        echo
+        echo "Additional software (manual installation required):"
+        echo "  • eza - https://github.com/eza-community/eza/releases"
+        echo "  • mise - curl https://mise.run | sh"
+        echo "  • alacritty - sudo snap install alacritty --classic"
+        echo "  • Cascadia Code Nerd Font - See README-LINUX.md"
+        echo "  • Lando - https://lando.dev/download/"
+        echo
+        echo "See README-LINUX.md for detailed installation instructions."
+        echo
+    fi
 
     # Success message
     print_header "Installation complete!"
@@ -277,9 +364,16 @@ EOF
     echo "  1. Restart your shell or run: source ~/.zshrc"
     echo "  2. Install recommended software (see above)"
     echo "  3. Create ~/.zprofile.local for machine-specific settings"
+    echo "     (Template: $DOTFILES_DIR/zsh/.zprofile.local.example)"
     echo "  4. Customize configurations as needed"
     echo
-    print_info "For more information, see: $DOTFILES_DIR/README.md"
+    if [[ "$OS_TYPE" == "Darwin" ]]; then
+        print_info "For more information, see: $DOTFILES_DIR/README.md"
+    else
+        print_info "For more information, see:"
+        echo "  • $DOTFILES_DIR/README.md (general information)"
+        echo "  • $DOTFILES_DIR/README-LINUX.md (Linux-specific guide)"
+    fi
 }
 
 main "$@"
