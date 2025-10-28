@@ -9,6 +9,9 @@ This guide covers installation and setup of these dotfiles on Linux systems, spe
 git clone https://github.com/yourusername/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 
+# Checkout the linux branch (for testing before merge to master)
+git checkout linux
+
 # Initialize git submodules (zsh plugins)
 git submodule update --init --recursive
 
@@ -19,6 +22,8 @@ sudo apt install -y $(grep -v '^#' packages.linux.txt | tr '\n' ' ')
 # Run the installation script
 ./install.sh
 ```
+
+**Note:** The cross-platform support is currently on the `linux` branch for testing. After verification on Linux systems, this will be merged to `master`.
 
 ## Prerequisites
 
