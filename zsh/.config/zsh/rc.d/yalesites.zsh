@@ -1,7 +1,7 @@
 # YaleSites-specific functions and aliases
-
-# Pantheon still requires the use of mysql client 8.4 syntax, so have to use different version
-alias mysql8="/opt/homebrew/Cellar/mysql-client@8.4/8.4.2/bin/mysql"
+#
+# NOTE: mysql8 alias is defined in env.darwin.zsh and env.linux.zsh
+# as it's platform-specific
 
 # Lando
 alias l="lando"
@@ -51,11 +51,11 @@ function llogin() {
 
   # if the last argument is --copy, then copy the url to the clipboard
   if [ $copy != false ]; then
-    echo "$url" | pbcopy
+    echo "$url" | clipboard_copy
     echo "login copied to clipboard"
     return
   else
-    open "$url"
+    open_file "$url"
     echo "opening login url"
   fi
 }
@@ -78,7 +78,7 @@ function ysopen() {
   local landoFile="$rootPath/.lando.local.yml"
   local siteName=$(cat $landoFile | grep name: | cut -d':' -f2- | awk '{$1=$1};1')
 
-  open "https://$siteName.lndo.site"
+  open_file "https://$siteName.lndo.site"
 }
 
 # update all three repos
@@ -265,7 +265,7 @@ export DEBUG_COLORS=0
 
 # Find the port that changes each time it's rebuilt for lando instances
 dbport() {
-  lando info --format json | jq '.[] | select(.service == "database").external_connection.port' | sed 's/[^0-9]//g' | pbcopy
+  lando info --format json | jq '.[] | select(.service == "database").external_connection.port' | sed 's/[^0-9]//g' | clipboard_copy
   echo "Database port copied to clipboard"
 }
 

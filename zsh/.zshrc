@@ -245,9 +245,31 @@ bindkey -s "^[f" "tmux-sessionizer\n"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # {{{1 Load modular configuration
-# Source all .zsh files in ~/.config/zsh/rc.d/
+# Source configuration files in specific order for cross-platform support
 if [ -d ~/.config/zsh/rc.d ]; then
+  # 1. Load platform detection first (sets OS_TYPE and provides wrappers)
+  [ -f ~/.config/zsh/rc.d/platform.zsh ] && source ~/.config/zsh/rc.d/platform.zsh
+
+  # 2. Load cross-platform environment configuration
+  [ -f ~/.config/zsh/rc.d/env.zsh ] && source ~/.config/zsh/rc.d/env.zsh
+
+  # 3. Load platform-specific environment configuration
+  if [ -f ~/.config/zsh/rc.d/env.$OS_TYPE.zsh ]; then
+    source ~/.config/zsh/rc.d/env.$OS_TYPE.zsh
+  fi
+
+  # 4. Load aliases and functions
+  [ -f ~/.config/zsh/rc.d/aliases.zsh ] && source ~/.config/zsh/rc.d/aliases.zsh
+  [ -f ~/.config/zsh/rc.d/functions.zsh ] && source ~/.config/zsh/rc.d/functions.zsh
+
+  # 5. Load remaining configuration files (e.g., yalesites.zsh)
   for rc_file in ~/.config/zsh/rc.d/*.zsh; do
+    # Skip files already loaded
+    case "$rc_file" in
+      *platform.zsh|*env.zsh|*env.darwin.zsh|*env.linux.zsh|*aliases.zsh|*functions.zsh)
+        continue
+        ;;
+    esac
     [ -f "$rc_file" ] && source "$rc_file"
   done
   unset rc_file
