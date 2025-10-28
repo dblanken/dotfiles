@@ -1,10 +1,19 @@
-# Environment variables and PATH configuration
+# Cross-platform environment variables and PATH configuration
+#
+# This file contains environment variables that work across all platforms.
+# Platform-specific settings are in env.darwin.zsh and env.linux.zsh.
 
-# Editor
+# =============================================================================
+# Editor configuration
+# =============================================================================
+
 export EDITOR="nvim"
 export VISUAL="$EDITOR"
 
-# Less configuration
+# =============================================================================
+# Less/Man page configuration
+# =============================================================================
+
 export LESS="-FXR"
 export LESS_TERMCAP_mb="[35m" # magenta
 export LESS_TERMCAP_md="[33m" # yellow
@@ -14,34 +23,40 @@ export LESS_TERMCAP_so="[34m" # blue
 export LESS_TERMCAP_ue=""      # "0m"
 export LESS_TERMCAP_us="[4m"  # underline
 
-# Git
+# =============================================================================
+# Git/GPG configuration
+# =============================================================================
+
 export GPG_TTY=$(tty)
 
-# Docker
+# =============================================================================
+# Docker configuration
+# =============================================================================
+
 export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
-# PATH additions
-export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
-export PATH="/opt/homebrew/opt/libxml2/bin:$PATH"
-export PATH="/opt/homebrew/opt/imagemagick@6/bin:$PATH"
+# =============================================================================
+# Cross-platform PATH additions
+# =============================================================================
+
+# LM Studio (AI model runner) - works on both macOS and Linux
 export PATH="$HOME/.cache/lm-studio/bin:$PATH"
 
-# Library flags for building packages
-export LDFLAGS="-L/opt/homebrew/opt/libxml2/lib"
-export CPPFLAGS="-I/opt/homebrew/opt/libxml2/include"
-export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/libxml2/lib/pkgconfig"
+# =============================================================================
+# Runtime version managers
+# =============================================================================
 
-# NVM (Node Version Manager)
+# NVM (Node Version Manager) - cross-platform
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-# Bun
+# Bun - cross-platform JavaScript runtime
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
-# Mise (runtime version manager)
+# Mise (runtime version manager) - cross-platform
 if command -v mise &> /dev/null; then
   eval "$(mise activate zsh)"
 fi
