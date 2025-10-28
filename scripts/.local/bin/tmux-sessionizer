@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 possibilities=$(find ~/code -mindepth 1 -maxdepth 1 -type d)
-extras="$HOME/.config/nvim
+# Use NVIM_APPNAME if set, otherwise default to nvim
+nvim_config="${XDG_CONFIG_HOME:-$HOME/.config}/${NVIM_APPNAME:-nvim}"
+extras="$nvim_config
 $HOME/.dotfiles"
 
 possibilities="$possibilities
