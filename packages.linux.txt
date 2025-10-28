@@ -1,0 +1,76 @@
+# Linux Package List
+# Equivalent packages for Debian/Ubuntu-based systems (including Pop!_OS)
+# Install with: sudo apt update && sudo apt install -y $(grep -v '^#' packages.linux.txt | tr '\n' ' ')
+
+# Core development tools
+git
+stow
+tmux
+neovim
+zsh
+
+# Shell utilities
+fzf
+ripgrep
+fd-find
+bat
+jq
+
+# Note: fd-find and bat have different binary names on Ubuntu/Debian
+# fd-find → binary is 'fdfind' (alias created in env.linux.zsh)
+# bat → binary is 'batcat' (alias created in env.linux.zsh)
+
+# Clipboard utilities (install at least one)
+xclip
+xsel
+wl-clipboard
+
+# Note: Choose based on your display server:
+# - xclip or xsel for X11
+# - wl-clipboard for Wayland (GNOME on Wayland, Sway, etc.)
+# Pop!_OS uses X11 by default, so xclip is recommended
+
+# YaleSites-specific dependencies
+mysql-client
+docker.io
+docker-compose
+
+# Build dependencies for PHP/Ruby/Python development
+build-essential
+libssl-dev
+libxml2-dev
+libgmp-dev
+libpng-dev
+libtiff-dev
+libncurses-dev
+libmpfr-dev
+libyaml-dev
+libicu-dev
+libreadline-dev
+libwebp-dev
+unixodbc-dev
+libjpeg-dev
+libpq-dev
+imagemagick
+libmagickwand-dev
+
+# System tools
+curl
+wget
+ca-certificates
+gnupg
+lsb-release
+
+# Fonts
+fontconfig
+
+# Optional: Development tools
+python3-pip
+python3-venv
+
+# Packages NOT in apt (install separately):
+# - eza: Install via cargo or GitHub releases
+# - mise: Install via curl https://mise.run | sh
+# - alacritty: Install via snap, cargo, or GitHub releases
+# - nerd fonts: Manual installation to ~/.local/share/fonts/
+# - lando: Install from https://lando.dev/download/
