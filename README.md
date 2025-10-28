@@ -38,12 +38,17 @@ Cross-platform dotfiles for a terminal-based development environment optimized f
 git clone https://github.com/yourusername/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 
+# For testing the Linux branch (before merge):
+# git checkout linux
+
 # Initialize git submodules (zsh plugins)
 git submodule update --init --recursive
 
 # Run the installation script
 ./install.sh
 ```
+
+**Note:** The cross-platform support is currently on the `linux` branch. After testing on Linux, this will be merged to `master`.
 
 ## Prerequisites
 
