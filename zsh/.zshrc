@@ -16,7 +16,7 @@
 # zmodload zsh/zprof
 
 # {{{1 Tmux auto-attach
-if [ "$TMUX" = "" ]; then tmux attach || tmux -2 new -s $(hostname) && exit; fi
+if [ "$TMUX" = "" ]; then tmux attach || tmux -2 new -s "$HOST" && exit; fi
 
 export HASBREW="$(command -v brew)"
 export UNAME="$(uname)"
@@ -55,7 +55,16 @@ if [ "$UNAME" = "Darwin" ]; then
 fi
 
 # {{{1 Completion system
-autoload -Uz compinit && compinit -u
+# Use -C flag to skip security check if zcompdump is less than 24 hours old
+# This speeds up shell startup significantly when completions are cached
+autoload -Uz compinit
+if [[ -n ${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
+  # zcompdump is older than 24 hours, regenerate
+  compinit -u
+else
+  # zcompdump is fresh, use cached version
+  compinit -C -u
+fi
 
 # Make completion:
 # - Try exact (case-sensitive) match first.

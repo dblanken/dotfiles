@@ -54,16 +54,20 @@ export PHP_CONFIGURE_OPTS="--with-imagick=/opt/homebrew/opt/imagemagick"
 # =============================================================================
 
 # MySQL client alias (Pantheon compatibility)
-# Dynamically finds the latest installed mysql-client version
-if [[ -d "/opt/homebrew/Cellar/mysql-client@8.4" ]]; then
-  # Find the latest version directory
-  local mysql_latest
-  mysql_latest=$(find /opt/homebrew/Cellar/mysql-client@8.4 -maxdepth 1 -type d -name "8.4.*" | sort -V | tail -n 1)
-  if [[ -n "$mysql_latest" && -f "$mysql_latest/bin/mysql" ]]; then
-    alias mysql8="$mysql_latest/bin/mysql"
+# Caches the mysql8 path to avoid repeated filesystem lookups
+if [[ -z "$MYSQL8_BIN" ]]; then
+  if [[ -d "/opt/homebrew/Cellar/mysql-client@8.4" ]]; then
+    # Use zsh glob sort (faster than find | sort | tail)
+    # *(on) sorts by name, [1] gets first (latest due to version numbering)
+    local mysql_versions=(/opt/homebrew/Cellar/mysql-client@8.4/8.4.*(N/on))
+    if [[ ${#mysql_versions[@]} -gt 0 && -f "${mysql_versions[1]}/bin/mysql" ]]; then
+      export MYSQL8_BIN="${mysql_versions[1]}/bin/mysql"
+    fi
+  elif [[ -x /opt/homebrew/opt/mysql-client/bin/mysql ]]; then
+    # Fallback to symlinked version
+    export MYSQL8_BIN="/opt/homebrew/opt/mysql-client/bin/mysql"
   fi
-  unset mysql_latest
-elif command -v /opt/homebrew/opt/mysql-client/bin/mysql &> /dev/null; then
-  # Fallback to symlinked version
-  alias mysql8="/opt/homebrew/opt/mysql-client/bin/mysql"
 fi
+
+# Create alias if we found mysql8
+[[ -n "$MYSQL8_BIN" ]] && alias mysql8="$MYSQL8_BIN"

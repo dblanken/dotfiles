@@ -27,19 +27,33 @@ fi
 # Clipboard Operations
 # =============================================================================
 
+# Detect and cache clipboard utility on first use (Linux only)
+_detect_clipboard_util() {
+    if [[ -z "$CLIPBOARD_COPY_CMD" ]] || [[ -z "$CLIPBOARD_PASTE_CMD" ]]; then
+        if command -v xclip &> /dev/null; then
+            export CLIPBOARD_COPY_CMD="xclip -selection clipboard"
+            export CLIPBOARD_PASTE_CMD="xclip -selection clipboard -o"
+        elif command -v xsel &> /dev/null; then
+            export CLIPBOARD_COPY_CMD="xsel --clipboard --input"
+            export CLIPBOARD_PASTE_CMD="xsel --clipboard --output"
+        elif command -v wl-copy &> /dev/null && command -v wl-paste &> /dev/null; then
+            export CLIPBOARD_COPY_CMD="wl-copy"
+            export CLIPBOARD_PASTE_CMD="wl-paste"
+        else
+            return 1
+        fi
+    fi
+    return 0
+}
+
 # Copy to clipboard (cross-platform)
 # Usage: echo "text" | clipboard_copy
 clipboard_copy() {
-    if [ "$OS_TYPE" = "darwin" ]; then
+    if [[ "$OS_TYPE" = "darwin" ]]; then
         pbcopy
-    elif [ "$OS_TYPE" = "linux" ]; then
-        # Try multiple clipboard utilities (different ones for X11 vs Wayland)
-        if command -v xclip &> /dev/null; then
-            xclip -selection clipboard
-        elif command -v xsel &> /dev/null; then
-            xsel --clipboard --input
-        elif command -v wl-copy &> /dev/null; then
-            wl-copy
+    elif [[ "$OS_TYPE" = "linux" ]]; then
+        if _detect_clipboard_util; then
+            eval "$CLIPBOARD_COPY_CMD"
         else
             echo "Error: No clipboard utility found. Install xclip, xsel, or wl-clipboard" >&2
             return 1
@@ -53,16 +67,11 @@ clipboard_copy() {
 # Paste from clipboard (cross-platform)
 # Usage: clipboard_paste
 clipboard_paste() {
-    if [ "$OS_TYPE" = "darwin" ]; then
+    if [[ "$OS_TYPE" = "darwin" ]]; then
         pbpaste
-    elif [ "$OS_TYPE" = "linux" ]; then
-        # Try multiple clipboard utilities (different ones for X11 vs Wayland)
-        if command -v xclip &> /dev/null; then
-            xclip -selection clipboard -o
-        elif command -v xsel &> /dev/null; then
-            xsel --clipboard --output
-        elif command -v wl-paste &> /dev/null; then
-            wl-paste
+    elif [[ "$OS_TYPE" = "linux" ]]; then
+        if _detect_clipboard_util; then
+            eval "$CLIPBOARD_PASTE_CMD"
         else
             echo "Error: No clipboard utility found. Install xclip, xsel, or wl-clipboard" >&2
             return 1
