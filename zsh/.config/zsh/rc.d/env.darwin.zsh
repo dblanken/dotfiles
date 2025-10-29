@@ -54,5 +54,16 @@ export PHP_CONFIGURE_OPTS="--with-imagick=/opt/homebrew/opt/imagemagick"
 # =============================================================================
 
 # MySQL client alias (Pantheon compatibility)
-# Points to Homebrew-installed mysql-client 8.4
-alias mysql8="/opt/homebrew/Cellar/mysql-client@8.4/8.4.2/bin/mysql"
+# Dynamically finds the latest installed mysql-client version
+if [[ -d "/opt/homebrew/Cellar/mysql-client@8.4" ]]; then
+  # Find the latest version directory
+  local mysql_latest
+  mysql_latest=$(find /opt/homebrew/Cellar/mysql-client@8.4 -maxdepth 1 -type d -name "8.4.*" | sort -V | tail -n 1)
+  if [[ -n "$mysql_latest" && -f "$mysql_latest/bin/mysql" ]]; then
+    alias mysql8="$mysql_latest/bin/mysql"
+  fi
+  unset mysql_latest
+elif command -v /opt/homebrew/opt/mysql-client/bin/mysql &> /dev/null; then
+  # Fallback to symlinked version
+  alias mysql8="/opt/homebrew/opt/mysql-client/bin/mysql"
+fi

@@ -1,21 +1,27 @@
 # Cross-platform utility functions and wrappers
 #
-# This module provides platform detection and wrapper functions for
-# platform-specific commands to ensure dotfiles work on both macOS and Linux.
+# This module provides wrapper functions for platform-specific commands
+# to ensure dotfiles work on both macOS and Linux.
+#
+# Note: OS_TYPE should be set in .zprofile before this module is loaded.
+# If not set, we'll detect it here as a fallback.
 
-# Detect operating system
-export OS_TYPE="unknown"
-case "$(uname -s)" in
-    Darwin)
-        OS_TYPE="darwin"
-        ;;
-    Linux)
-        OS_TYPE="linux"
-        ;;
-    *)
-        OS_TYPE="unknown"
-        ;;
-esac
+# Validate OS_TYPE is set (should come from .zprofile)
+if [[ -z "${OS_TYPE:-}" ]]; then
+    echo "Warning: OS_TYPE not set in .zprofile, detecting now..." >&2
+    export OS_TYPE="unknown"
+    case "$(uname -s)" in
+        Darwin)
+            OS_TYPE="darwin"
+            ;;
+        Linux)
+            OS_TYPE="linux"
+            ;;
+        *)
+            OS_TYPE="unknown"
+            ;;
+    esac
+fi
 
 # =============================================================================
 # Clipboard Operations

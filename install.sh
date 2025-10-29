@@ -2,7 +2,10 @@
 #
 # Bootstrap script for dotfiles installation
 # Supports: macOS (Darwin) and Linux (Debian/Ubuntu-based)
-# Usage: ./install.sh
+# Usage: ./install.sh [dotfiles-directory]
+#
+# Arguments:
+#   dotfiles-directory  Optional path to dotfiles (defaults to ~/.dotfiles)
 
 set -e
 
@@ -13,8 +16,13 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Dotfiles directory
-DOTFILES_DIR="$HOME/.dotfiles"
+# Dotfiles directory - accept argument or default to ~/.dotfiles
+DOTFILES_DIR="${1:-$HOME/.dotfiles}"
+
+# Make it absolute if relative path provided
+if [[ "$DOTFILES_DIR" != /* ]]; then
+    DOTFILES_DIR="$(cd "$DOTFILES_DIR" 2>/dev/null && pwd)" || DOTFILES_DIR="$HOME/.dotfiles"
+fi
 
 # Detect OS
 OS_TYPE="$(uname -s)"
