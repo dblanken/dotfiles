@@ -106,6 +106,37 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Wrapper for curl with timeouts and retry logic
+curl_with_retry() {
+    local url="$1"
+    local output="$2"
+    local max_attempts=3
+    local timeout=10
+    local max_time=60
+    local attempt=1
+
+    while [[ $attempt -le $max_attempts ]]; do
+        if [[ -n "$output" ]]; then
+            if curl --connect-timeout "$timeout" --max-time "$max_time" -fsSL "$url" -o "$output"; then
+                return 0
+            fi
+        else
+            if curl --connect-timeout "$timeout" --max-time "$max_time" -fsSL "$url"; then
+                return 0
+            fi
+        fi
+
+        if [[ $attempt -lt $max_attempts ]]; then
+            print_warning "Download attempt $attempt failed, retrying in $((attempt * 2)) seconds..."
+            sleep $((attempt * 2))
+        fi
+        ((attempt++))
+    done
+
+    print_error "Failed to download after $max_attempts attempts: $url"
+    return 1
+}
+
 # Check OS
 if [[ "$(uname -s)" != "Linux" ]]; then
     print_error "This script is for Linux only"
@@ -205,7 +236,7 @@ install_eza_from_github() {
     esac
 
     local latest_url
-    latest_url=$(curl -s https://api.github.com/repos/eza-community/eza/releases/latest | \
+    latest_url=$(curl_with_retry https://api.github.com/repos/eza-community/eza/releases/latest | \
                  grep "browser_download_url.*eza_${eza_arch}-unknown-linux-gnu.tar.gz" | \
                  cut -d '"' -f 4)
 
@@ -218,7 +249,11 @@ install_eza_from_github() {
     temp_dir=$(mktemp -d)
     cd "$temp_dir" || return 1
 
-    curl -sL "$latest_url" -o eza.tar.gz
+    curl_with_retry "$latest_url" "eza.tar.gz" || {
+        cd - > /dev/null
+        rm -rf "$temp_dir"
+        return 1
+    }
     tar xzf eza.tar.gz
     sudo mv eza /usr/local/bin/
     sudo chmod +x /usr/local/bin/eza
@@ -244,7 +279,10 @@ install_mise() {
     print_info "Installing mise via official installer"
 
     # Use mise's official install script
-    curl https://mise.run | sh
+    if ! curl_with_retry https://mise.run | sh; then
+        print_error "Failed to install mise"
+        return 1
+    fi
 
     # Add to PATH for current session
     export PATH="$HOME/.local/bin:$PATH"
@@ -280,7 +318,12 @@ install_fonts() {
     temp_dir=$(mktemp -d)
 
     cd "$temp_dir" || return 1
-    curl -sL "$font_url" -o CascadiaMono.zip
+
+    if ! curl_with_retry "$font_url" "CascadiaMono.zip"; then
+        cd - > /dev/null
+        rm -rf "$temp_dir"
+        return 1
+    fi
 
     if [[ ! -f CascadiaMono.zip ]]; then
         print_error "Failed to download font"
@@ -341,7 +384,7 @@ install_lando() {
 
     # Get latest release
     local latest_version
-    latest_version=$(curl -s https://api.github.com/repos/lando/lando/releases/latest | \
+    latest_version=$(curl_with_retry https://api.github.com/repos/lando/lando/releases/latest | \
                      grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
 
     if [[ -z "$latest_version" ]]; then
@@ -355,7 +398,11 @@ install_lando() {
     temp_dir=$(mktemp -d)
     cd "$temp_dir" || return 1
 
-    curl -sL "$download_url" -o lando.deb
+    if ! curl_with_retry "$download_url" "lando.deb"; then
+        cd - > /dev/null
+        rm -rf "$temp_dir"
+        return 1
+    fi
 
     if [[ ! -f lando.deb ]]; then
         print_error "Failed to download Lando"

@@ -75,20 +75,24 @@ fi
 # Distribution-specific tweaks
 # =============================================================================
 
-# Detect distribution
-if [ -f /etc/os-release ]; then
+# Detect distribution (cached to avoid re-sourcing /etc/os-release every shell)
+if [[ -z "$DISTRO_ID" ]] && [[ -f /etc/os-release ]]; then
     . /etc/os-release
     export DISTRO_ID="$ID"
     export DISTRO_VERSION="$VERSION_ID"
+    export DISTRO_NAME="$NAME"
+fi
 
+# Distribution-specific configuration
+if [[ -n "$DISTRO_ID" ]]; then
     # Pop!_OS specific configuration
-    if [ "$ID" = "pop" ]; then
+    if [[ "$DISTRO_ID" = "pop" ]]; then
         # Add Pop!_OS specific tweaks here
         :
     fi
 
     # Ubuntu specific configuration
-    if [ "$ID" = "ubuntu" ]; then
+    if [[ "$DISTRO_ID" = "ubuntu" ]]; then
         # Add Ubuntu specific tweaks here
         :
     fi
