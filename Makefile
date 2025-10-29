@@ -1,6 +1,7 @@
 .PHONY: help install update stow-all unstow-all restow-all clean
 .PHONY: stow-% unstow-% restow-%
 .PHONY: stow-core stow-optional
+.PHONY: validate check-platform install-linux-extras
 
 # Colors
 BLUE := \033[0;34m
@@ -167,3 +168,51 @@ check: ## Check for prerequisites
 	@git submodule status 2>/dev/null | grep -q "^-" && \
 		echo "$(YELLOW)⚠$(NC) Submodules not initialized (run: make update)" || \
 		echo "$(GREEN)✓$(NC) Submodules initialized"
+
+validate: ## Run comprehensive dotfiles health check
+	@if [ -x "$(HOME)/.local/bin/dotfiles-check" ]; then \
+		$(HOME)/.local/bin/dotfiles-check; \
+	elif [ -x "scripts/.local/bin/dotfiles-check" ]; then \
+		scripts/.local/bin/dotfiles-check; \
+	else \
+		echo "$(YELLOW)✗$(NC) dotfiles-check script not found"; \
+		echo "$(BLUE)ℹ$(NC) Run: make stow-scripts"; \
+		exit 1; \
+	fi
+
+check-platform: ## Display platform and environment information
+	@echo "$(BLUE)==>$(NC) Platform Information"
+	@echo ""
+	@echo "  OS Type: $$(uname -s)"
+	@echo "  Kernel Version: $$(uname -r)"
+	@echo "  Machine Architecture: $$(uname -m)"
+	@if [ "$$(uname -s)" = "Darwin" ]; then \
+		echo "  macOS Version: $$(sw_vers -productVersion 2>/dev/null || echo 'Unknown')"; \
+		echo "  Homebrew: $$(command -v brew >/dev/null && echo 'installed' || echo 'not installed')"; \
+	elif [ "$$(uname -s)" = "Linux" ]; then \
+		if [ -f /etc/os-release ]; then \
+			. /etc/os-release; \
+			echo "  Distribution: $$NAME $$VERSION_ID"; \
+			echo "  ID: $$ID"; \
+		fi; \
+		echo "  apt: $$(command -v apt >/dev/null && echo 'available' || echo 'not available')"; \
+	fi
+	@echo ""
+	@echo "$(BLUE)==>$(NC) Dotfiles Environment"
+	@echo ""
+	@echo "  Dotfiles Directory: $(DOTFILES)"
+	@echo "  Git Repository: $$([ -d $(DOTFILES)/.git ] && echo 'yes' || echo 'no')"
+	@echo "  Stowed Packages: $$(for p in $(ALL_PACKAGES); do [ -L $(HOME)/.$$p ] || [ -L $(HOME)/.config/$$p ] && echo -n "$$p "; done)"
+
+install-linux-extras: ## Install Linux-specific packages requiring manual installation
+	@if [ "$$(uname -s)" != "Linux" ]; then \
+		echo "$(YELLOW)⚠$(NC) This target is for Linux only"; \
+		echo "$(BLUE)ℹ$(NC) Use 'brew bundle' on macOS"; \
+		exit 1; \
+	fi
+	@if [ -x "$(DOTFILES)/install-linux-extras.sh" ]; then \
+		$(DOTFILES)/install-linux-extras.sh --all; \
+	else \
+		echo "$(YELLOW)✗$(NC) install-linux-extras.sh not found or not executable"; \
+		exit 1; \
+	fi

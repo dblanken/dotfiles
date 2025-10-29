@@ -50,6 +50,29 @@ git submodule update --init --recursive
 
 **Note:** The cross-platform support is currently on the `linux` branch. After testing on Linux, this will be merged to `master`.
 
+## Health Check & Validation
+
+After installation, validate your dotfiles setup:
+
+```bash
+# Run comprehensive health check
+make validate
+
+# Check platform detection and environment
+make check-platform
+
+# Check basic prerequisites
+make check
+```
+
+The `dotfiles-check` script validates:
+- ✅ Symlinks point to valid targets
+- ✅ Git submodules are initialized
+- ✅ Required binaries are installed
+- ✅ Scripts have correct permissions
+- ✅ Platform detection is working
+- ✅ Shell scripts pass shellcheck (if installed)
+
 ## Prerequisites
 
 ### macOS
@@ -98,14 +121,28 @@ sudo apt update
 sudo apt install -y $(grep -v '^#' packages.linux.txt | tr '\n' ' ')
 ```
 
-**Additional software** (not in apt, install separately):
-- **eza** - Install from GitHub releases or cargo
-- **mise** - `curl https://mise.run | sh`
-- **Alacritty** - `sudo snap install alacritty --classic` (or build from source)
-- **Cascadia Code Nerd Font** - Manual installation to `~/.local/share/fonts/`
-- **Lando** - Download .deb from https://lando.dev/download/
+**Additional software** (not in apt):
 
-**📖 See [README-LINUX.md](README-LINUX.md) for detailed Linux installation instructions.**
+Use the automated installer for eza, mise, Nerd Fonts, Lando, and Alacritty:
+
+```bash
+# Install all extras automatically
+./install-linux-extras.sh --all
+
+# Or install individually
+./install-linux-extras.sh --eza
+./install-linux-extras.sh --mise
+./install-linux-extras.sh --fonts
+./install-linux-extras.sh --lando
+./install-linux-extras.sh --alacritty
+```
+
+Or use the Makefile:
+```bash
+make install-linux-extras
+```
+
+**📖 See [README-LINUX.md](README-LINUX.md) for detailed Linux installation instructions and [PACKAGES.md](PACKAGES.md) for cross-platform package mapping.**
 
 ### Optional
 

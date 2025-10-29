@@ -35,8 +35,9 @@
 # Application-specific settings
 # ==============================================================================
 
-# Override YaleSites URL for your local site
-# export YALESITES_URL="http://your-site-name.lndo.site"
+# YaleSites local development URL
+# Replace with your site name (e.g., yalesites-mv482-dev, yalesites-project-dev)
+export YALESITES_URL="http://your-site-name.lndo.site"
 
 # Custom database settings
 # export DATABASE_URL="postgres://..."

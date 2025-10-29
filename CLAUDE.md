@@ -224,6 +224,15 @@ Located in `scripts/.local/bin/`:
 - Bound to `Alt+f` in zsh
 - Uses `$NVIM_APPNAME` and `$XDG_CONFIG_HOME` for portability
 
+**dotfiles-check** - Comprehensive health check and validation
+- Validates symlinks point to correct targets
+- Checks git submodules are initialized
+- Verifies required binaries are installed
+- Tests platform detection
+- Validates script permissions
+- Runs shellcheck if available
+- Run via `make validate` or directly as `dotfiles-check`
+
 **enable_portkey** - Sources Portkey configuration for Claude Code
 
 ## Installation and Management
@@ -244,10 +253,13 @@ The script will:
 
 **Using Makefile:**
 ```bash
-make install        # Run install.sh
-make stow-core      # Stow essential packages (zsh, git, tmux, scripts)
-make stow-optional  # Stow optional packages (alacritty, lazyvim, etc.)
-make stow-zsh       # Stow specific package
+make install              # Run install.sh
+make stow-core            # Stow essential packages (zsh, git, tmux, scripts)
+make stow-optional        # Stow optional packages (alacritty, lazyvim, etc.)
+make stow-zsh             # Stow specific package
+make validate             # Run dotfiles health check
+make check-platform       # Display platform info
+make install-linux-extras # Install Linux-only tools (Linux only)
 ```
 
 ### Managing Packages
@@ -349,3 +361,80 @@ Plugins are managed as submodules in `zsh/.config/zsh/`:
 
 ### Color Scheme
 Consistent **TokyoNight** theme across Alacritty, tmux, and Neovim.
+
+## Cross-Platform Maintainability Features
+
+### Validation and Health Checking
+
+**dotfiles-check** script provides comprehensive validation:
+- Verifies all symlinks point to valid targets in `~/.dotfiles/`
+- Checks git submodules are properly initialized
+- Validates required and optional binaries are installed
+- Tests platform detection (OS_TYPE variable)
+- Checks script permissions in `~/.local/bin/`
+- Runs shellcheck on shell scripts if available
+- Provides actionable error messages and fix suggestions
+
+Run via: `make validate` or `dotfiles-check` directly
+
+### Platform-Specific Configurations
+
+**Dynamic Path Resolution:**
+- MySQL client path (env.darwin.zsh) now dynamically finds latest installed version
+- No more hardcoded version numbers that break on Homebrew updates
+- Falls back to symlinked version if Cellar path not found
+
+**Single Source of Truth for OS Detection:**
+- `OS_TYPE` set once in `.zprofile` (early in boot sequence)
+- `platform.zsh` validates it's set, provides fallback detection if needed
+- Eliminated duplicate detection logic
+
+**Site-Specific Configuration:**
+- `YALESITES_URL` moved to `.zprofile.local` (not tracked in git)
+- Template provided in `.zprofile.local.example`
+- Prevents committing machine-specific URLs
+
+### Linux Extras Automation
+
+**install-linux-extras.sh** automates manual installation steps:
+- eza (modern ls) - via cargo or GitHub releases
+- mise (runtime version manager) - via official installer
+- Nerd Fonts (CaskaydiaMono) - automated download and installation
+- Lando (.deb package) - downloads and installs latest version
+- Alacritty - via PPA, snap, or source based on distribution
+
+Supports:
+- `--all` flag to install everything
+- Individual tool flags (`--eza`, `--mise`, etc.)
+- Automatic architecture detection (x86_64, aarch64)
+- Distribution-specific installation methods
+- Error handling and dependency checking
+
+Run via: `./install-linux-extras.sh --all` or `make install-linux-extras`
+
+### Package Documentation
+
+**PACKAGES.md** provides cross-platform package mapping:
+- Homebrew formula → apt package equivalents
+- Binary name differences (fd/fdfind, bat/batcat)
+- Version requirements for each tool
+- Manual installation instructions
+- Platform-specific packages and alternatives
+- Dependency relationships between packages
+- Quick reference for troubleshooting
+
+### Additional Makefile Targets
+
+New convenience targets:
+- `make validate` - Run dotfiles-check health validation
+- `make check-platform` - Display OS, distro, architecture info
+- `make install-linux-extras` - Install Linux-only tools (guards against macOS)
+
+### Installation Script Improvements
+
+**install.sh** enhancements:
+- Accepts optional directory argument (not just `~/.dotfiles`)
+- Converts relative paths to absolute automatically
+- Better error messages with context
+
+Usage: `./install.sh [path/to/dotfiles]`

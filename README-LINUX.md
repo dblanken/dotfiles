@@ -51,9 +51,41 @@ This installs:
 
 ## Additional Software
 
-Some software isn't available in apt and must be installed separately:
+Some software isn't available in apt and must be installed separately. You can use the **automated installer** or install manually.
 
-### 1. eza (Modern ls Replacement)
+### Automated Installation (Recommended)
+
+Install all extras automatically:
+
+```bash
+# Install everything
+./install-linux-extras.sh --all
+
+# Or use the Makefile
+make install-linux-extras
+```
+
+This installs:
+- eza (modern ls replacement)
+- mise (runtime version manager)
+- CaskaydiaMono Nerd Font
+- Lando (local development environment)
+- Alacritty (terminal emulator)
+
+**Install individually:**
+```bash
+./install-linux-extras.sh --eza
+./install-linux-extras.sh --mise
+./install-linux-extras.sh --fonts
+./install-linux-extras.sh --lando
+./install-linux-extras.sh --alacritty
+```
+
+### Manual Installation
+
+If you prefer to install manually:
+
+#### 1. eza (Modern ls Replacement)
 
 **Option A: Install from GitHub releases (recommended)**
 ```bash
@@ -74,7 +106,7 @@ rm eza_x86_64-unknown-linux-gnu.tar.gz
 cargo install eza
 ```
 
-### 2. mise (Runtime Version Manager)
+#### 2. mise (Runtime Version Manager)
 
 ```bash
 curl https://mise.run | sh
@@ -179,6 +211,31 @@ chsh -s $(which zsh)
 
 # Log out and back in for changes to take effect
 ```
+
+### Validate Installation
+
+After installation, run the health check to verify everything is set up correctly:
+
+```bash
+# Comprehensive health check
+make validate
+
+# Check platform detection
+make check-platform
+
+# Basic prerequisite check
+make check
+```
+
+The validation script checks:
+- ✅ All symlinks are valid
+- ✅ Git submodules initialized
+- ✅ Required binaries installed
+- ✅ Clipboard utilities available
+- ✅ Scripts have correct permissions
+- ✅ Platform detection working
+
+**Fix any reported issues** before proceeding. The script provides actionable suggestions.
 
 ## Configuration
 
