@@ -221,6 +221,7 @@ dbget() {
   local multidev="${1:-dev}"
   l pull --code=none --database="$multidev" --files=none
   l drush config:set cas.settings server.cert NULL -y
+  l drush config:set ai_engine_embedding.settings enable 0 -y
   lcr
 }
 
