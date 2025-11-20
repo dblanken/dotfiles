@@ -13,7 +13,7 @@ alias switch-vim=". ~/.local/bin/switch-vim"
 alias zshrc="v ~/.zshrc"
 alias dot="cd ~/.dotfiles"
 alias tmuxconf="v ~/.tmux.conf"
-alias claude="$HOME/.claude/local/claude"
+# alias claude="$HOME/.claude/local/claude"
 
 # Git
 alias g=git

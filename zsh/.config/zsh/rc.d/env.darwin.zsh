@@ -7,6 +7,10 @@
 # Homebrew-specific PATH additions
 # =============================================================================
 
+# ICU4C (PHP 8.3.x requires version 77)
+export PATH="/opt/homebrew/opt/icu4c@77/bin:$PATH"
+export PATH="/opt/homebrew/opt/icu4c@77/sbin:$PATH"
+
 # MySQL client (Pantheon requires 8.4 syntax)
 export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
 
@@ -20,14 +24,29 @@ export PATH="/opt/homebrew/opt/imagemagick@6/bin:$PATH"
 # Library flags for building packages
 # =============================================================================
 
+# ARM64 architecture flags for native compilation
+export CFLAGS="-arch arm64"
+export CXXFLAGS="-arch arm64"
+
 # libxml2
 export LDFLAGS="-L/opt/homebrew/opt/libxml2/lib"
 export CPPFLAGS="-I/opt/homebrew/opt/libxml2/include"
 export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/libxml2/lib/pkgconfig"
 
+# Additional library paths for PHP and extension compilation
+# These are critical for building PHP from source on ARM64
+# NOTE: PHP 8.3.x requires ICU 77, not ICU 78
+PHP_BUILD_LIBS="icu4c@77 krb5 libedit libxml2 openssl@3 zlib libiconv libzip"
+for lib in ${=PHP_BUILD_LIBS}; do
+    export LDFLAGS="$LDFLAGS -L/opt/homebrew/opt/$lib/lib"
+    export CPPFLAGS="$CPPFLAGS -I/opt/homebrew/opt/$lib/include"
+done
+unset PHP_BUILD_LIBS lib
+
 # Consolidated PKG_CONFIG_PATH for multiple Homebrew libraries
 # This supports building PHP extensions and other native packages
-PKG_CONFIG_LIBS="openssl libtiff gmp libpng ncurses mpfr libyaml icu4c readline webp unixodbc jpeg libpq imagemagick"
+# NOTE: PHP 8.3.x requires ICU 77, not ICU 78
+PKG_CONFIG_LIBS="openssl@3 libtiff gmp libpng ncurses mpfr libyaml icu4c@77 readline webp unixodbc jpeg libpq imagemagick krb5 libedit libxml2 zlib"
 for lib in ${=PKG_CONFIG_LIBS}; do
     export PKG_CONFIG_PATH="/opt/homebrew/opt/$lib/lib/pkgconfig:$PKG_CONFIG_PATH"
 done
@@ -47,7 +66,12 @@ export RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
 
 export LDFLAGS="$LDFLAGS -L/opt/homebrew/opt/imagemagick/lib"
 export CPPFLAGS="$CPPFLAGS -I/opt/homebrew/opt/imagemagick/include"
-export PHP_CONFIGURE_OPTS="--with-imagick=/opt/homebrew/opt/imagemagick"
+
+# PHP configure options for mise/asdf builds
+# These ensure PHP compiles correctly on ARM64 with all necessary libraries
+# PHP 8.3.x requires ICU 77, not ICU 78
+export PHP_CONFIGURE_OPTS="--with-imagick=/opt/homebrew/opt/imagemagick --with-openssl=/opt/homebrew/opt/openssl@3 --with-zlib=/opt/homebrew/opt/zlib --with-icu-dir=/opt/homebrew/opt/icu4c@77"
+export PHP_BUILD_CONFIGURE_OPTS="$PHP_CONFIGURE_OPTS"
 
 # =============================================================================
 # macOS-specific aliases

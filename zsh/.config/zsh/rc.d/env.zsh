@@ -56,6 +56,10 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
+# For Claude Code
+export DISABLE_TELEMTRY=1
+export DISABLE_AUTOUPDATER=1
+
 # Mise (runtime version manager) - cross-platform
 if command -v mise &> /dev/null; then
   eval "$(mise activate zsh)"
