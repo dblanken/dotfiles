@@ -65,3 +65,8 @@ coverage/
 # Misc
 .vagrant/
 Thumbs.db
+
+# AI
+.claude/
+CLAUDE_*
+Claude.md

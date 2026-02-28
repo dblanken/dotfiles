@@ -11,3 +11,13 @@ git/.local
 **/*.local
 .zprofile.local*
 !scripts/.local/
+!autostart/.local/
+
+# Mise runtime metadata
+mise/.config/mise/cache/
+mise/.config/mise/installs/
+mise/.config/mise/shims/
+
+.claude
+CLAUDE.md
+CLAUDE_*
