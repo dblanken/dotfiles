@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=Enable VRR/FreeSync
+Exec=/home/dblanken/.local/bin/enable-vrr.sh
+X-GNOME-Autostart-enabled=true

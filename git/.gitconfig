@@ -1,7 +1,7 @@
 [user]
 	name = David Blankenship
-	email = david.blankenship@yale.edu
-	signingkey = ~/.ssh/id_rsa.pub
+	email = dtblankenship@gmail.com
+	; signingkey = ~/.ssh/id_rsa.pub
 [core]
 	autocrlf = input
 	excludesfile = ~/.gitignore
@@ -15,7 +15,7 @@
 	prune = true
 [commit]
 	template = ~/.gitmessage
-	gpgsign = true
+	; gpgsign = true
 [alias]
 	b = branch
 	ca = commit -v -a
