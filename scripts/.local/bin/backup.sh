@@ -8,6 +8,7 @@ set -e
 set -o pipefail  # Ensure we catch rsync errors even when piped to tee
 
 EXTERNAL_DRIVE="${1:-/mnt/backups}"
+ASKPASS="$(getent passwd "$(id -u)" | cut -d: -f6)/code/system/secure-askpass/askpass"
 
 if [ ! -d "$EXTERNAL_DRIVE" ]; then
   echo "Error: Backup destination $EXTERNAL_DRIVE does not exist or is not mounted."
@@ -40,7 +41,7 @@ rsync -av --progress \
   --exclude='.paradoxlauncher' \
   --exclude='.claude' \
   --exclude='.thumbnails' \
-  /home/$USER/ \
+  "$HOME/" \
   "$BACKUP_DIR/home/" 2>&1 | tee "$BACKUP_DIR/rsync-output.log"
 
 # Check rsync exit status
@@ -61,7 +62,7 @@ snap list > "$BACKUP_DIR/snap-packages.txt" 2>/dev/null || true
 # 3. System configuration
 echo "[3/8] Backing up system configuration..."
 mkdir -p "$BACKUP_DIR/system-config"
-SUDO_ASKPASS=/home/dblanken/code/system/secure-askpass/askpass sudo -A rsync -av \
+SUDO_ASKPASS="$ASKPASS" sudo -A rsync -av \
   /etc/fstab \
   /etc/hosts \
   /etc/hostname \
@@ -69,9 +70,9 @@ SUDO_ASKPASS=/home/dblanken/code/system/secure-askpass/askpass sudo -A rsync -av
 
 # 4. Partition info
 echo "[4/8] Saving partition information..."
-SUDO_ASKPASS=/home/dblanken/code/system/secure-askpass/askpass sudo -A blkid > "$BACKUP_DIR/partition-info.txt"
+SUDO_ASKPASS="$ASKPASS" sudo -A blkid > "$BACKUP_DIR/partition-info.txt"
 lsblk -f > "$BACKUP_DIR/disk-layout.txt"
-SUDO_ASKPASS=/home/dblanken/code/system/secure-askpass/askpass sudo -A efibootmgr -v > "$BACKUP_DIR/efi-boot-entries.txt" 2>/dev/null || true
+SUDO_ASKPASS="$ASKPASS" sudo -A efibootmgr -v > "$BACKUP_DIR/efi-boot-entries.txt" 2>/dev/null || true
 
 # 5. Network configuration
 echo "[5/8] Saving network configuration..."
@@ -100,13 +101,13 @@ echo "[7/8] Backing up databases (if applicable)..."
 if systemctl is-active --quiet mysql 2>/dev/null || systemctl is-active --quiet mariadb 2>/dev/null; then
   echo "Backing up MySQL/MariaDB..."
   # Uses ~/.my.cnf for credentials; skips gracefully if auth fails
-  mysqldump --defaults-file=/home/dblanken/.my.cnf --all-databases > "$BACKUP_DIR/mysql-all-databases.sql" 2>/dev/null \
-    || echo "Warning: MySQL/MariaDB dump skipped (no credentials configured in /home/dblanken/.my.cnf)"
+  mysqldump --defaults-file="$HOME/.my.cnf" --all-databases > "$BACKUP_DIR/mysql-all-databases.sql" 2>/dev/null \
+    || echo "Warning: MySQL/MariaDB dump skipped (no credentials configured in $HOME/.my.cnf)"
 fi
 
 if systemctl is-active --quiet postgresql 2>/dev/null; then
   echo "Backing up PostgreSQL..."
-  SUDO_ASKPASS=/home/dblanken/code/system/secure-askpass/askpass sudo -A -u postgres pg_dumpall > "$BACKUP_DIR/postgresql-all-databases.sql" 2>/dev/null \
+  SUDO_ASKPASS="$ASKPASS" sudo -A -u postgres pg_dumpall > "$BACKUP_DIR/postgresql-all-databases.sql" 2>/dev/null \
     || echo "Warning: PostgreSQL dump skipped (sudo auth failed or service unavailable)"
 fi
 

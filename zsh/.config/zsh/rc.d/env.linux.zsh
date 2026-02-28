@@ -89,7 +89,7 @@ if [[ -n "$DISTRO_ID" ]]; then
     if [[ "$DISTRO_ID" = "pop" ]]; then
         # Add Pop!_OS specific tweaks here
         :
-        export SUDO_ASKPASS=/home/dblanken/code/system/secure-askpass/askpass
+        export SUDO_ASKPASS="$(getent passwd "$(id -u)" | cut -d: -f6)/code/system/secure-askpass/askpass"
     fi
 
     # Ubuntu specific configuration

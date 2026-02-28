@@ -3,6 +3,9 @@
 # NOTE: mysql8 alias is defined in env.darwin.zsh and env.linux.zsh
 # as it's platform-specific
 
+# YaleSites is a work environment — macOS only
+[[ "$OS_TYPE" != "darwin" ]] && return
+
 # Lando
 alias l="lando"
 alias lcr="l drush cr"
@@ -313,10 +316,3 @@ grtm() {
   gh pr list -B develop --search 'label:"ready to merge"'
 }
 
-# Consolidated PKG_CONFIG_PATH for multiple Homebrew libraries
-export PKG_CONFIG_PATH="/opt/homebrew/opt/{openssl,libtiff,gmp,libpng,ncurses,mpfr,libyaml,icu4c,readline,webp,unixodbc,jpeg,libpq,imagemagick}/lib/pkgconfig"
-
-# ImageMagick configuration for PHP builds
-export LDFLAGS="$LDFLAGS -L/opt/homebrew/opt/imagemagick/lib"
-export CPPFLAGS="$CPPFLAGS -I/opt/homebrew/opt/imagemagick/include"
-export PHP_CONFIGURE_OPTS="--with-imagick=/opt/homebrew/opt/imagemagick"
