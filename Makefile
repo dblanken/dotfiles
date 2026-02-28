@@ -1,6 +1,6 @@
 .PHONY: help install update stow-all unstow-all restow-all clean
 .PHONY: stow-% unstow-% restow-%
-.PHONY: stow-core stow-optional
+.PHONY: stow-core stow-optional stow-linux
 .PHONY: validate check-platform install-linux-extras
 
 # Colors
@@ -15,11 +15,14 @@ DOTFILES := $(HOME)/.dotfiles
 # Core packages
 CORE_PACKAGES := zsh git tmux scripts
 
+# Linux-specific packages
+LINUX_PACKAGES := autostart mise
+
 # Optional packages
 OPTIONAL_PACKAGES := alacritty lazyvim hammerspoon karabiner
 
 # All packages
-ALL_PACKAGES := $(CORE_PACKAGES) $(OPTIONAL_PACKAGES) nvim vim asdf
+ALL_PACKAGES := $(CORE_PACKAGES) $(LINUX_PACKAGES) $(OPTIONAL_PACKAGES) nvim vim asdf
 
 help: ## Show this help message
 	@echo "$(BLUE)Dotfiles Makefile$(NC)"
@@ -35,6 +38,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(GREEN)Available packages:$(NC)"
 	@echo "  Core:     $(CORE_PACKAGES)"
+	@echo "  Linux:    $(LINUX_PACKAGES)"
 	@echo "  Optional: $(OPTIONAL_PACKAGES)"
 	@echo "  Other:    nvim vim asdf"
 
@@ -96,6 +100,15 @@ stow-optional: ## Stow optional packages (alacritty, lazyvim, etc.)
 			echo "$(YELLOW)⚠$(NC) Conflict stowing $$package"; \
 	done
 	@echo "$(GREEN)✓$(NC) Optional packages stowed"
+
+stow-linux: ## Stow Linux-specific packages (autostart, mise)
+	@echo "$(BLUE)==>$(NC) Stowing Linux-specific packages..."
+	@for package in $(LINUX_PACKAGES); do \
+		echo "  Stowing $$package..."; \
+		stow -d $(DOTFILES) -t $(HOME) $$package 2>/dev/null || \
+			echo "$(YELLOW)⚠$(NC) Conflict stowing $$package"; \
+	done
+	@echo "$(GREEN)✓$(NC) Linux packages stowed"
 
 stow-%: ## Stow a specific package
 	@if [ -d "$*" ]; then \
