@@ -35,6 +35,8 @@ When stowed, files are symlinked from `~/.dotfiles/<package>/<path>` to `~/<path
 - `alacritty/` - Terminal emulator configuration
 - `git/` - Git configuration and global gitignore
 - `scripts/` - Utility scripts in `.local/bin/`
+- `autostart/` - Linux desktop autostart entries (Linux-specific)
+- `mise/` - Runtime version manager configuration
 
 ### Cross-Platform Architecture
 
@@ -235,6 +237,13 @@ Located in `scripts/.local/bin/`:
 
 **enable_portkey** - Sources Portkey configuration for Claude Code
 
+**Linux-specific display scripts** - Monitor and display management (X11/xrandr)
+- `fix-hdmi-monitor.sh` - Configures multi-monitor setup with custom resolution
+- `enable-vrr.sh` - Enables VRR/FreeSync on DisplayPort monitors
+- `disable_monitors.sh` - Disables all monitors except primary DisplayPort
+- `mirror-tv.sh` - Mirrors displays for presentation mode
+- **Note**: These scripts are hardware-specific and may need adjustment for different setups
+
 ## Installation and Management
 
 ### Initial Setup
@@ -255,6 +264,7 @@ The script will:
 ```bash
 make install              # Run install.sh
 make stow-core            # Stow essential packages (zsh, git, tmux, scripts)
+make stow-linux           # Stow Linux-specific packages (autostart, mise)
 make stow-optional        # Stow optional packages (alacritty, lazyvim, etc.)
 make stow-zsh             # Stow specific package
 make validate             # Run dotfiles health check
@@ -310,6 +320,10 @@ make restow-<package>   # Restow after editing configs
 - `git` - Git configuration
 - `tmux` - Terminal multiplexer
 - `scripts` - Utility scripts
+
+**Linux-specific packages**:
+- `autostart` - Desktop autostart entries for display configuration
+- `mise` - Runtime version manager configuration
 
 **Optional packages**:
 - `alacritty` - Terminal emulator
