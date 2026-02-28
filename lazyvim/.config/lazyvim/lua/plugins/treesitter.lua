@@ -2,6 +2,7 @@ return {
   {
     "nvim-treesitter/nvim-treesitter",
     opts = {
+      indent = { enable = true },
       ensure_installed = {
         "bash",
         "c",
@@ -28,6 +29,11 @@ return {
         "xml",
         "yaml",
       },
+      textobjects = {
+        move = {
+          enable = false
+        }
+      }
     },
   },
 }

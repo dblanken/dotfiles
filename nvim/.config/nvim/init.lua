@@ -1,11 +1,13 @@
 --[[
--- Setup initial configuration,
--- 
--- Primarily just download and execute lazy.nvim
+-- Neovim Configuration
+-- A custom config built with lazy.nvim, incorporating best practices from LazyVim
 --]]
+
+-- Set leader keys before anything else
 vim.g.mapleader = " "
 vim.g.localmapleader = ","
 
+-- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
 	vim.fn.system({
@@ -17,19 +19,28 @@ if not vim.uv.fs_stat(lazypath) then
 		lazypath,
 	})
 end
-
--- Add lazy to the `runtimepath`, this allows us to `require` it.
----@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
-vim.opt.shiftwidth = 2
-vim.opt.expandtab = true
+-- Load configuration
+require("custom.config.options")
+require("custom.config.keymaps")
+require("custom.config.autocmds")
 
--- Set up lazy, and load my `lua/custom/plugins/` folder
+-- Set up lazy.nvim and load plugins
 require("lazy").setup({ import = "custom/plugins" }, {
 	change_detection = {
 		notify = false,
 	},
+	performance = {
+		rtp = {
+			-- Disable some rtp plugins for better performance
+			disabled_plugins = {
+				"gzip",
+				"tarPlugin",
+				"tohtml",
+				"tutor",
+				"zipPlugin",
+			},
+		},
+	},
 })
-
-vim.g.ruby_host_prog = vim.fn.expand("~/.local/share/mise/shims/neovim-ruby-host")

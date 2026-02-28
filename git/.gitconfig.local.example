@@ -1,0 +1,23 @@
+# Machine-specific git configuration
+# Copy to ~/.gitconfig.local and customize for each machine.
+# This file is NOT tracked in git — keep secrets and keys here.
+
+# SSH commit signing (macOS / work machine example)
+[user]
+	signingkey = ~/.ssh/id_rsa.pub
+[gpg]
+	format = ssh
+[commit]
+	gpgsign = true
+
+# GPG commit signing (alternative)
+# [user]
+# 	signingkey = YOUR_GPG_KEY_ID
+# [gpg]
+# 	format = openpgp
+# [commit]
+# 	gpgsign = true
+
+# No signing (Linux / gaming PC — omit or set explicitly)
+# [commit]
+# 	gpgsign = false

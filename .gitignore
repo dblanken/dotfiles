@@ -1,3 +1,23 @@
 tags
 nvim/.config/nvim/plugin
 git/.local
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Local config files (but not .local directories like scripts/.local/)
+**/*.local
+.zprofile.local*
+!scripts/.local/
+!autostart/.local/
+
+# Mise runtime metadata
+mise/.config/mise/cache/
+mise/.config/mise/installs/
+mise/.config/mise/shims/
+
+.claude
+CLAUDE.md
+CLAUDE_*

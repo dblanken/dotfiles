@@ -1,0 +1,74 @@
+# .zprofile.local.example
+#
+# This file serves as a template for machine-specific configuration.
+# Copy this to .zprofile.local and customize for your environment.
+#
+# cp ~/.dotfiles/zsh/.zprofile.local.example ~/.zprofile.local
+#
+# Note: .zprofile.local is automatically sourced by .zprofile and is
+# gitignored, so your local customizations won't be committed.
+
+# ==============================================================================
+# Custom PATH additions
+# ==============================================================================
+
+# Add custom binaries to PATH
+# export PATH="$HOME/custom/bin:$PATH"
+
+# Add work-specific tools
+# export PATH="/opt/custom-tools/bin:$PATH"
+
+# ==============================================================================
+# Environment variables
+# ==============================================================================
+
+# API keys and secrets (NEVER commit these!)
+# export OPENAI_API_KEY="sk-..."
+# export AWS_ACCESS_KEY_ID="..."
+# export AWS_SECRET_ACCESS_KEY="..."
+# export GITHUB_TOKEN="ghp_..."
+
+# Custom environment variables
+# export CUSTOM_VAR="value"
+
+# ==============================================================================
+# Application-specific settings
+# ==============================================================================
+
+# YaleSites local development URL
+# Replace with your site name (e.g., yalesites-mv482-dev, yalesites-project-dev)
+export YALESITES_URL="http://your-site-name.lndo.site"
+
+# Custom database settings
+# export DATABASE_URL="postgres://..."
+
+# ==============================================================================
+# Machine-specific aliases
+# ==============================================================================
+
+# SSH shortcuts
+# alias work-server="ssh user@work-server.com"
+# alias deploy="ssh deploy@production.com"
+
+# Custom shortcuts
+# alias myproject="cd ~/code/myproject && v"
+
+# ==============================================================================
+# Tool overrides
+# ==============================================================================
+
+# Use different editor on this machine
+# export EDITOR="code"
+# export VISUAL="$EDITOR"
+
+# Use different Neovim config
+# export NVIM_APPNAME="nvim-work"
+
+# ==============================================================================
+# Project-specific configuration
+# ==============================================================================
+
+# Load project-specific environment
+# if [ -f "$HOME/.env.work" ]; then
+#   source "$HOME/.env.work"
+# fi

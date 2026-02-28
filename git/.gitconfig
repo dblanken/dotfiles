@@ -1,10 +1,9 @@
 [user]
 	name = David Blankenship
-	email = david.blankenship@yale.edu
-	signingkey = /Users/db2553/.ssh/id_rsa.pub
+	email = dtblankenship@gmail.com
 [core]
 	autocrlf = input
-	excludesfile = /Users/db2553/.gitignore
+	excludesfile = ~/.gitignore
 [push]
 	default = upstream
 	autoSetupRemote = true
@@ -15,7 +14,6 @@
 	prune = true
 [commit]
 	template = ~/.gitmessage
-	gpgsign = true
 [alias]
 	b = branch
 	ca = commit -v -a
@@ -27,8 +25,6 @@
 	mylog = log --oneline --decorate --graph
 [mergetool "vimdiff"]
 	cmd = "nvim -d $MERGED $LOCAL $BASE $REMOTE -c 'wincmd J | wincmd ='"
-[gpg]
-	format = ssh
 [init]
 	defaultBranch = main
 [color]
@@ -46,4 +42,5 @@
 	defaultRemote = origin
 [safe]
 	directory = /app
-	directory = /app
+[include]
+	path = ~/.gitconfig.local

@@ -1,12 +1,12 @@
-[submodule "zsh-autosuggestions"]
-	path = zsh/.config/zsh/zsh-autosuggestions
-	url = https://github.com/zsh-users/zsh-autosuggestions
-[submodule "zsh-syntax-highlighting"]
-	path = zsh/.config/zsh/zsh-syntax-highlighting
-	url = https://github.com/zsh-users/zsh-syntax-highlighting
-[submodule "zsh-history-substring-search"]
-	path = zsh/.config/zsh/zsh-history-substring-search
-	url = https://github.com/zsh-users/zsh-history-substring-search
 [submodule "zsh/.config/zsh/zsh-async"]
 	path = zsh/.config/zsh/zsh-async
-	url = https://github.com/mafredri/zsh-async
+	url = https://github.com/mafredri/zsh-async.git
+[submodule "zsh/.config/zsh/zsh-autosuggestions"]
+	path = zsh/.config/zsh/zsh-autosuggestions
+	url = https://github.com/zsh-users/zsh-autosuggestions.git
+[submodule "zsh/.config/zsh/zsh-syntax-highlighting"]
+	path = zsh/.config/zsh/zsh-syntax-highlighting
+	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
+[submodule "zsh/.config/zsh/zsh-history-substring-search"]
+	path = zsh/.config/zsh/zsh-history-substring-search
+	url = https://github.com/zsh-users/zsh-history-substring-search.git

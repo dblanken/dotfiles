@@ -34,32 +34,47 @@ return {
 				bashls = true,
 				lua_ls = true,
 				cssls = true,
-				-- phpactor = true,
-				intelephense = {
-					on_init = function(client)
-						client.server_capabilities.documentFormattingProvider = false
-					end,
+				ts_ls = true,
+
+				-- PHP: Choose either phpactor or intelephense
+				-- Uncomment the one you want to use
+				phpactor = {
+					enabled = true,
 					init_options = {
-						globalStoragePath = os.getenv("HOME") .. "/.local/share/intelephense",
-					},
-					config = {
-						["intelephense.environment.includePaths"] = {
-							"web/core/includes",
-						},
-						["intelephense.files.associations"] = {
-							"*.inc",
-							"*.theme",
-							"*.install",
-							"*.module",
-							"*.profile",
-							"*.php",
-							"*.phtml",
-						},
+						["language_server_phpstan.enabled"] = true,
+						["language_server_psalm.enabled"] = true,
+						["language_server_php_cs_fixer.enabled"] = true,
+						["php_code_sniffer.enabled"] = true,
+						["php_code_sniffer.args"] = {"--standard=Drupal,DrupalPractice"},
+						["code_transform.indentation"] = "  ",
+						["prophecy.enabled"] = true,
+						["behat.enabled"] = true,
+						["symfony.enabled"] = true,
 					},
 				},
-
-				-- Probably want to disable formatting for this lang server
-				ts_ls = true,
+				-- intelephense = {
+				-- 	enabled = true,
+				-- 	on_init = function(client)
+				-- 		client.server_capabilities.documentFormattingProvider = false
+				-- 	end,
+				-- 	init_options = {
+				-- 		globalStoragePath = os.getenv("HOME") .. "/.local/share/intelephense",
+				-- 	},
+				-- 	config = {
+				-- 		["intelephense.environment.includePaths"] = {
+				-- 			"web/core/includes",
+				-- 		},
+				-- 		["intelephense.files.associations"] = {
+				-- 			"*.inc",
+				-- 			"*.theme",
+				-- 			"*.install",
+				-- 			"*.module",
+				-- 			"*.profile",
+				-- 			"*.php",
+				-- 			"*.phtml",
+				-- 		},
+				-- 	},
+				-- },
 
 				jsonls = {
 					settings = {

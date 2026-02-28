@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Script to switch Alacritty Tokyo Night theme based on macOS dark/light mode
+# Script to switch Alacritty Tokyo Night theme based on system dark/light mode
+# Cross-platform: macOS (uses defaults) and Linux (defaults to dark theme)
 # Usage: ./switch-alacritty-theme.sh [--debug]
 
 set -e
@@ -15,11 +16,8 @@ fi
 SCRIPT_DIR="$HOME/.config/alacritty"
 THEMES_DIR="$SCRIPT_DIR/themes"
 
-# Check if we're on macOS
-if [[ "$(uname)" != "Darwin" ]]; then
-    [[ "$DEBUG" == true ]] && echo "This script is designed for macOS only."
-    exit 1
-fi
+# Detect operating system
+OS_TYPE="$(uname -s)"
 
 # Check if theme files exist
 if [[ ! -f "$THEMES_DIR/tokyonight-day.toml" ]]; then
@@ -32,18 +30,36 @@ if [[ ! -f "$THEMES_DIR/tokyonight-night.toml" ]]; then
     exit 1
 fi
 
-# Detect macOS appearance mode
-# defaults returns "Dark" when in dark mode, or nothing/error when in light mode
-APPEARANCE=$(defaults read -g AppleInterfaceStyle 2>/dev/null || echo "Light")
+# Detect system appearance and set theme
+if [[ "$OS_TYPE" == "Darwin" ]]; then
+    # macOS: Use system preferences to detect dark/light mode
+    # defaults returns "Dark" when in dark mode, or nothing/error when in light mode
+    APPEARANCE=$(defaults read -g AppleInterfaceStyle 2>/dev/null || echo "Light")
 
-# Copy the appropriate theme file
-if [[ "$APPEARANCE" == "Dark" ]]; then
-    [[ "$DEBUG" == true ]] && echo "Dark mode detected - switching to Tokyo Night dark theme"
-    cp "$THEMES_DIR/tokyonight-night.toml" "$THEMES_DIR/tokyonight.toml"
+    if [[ "$APPEARANCE" == "Dark" ]]; then
+        [[ "$DEBUG" == true ]] && echo "macOS dark mode detected - switching to Tokyo Night dark theme"
+        cp "$THEMES_DIR/tokyonight-night.toml" "$THEMES_DIR/tokyonight.toml"
+    else
+        [[ "$DEBUG" == true ]] && echo "macOS light mode detected - switching to Tokyo Night light theme"
+        cp "$THEMES_DIR/tokyonight-day.toml" "$THEMES_DIR/tokyonight.toml"
+    fi
 else
-    [[ "$DEBUG" == true ]] && echo "Light mode detected - switching to Tokyo Night light theme"
-    cp "$THEMES_DIR/tokyonight-day.toml" "$THEMES_DIR/tokyonight.toml"
+    # Linux: Default to dark theme (most Linux users prefer dark themes)
+    # You can modify this to check GNOME/KDE settings if desired
+    [[ "$DEBUG" == true ]] && echo "Linux detected - using Tokyo Night dark theme"
+    cp "$THEMES_DIR/tokyonight-night.toml" "$THEMES_DIR/tokyonight.toml"
+
+    # Optional: Check GNOME dark mode preference
+    # if command -v gsettings &> /dev/null; then
+    #     GNOME_THEME=$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null || echo "")
+    #     if [[ "$GNOME_THEME" == *"prefer-dark"* ]]; then
+    #         cp "$THEMES_DIR/tokyonight-night.toml" "$THEMES_DIR/tokyonight.toml"
+    #     else
+    #         cp "$THEMES_DIR/tokyonight-day.toml" "$THEMES_DIR/tokyonight.toml"
+    #     fi
+    # fi
 fi
+
 touch "$SCRIPT_DIR/alacritty.toml"
 
 [[ "$DEBUG" == true ]] && echo "Theme switched successfully! Alacritty will reload automatically due to live_config_reload."
