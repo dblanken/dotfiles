@@ -297,3 +297,6 @@ stty -ixon
 
 # Per-function profiling:
 # zprof
+
+# Source additional PATH configuration if present (Claude Code or other tools)
+[ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"

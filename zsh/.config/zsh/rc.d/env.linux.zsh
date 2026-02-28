@@ -89,6 +89,7 @@ if [[ -n "$DISTRO_ID" ]]; then
     if [[ "$DISTRO_ID" = "pop" ]]; then
         # Add Pop!_OS specific tweaks here
         :
+        export SUDO_ASKPASS=/home/dblanken/code/system/secure-askpass/askpass
     fi
 
     # Ubuntu specific configuration
@@ -97,3 +98,5 @@ if [[ -n "$DISTRO_ID" ]]; then
         :
     fi
 fi
+
+export VINTAGE_STORY=/games/vintagestory
