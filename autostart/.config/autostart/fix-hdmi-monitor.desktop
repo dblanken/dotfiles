@@ -1,5 +1,5 @@
 [Desktop Entry]
 Type=Application
 Name=Fix HDMI Monitor Resolution
-Exec=/home/dblanken/.local/bin/fix-hdmi-monitor.sh
+Exec=/home/dblanken/.local/bin/enable-hdmi.sh
 X-GNOME-Autostart-enabled=true
