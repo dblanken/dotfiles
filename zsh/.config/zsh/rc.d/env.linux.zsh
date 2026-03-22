@@ -2,14 +2,11 @@
 #
 # This file contains paths, flags, and settings specific to Linux systems.
 # It is automatically loaded by .zshrc when OS_TYPE=linux.
-# Optimized for Debian/Ubuntu-based distributions (including Pop!_OS).
+# Supports Nobara/Fedora, Debian/Ubuntu, Pop!_OS, and other Linux distributions.
 
 # =============================================================================
 # System package path additions
 # =============================================================================
-
-# User-local binaries (for manually installed tools like eza, mise)
-export PATH="$HOME/.local/bin:$PATH"
 
 # Cargo binaries (if Rust is installed)
 if [ -d "$HOME/.cargo/bin" ]; then
@@ -38,6 +35,13 @@ fi
 if command -v mysql &> /dev/null; then
     alias mysql8='mysql'
 fi
+
+# =============================================================================
+# Ruby configuration
+# =============================================================================
+
+# Suppress implicit-function-declaration errors when building older Ruby versions
+export RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
 
 # =============================================================================
 # Library paths for building packages
@@ -97,6 +101,13 @@ if [[ -n "$DISTRO_ID" ]]; then
         # Add Ubuntu specific tweaks here
         :
     fi
+
+    # Nobara
+    if [[ "$DISTRO_ID" = "nobara" ]]; then
+      # Add Nobara specific tweaks here
+      :
+      export SUDO_ASKPASS=/usr/bin/ksshaskpass
+    fi
 fi
 
-export VINTAGE_STORY=/games/vintagestory
+export VINTAGE_STORY=/mnt/games/vintagestory

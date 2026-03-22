@@ -50,6 +50,20 @@ export CPPFLAGS="$CPPFLAGS -I/opt/homebrew/opt/imagemagick/include"
 export PHP_CONFIGURE_OPTS="--with-imagick=/opt/homebrew/opt/imagemagick"
 
 # =============================================================================
+# LS colors (macOS/BSD format)
+# =============================================================================
+
+export LSCOLORS=gafacadabaegedabagacad
+
+# =============================================================================
+# Key repeat rate (60 fps)
+# =============================================================================
+
+if command -v dry &> /dev/null; then
+  dry 0.0166666666667 > /dev/null
+fi
+
+# =============================================================================
 # macOS-specific aliases
 # =============================================================================
 

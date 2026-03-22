@@ -25,10 +25,8 @@ x = 1
 y = 0
 
 [window]
-decorations = "None"
 opacity = 1.0
 option_as_alt = "OnlyLeft"
-startup_mode = "Maximized"
 
 [general]
 live_config_reload = true
