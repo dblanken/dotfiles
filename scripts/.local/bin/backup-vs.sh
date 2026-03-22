@@ -26,7 +26,7 @@ else
   exit 1
 fi
 
-BACKUP_DEST="${1:-/mnt/backups/VintageStory}"
+BACKUP_DEST="${1:-/mnt/backup/01_GAME_BACKUPS/VintageStory}"
 BACKUP_DATE=$(date +%Y-%m-%d_%H-%M-%S)
 BACKUP_DIR="$BACKUP_DEST/vintagestory-backup-$BACKUP_DATE"
 LOG_FILE="$BACKUP_DIR/backup.log"
@@ -37,11 +37,7 @@ if [ ! -d "$VS_DATA_DIR" ]; then
   exit 1
 fi
 
-# Check if destination is accessible
-if [ ! -d "$BACKUP_DEST" ]; then
-  echo "Error: Backup destination $BACKUP_DEST does not exist or is not accessible"
-  exit 1
-fi
+mkdir -p "$BACKUP_DEST"
 
 # Create backup directory
 mkdir -p "$BACKUP_DIR"

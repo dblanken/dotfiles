@@ -7,7 +7,7 @@
 set -e
 set -o pipefail  # Ensure we catch rsync errors even when piped to tee
 
-EXTERNAL_DRIVE="${1:-/mnt/backups}"
+EXTERNAL_DRIVE="${1:-/mnt/backup}"
 ASKPASS="$(getent passwd "$(id -u)" | cut -d: -f6)/code/system/secure-askpass/askpass"
 
 if [ ! -d "$EXTERNAL_DRIVE" ]; then

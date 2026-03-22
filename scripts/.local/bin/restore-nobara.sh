@@ -91,7 +91,7 @@ echo ""
 
 header "Step 1: Locating backup"
 
-BACKUP_MOUNT="/mnt/backups"
+BACKUP_MOUNT="/mnt/backup"
 
 if [[ -n "$GIVEN_BACKUP_DIR" ]]; then
     if [[ ! -d "$GIVEN_BACKUP_DIR" ]]; then

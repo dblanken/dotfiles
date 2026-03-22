@@ -12,7 +12,7 @@ set -o pipefail
 MAX_BACKUPS=8  # Keep last 8 weekly backups
 PRISM_DATA_DIR="$HOME/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher"
 
-BACKUP_DEST="${1:-/mnt/backups/minecraft-backups}"
+BACKUP_DEST="${1:-/mnt/backup/01_GAME_BACKUPS/Prism_Launcher}"
 BACKUP_DATE=$(date +%Y-%m-%d_%H-%M-%S)
 BACKUP_DIR="$BACKUP_DEST/prism-backup-$BACKUP_DATE"
 LOG_FILE="$BACKUP_DIR/backup.log"
@@ -23,11 +23,7 @@ if [ ! -d "$PRISM_DATA_DIR" ]; then
   exit 1
 fi
 
-# Check if destination is accessible
-if [ ! -d "$BACKUP_DEST" ]; then
-  echo "Error: Backup destination $BACKUP_DEST does not exist or is not accessible"
-  exit 1
-fi
+mkdir -p "$BACKUP_DEST"
 
 # Create backup directory
 mkdir -p "$BACKUP_DIR"
