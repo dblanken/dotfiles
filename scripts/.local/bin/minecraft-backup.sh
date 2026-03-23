@@ -10,18 +10,26 @@ set -o pipefail
 
 # Configuration
 MAX_BACKUPS=8  # Keep last 8 weekly backups
-PRISM_DATA_DIR="$HOME/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher"
+
+# Auto-detect Prism Launcher data directory: prefer native install, fall back to flatpak
+PRISM_NATIVE_DIR="$HOME/.local/share/PrismLauncher"
+PRISM_FLATPAK_DIR="$HOME/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher"
+
+if [ -d "$PRISM_NATIVE_DIR" ]; then
+  PRISM_DATA_DIR="$PRISM_NATIVE_DIR"
+elif [ -d "$PRISM_FLATPAK_DIR" ]; then
+  PRISM_DATA_DIR="$PRISM_FLATPAK_DIR"
+else
+  echo "Error: No Prism Launcher data directory found."
+  echo "  Checked: $PRISM_NATIVE_DIR"
+  echo "  Checked: $PRISM_FLATPAK_DIR"
+  exit 1
+fi
 
 BACKUP_DEST="${1:-/mnt/backup/01_GAME_BACKUPS/Prism_Launcher}"
 BACKUP_DATE=$(date +%Y-%m-%d_%H-%M-%S)
 BACKUP_DIR="$BACKUP_DEST/prism-backup-$BACKUP_DATE"
 LOG_FILE="$BACKUP_DIR/backup.log"
-
-# Check if source directory exists
-if [ ! -d "$PRISM_DATA_DIR" ]; then
-  echo "Error: Prism Launcher data directory not found at $PRISM_DATA_DIR"
-  exit 1
-fi
 
 mkdir -p "$BACKUP_DEST"
 
@@ -80,6 +88,8 @@ Contents:
 - catpacks/        : Cat cosmetics
 - instgroups.json  : Instance grouping configuration
 - prismlauncher.cfg: Launcher settings
+
+Source: $PRISM_DATA_DIR
 
 To restore:
   rsync -av $BACKUP_DIR/ $PRISM_DATA_DIR/
