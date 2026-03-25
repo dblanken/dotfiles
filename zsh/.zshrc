@@ -16,6 +16,8 @@
 # zmodload zsh/zprof
 
 # {{{1 Tmux auto-attach
+# Unset stale TMUX variable if the server is no longer running (e.g. after reboot)
+[[ -n "$TMUX" ]] && ! tmux info &>/dev/null 2>&1 && unset TMUX TMUX_PANE
 if [ "$TMUX" = "" ]; then tmux attach || tmux -2 new -s "$HOST" && exit; fi
 
 typeset -A __DBLANKEN

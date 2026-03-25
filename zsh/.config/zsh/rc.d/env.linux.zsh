@@ -111,3 +111,4 @@ if [[ -n "$DISTRO_ID" ]]; then
 fi
 
 export VINTAGE_STORY=/mnt/games/vintagestory
+export VINTAGE_STORY=/var/lib/flatpak/app/at.vintagestory.VintageStory/current/active/files/

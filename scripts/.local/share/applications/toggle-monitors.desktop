@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Toggle Monitors
+Comment=Enable/disable secondary monitors for FreeSync gaming
+Exec=/home/dblanken/.local/bin/toggle-monitors.sh
+Icon=preferences-desktop-display
+Terminal=false
+Categories=System;
+Keywords=monitor;display;hdmi;freesync;toggle;
