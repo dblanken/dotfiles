@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -eo pipefail
+
+echo "==> Updating system packages (pacman + AUR via yay)..."
+yay -Syu
+
+echo ""
+echo "==> Removing unused dependencies..."
+yay -Yc
+
+echo ""
+echo "==> Cleaning package cache (keeping last 2 versions)..."
+if command -v paccache &>/dev/null; then
+  sudo paccache -rk2
+else
+  echo "    paccache not found — install pacman-contrib to enable cache cleaning"
+fi
+
+echo ""
+echo "==> Updating Flatpak packages..."
+flatpak update --noninteractive
+
+echo ""
+echo "==> Removing unused Flatpak runtimes..."
+flatpak uninstall --unused --noninteractive
+
+echo ""
+echo "==> Cleaning systemd journal (keeping last 2 weeks)..."
+sudo journalctl --vacuum-time=2weeks
+
+echo ""
+echo "==> Checking for failed systemd services..."
+systemctl --failed || true
+
+echo ""
+echo "==> Done."

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 BACKUP_MOUNT="/mnt/backup"
-BACKUP_DIR="$BACKUP_MOUNT/10_LINUX/Nobara/home-snapshots"
+BACKUP_DIR="$BACKUP_MOUNT/10_LINUX/Arch/home-snapshots"
 SOURCE="$HOME/"
 KEEP=4
 LOG="$BACKUP_DIR/backup.log"
