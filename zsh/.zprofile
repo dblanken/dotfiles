@@ -58,3 +58,6 @@ fi
 if [[ -f "$HOME/.config/alacritty/switch-alacritty-theme.sh" ]]; then
 	$HOME/.config/alacritty/switch-alacritty-theme.sh
 fi
+
+# Added by OrbStack: command-line tools and integration
+source ~/.orbstack/shell/init.zsh 2>/dev/null || :

@@ -18,6 +18,7 @@ CORE_PACKAGES := zsh git tmux scripts
 # Linux-specific packages
 LINUX_PACKAGES := autostart mise
 
+
 # Optional packages
 OPTIONAL_PACKAGES := alacritty lazyvim hammerspoon karabiner
 
@@ -109,6 +110,7 @@ stow-linux: ## Stow Linux-specific packages (autostart, mise)
 			echo "$(YELLOW)⚠$(NC) Conflict stowing $$package"; \
 	done
 	@echo "$(GREEN)✓$(NC) Linux packages stowed"
+
 
 stow-%: ## Stow a specific package
 	@if [ -d "$*" ]; then \

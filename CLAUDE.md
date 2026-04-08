@@ -244,6 +244,7 @@ Located in `scripts/.local/bin/`:
 - `mirror-tv.sh` - Mirrors displays for presentation mode
 - **Note**: These scripts are hardware-specific and may need adjustment for different setups
 
+
 ## Installation and Management
 
 ### Initial Setup
@@ -324,6 +325,7 @@ make restow-<package>   # Restow after editing configs
 **Linux-specific packages**:
 - `autostart` - Desktop autostart entries for display configuration
 - `mise` - Runtime version manager configuration
+
 
 **Optional packages**:
 - `alacritty` - Terminal emulator

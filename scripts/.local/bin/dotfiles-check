@@ -37,12 +37,12 @@ print_success() {
 
 print_error() {
     echo -e "  ${RED}✗${NC} $1"
-    ((ERRORS++))
+    (( ++ERRORS ))
 }
 
 print_warning() {
     echo -e "  ${YELLOW}⚠${NC} $1"
-    ((WARNINGS++))
+    (( ++WARNINGS ))
 }
 
 print_info() {
@@ -52,7 +52,7 @@ print_info() {
 # Check if dotfiles directory exists
 check_dotfiles_dir() {
     print_header "Checking dotfiles directory"
-    ((CHECKS++))
+    (( ++CHECKS ))
 
     if [[ ! -d "$DOTFILES_DIR" ]]; then
         print_error "Dotfiles directory not found: $DOTFILES_DIR"
@@ -72,7 +72,7 @@ check_dotfiles_dir() {
 # Check platform detection
 check_platform_detection() {
     print_header "Checking platform detection"
-    ((CHECKS++))
+    (( ++CHECKS ))
 
     # Source the OS detection from .zprofile
     if [[ -f "$HOME/.zprofile" ]]; then
@@ -106,7 +106,7 @@ check_platform_detection() {
 # Check symlinks
 check_symlinks() {
     print_header "Checking symlinks"
-    ((CHECKS++))
+    (( ++CHECKS ))
 
     local broken_links=0
     local valid_links=0
@@ -120,18 +120,23 @@ check_symlinks() {
         "$HOME/.config/alacritty"
         "$HOME/.config/lazyvim"
         "$HOME/.config/zsh"
-        "$HOME/.local/bin/clipboard"
-        "$HOME/.local/bin/tmux-sessionizer"
     )
+
+    # Dynamically discover scripts from the stow source
+    if [[ -d "$DOTFILES_DIR/scripts/.local/bin" ]]; then
+        for script_src in "$DOTFILES_DIR/scripts/.local/bin"/*; do
+            locations+=("$HOME/.local/bin/$(basename "$script_src")")
+        done
+    fi
 
     for location in "${locations[@]}"; do
         if [[ -L "$location" ]]; then
             # It's a symlink - check if target exists
             if [[ -e "$location" ]]; then
-                ((valid_links++))
+                (( ++valid_links ))
             else
                 print_error "Broken symlink: $location -> $(readlink "$location")"
-                ((broken_links++))
+                (( ++broken_links ))
             fi
         elif [[ -e "$location" ]]; then
             print_warning "Not a symlink: $location (may conflict with stow)"
@@ -152,7 +157,7 @@ check_symlinks() {
 # Check git submodules
 check_submodules() {
     print_header "Checking git submodules"
-    ((CHECKS++))
+    (( ++CHECKS ))
 
     if [[ ! -d "$DOTFILES_DIR/.git" ]]; then
         print_warning "Not a git repository, skipping submodule check"
@@ -194,7 +199,7 @@ check_submodules() {
 # Check required binaries
 check_binaries() {
     print_header "Checking required binaries"
-    ((CHECKS++))
+    (( ++CHECKS ))
 
     local required_bins=(
         "stow"
@@ -240,7 +245,7 @@ check_binaries() {
 # Check script executability
 check_script_permissions() {
     print_header "Checking script permissions"
-    ((CHECKS++))
+    (( ++CHECKS ))
 
     local script_dir="$HOME/.local/bin"
 
@@ -251,24 +256,26 @@ check_script_permissions() {
     fi
 
     local non_executable=()
+    local stow_scripts_dir="$DOTFILES_DIR/scripts/.local/bin"
 
-    # Check common scripts
-    local scripts=(
-        "clipboard"
-        "tmux-sessionizer"
-        "enable_portkey"
-        "dotfiles-check"
-    )
+    if [[ ! -d "$stow_scripts_dir" ]]; then
+        print_warning "Stow scripts source not found: $stow_scripts_dir"
+        return 0
+    fi
 
-    for script in "${scripts[@]}"; do
-        local script_path="$script_dir/$script"
+    for script_src in "$stow_scripts_dir"/*; do
+        local script_name
+        script_name=$(basename "$script_src")
+        local script_path="$script_dir/$script_name"
         if [[ -f "$script_path" ]]; then
             if [[ -x "$script_path" ]]; then
-                print_success "Executable: $script"
+                print_success "Executable: $script_name"
             else
-                print_error "Not executable: $script"
-                non_executable+=("$script")
+                print_error "Not executable: $script_name"
+                non_executable+=("$script_name")
             fi
+        else
+            print_warning "Not installed: $script_name (run 'make stow-scripts')"
         fi
     done
 
@@ -277,10 +284,61 @@ check_script_permissions() {
     fi
 }
 
+# Check zsh module chain
+check_zsh_modules() {
+    print_header "Checking zsh module chain"
+    (( ++CHECKS ))
+
+    local rc_dir="$HOME/.config/zsh/rc.d"
+    if [[ ! -d "$rc_dir" ]]; then
+        print_warning "zsh rc.d directory not found: $rc_dir"
+        print_info "Run 'make stow-zsh' to install zsh configuration"
+        return 0
+    fi
+
+    # Check core modules
+    local core_modules=("platform.zsh" "env.zsh" "aliases.zsh" "functions.zsh")
+    for mod in "${core_modules[@]}"; do
+        if [[ -f "$rc_dir/$mod" ]]; then
+            print_success "Found core module: $mod"
+        else
+            print_error "Missing core module: $mod"
+        fi
+    done
+
+    # Check platform-specific module for detected OS
+    local os_type
+    os_type=$(uname -s | tr '[:upper:]' '[:lower:]')
+    if [[ "$os_type" == "darwin" ]]; then
+        if [[ -f "$rc_dir/env.darwin.zsh" ]]; then
+            print_success "Found platform module: env.darwin.zsh"
+        else
+            print_error "Missing platform module: env.darwin.zsh"
+        fi
+    elif [[ "$os_type" == "linux" ]]; then
+        if [[ -f "$rc_dir/env.linux.zsh" ]]; then
+            print_success "Found platform module: env.linux.zsh"
+        else
+            print_error "Missing platform module: env.linux.zsh"
+        fi
+    fi
+
+    # Check yalesites tool-dispatch files if yalesites.zsh is present
+    if [[ -f "$rc_dir/yalesites.zsh" ]]; then
+        for tool_file in "yalesites-lando.zsh" "yalesites-ddev.zsh"; do
+            if [[ -f "$rc_dir/$tool_file" ]]; then
+                print_success "Found yalesites module: $tool_file"
+            else
+                print_error "Missing yalesites module: $tool_file (required by yalesites.zsh)"
+            fi
+        done
+    fi
+}
+
 # Run shellcheck if available
 check_shell_syntax() {
     print_header "Checking shell script syntax"
-    ((CHECKS++))
+    (( ++CHECKS ))
 
     if ! command -v shellcheck &> /dev/null; then
         print_info "shellcheck not installed, skipping syntax check"
@@ -297,7 +355,7 @@ check_shell_syntax() {
         while IFS= read -r -d '' script; do
             if shellcheck "$script" 2>&1 | grep -q "^In"; then
                 print_warning "Issues found in $(basename "$script")"
-                ((script_errors++))
+                (( ++script_errors ))
             fi
         done < <(find "$HOME/.local/bin" -type f -executable -print0 2>/dev/null)
     fi
@@ -308,7 +366,7 @@ check_shell_syntax() {
             if [[ $(basename "$script") == *.zsh ]]; then
                 if shellcheck -s bash "$script" 2>&1 | grep -q "^In"; then
                     print_warning "Issues found in $(basename "$script")"
-                    ((script_errors++))
+                    (( ++script_errors ))
                 fi
             fi
         done < <(find "$HOME/.config/zsh" -type f -print0 2>/dev/null)
@@ -324,7 +382,7 @@ check_shell_syntax() {
 # Check platform-specific dependencies
 check_platform_dependencies() {
     print_header "Checking platform-specific dependencies"
-    ((CHECKS++))
+    (( ++CHECKS ))
 
     local os_type
     os_type=$(uname -s | tr '[:upper:]' '[:lower:]')
@@ -435,6 +493,7 @@ main() {
     check_submodules
     check_binaries
     check_script_permissions
+    check_zsh_modules
     check_shell_syntax
     check_platform_dependencies
 

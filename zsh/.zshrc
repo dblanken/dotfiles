@@ -20,6 +20,13 @@
 [[ -n "$TMUX" ]] && ! tmux info &>/dev/null 2>&1 && unset TMUX TMUX_PANE
 if [ "$TMUX" = "" ]; then tmux attach || tmux -2 new -s "$HOST" && exit; fi
 
+export HASBREW="$(command -v brew)"
+export UNAME="$(uname)"
+
+if [[ "$HASBREW" == "" ]]; then
+  fpath+=("/opt/homebrew/share/zsh/site-functions")
+fi
+
 typeset -A __DBLANKEN
 __DBLANKEN[ITALIC_ON]=$'\e[3m'
 __DBLANKEN[ITALIC_OFF]=$'\e[23m'
@@ -31,11 +38,21 @@ export PATH="./bin":"$HOME/bin":"$HOME/.bin":"$HOME/.local/bin":"$HOME/.lando/bi
 if command -v go &> /dev/null; then
   export PATH="$PATH":$HOME/.go/bin
 fi
+if [ "$HASBREW" != "" ]; then
+  export RUBY_CONFIGURE_OPTS="--with-openssl-dir=/opt/homebrew/opt/openssl@1.1"
+fi
 export NVIM_APPNAME="lazyvim"
 # opt out of azure telemetry
 export FUNCTIONS_CORE_TOOLS_TELEMETRY_OUTPUT=1
 
 FPATH="$HOME/.docker/completions:$FPATH"
+
+# macOS-specific: Set 60 fps key repeat rate
+if [ "$UNAME" = "Darwin" ]; then
+  if command -v dry &> /dev/null; then
+    dry 0.0166666666667 > /dev/null
+  fi
+fi
 
 # {{{1 Completion system
 # Use -C flag to skip security check if zcompdump is less than 24 hours old
@@ -188,6 +205,7 @@ select-word-style bash # only alphanumeric chars are considered WORDCHARS
 
 # {{{1 LS colors
 export CLICOLOR=1
+export LSCOLORS=gafacadabaegedabagacad
 
 # {{{1 Vi mode
 set -o vi
@@ -279,6 +297,3 @@ stty -ixon
 
 # Per-function profiling:
 # zprof
-
-# Source additional PATH configuration if present (Claude Code or other tools)
-[ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
