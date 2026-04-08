@@ -11,6 +11,8 @@ git/.local
 **/*.local
 .zprofile.local*
 !scripts/.local/
+!scripts-linux/.local/
+!scripts-mac/.local/
 !autostart/.local/
 
 # Mise runtime metadata
