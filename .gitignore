@@ -21,3 +21,6 @@ mise/.config/mise/shims/
 .claude
 CLAUDE.md
 CLAUDE_*
+
+# Git worktrees
+.worktrees/
