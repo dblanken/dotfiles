@@ -20,6 +20,9 @@ export PATH="/opt/homebrew/opt/libxml2/bin:$PATH"
 # ImageMagick 6 (for legacy PHP compatibility)
 export PATH="/opt/homebrew/opt/imagemagick@6/bin:$PATH"
 
+# Postgresql client (for pgsql extensions and CLI tools)
+export PATH="/opt/homebrew/opt/postgresql@18/bin:$PATH"
+
 # =============================================================================
 # Library flags for building packages
 # =============================================================================
@@ -95,3 +98,8 @@ fi
 
 # Create alias if we found mysql8
 [[ -n "$MYSQL8_BIN" ]] && alias mysql8="$MYSQL8_BIN"
+
+# Critical environment variables for 16GB RAM
+export OLLAMA_NUM_PARALLEL=1          # Single request at a time
+export OLLAMA_MAX_LOADED_MODELS=1     # Only one model loaded
+export OLLAMA_KV_CACHE_TYPE=q8_0      # Halve KV cache memory
