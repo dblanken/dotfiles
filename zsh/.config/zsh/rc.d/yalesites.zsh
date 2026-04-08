@@ -3,25 +3,58 @@
 # NOTE: mysql8 alias is defined in env.darwin.zsh and env.linux.zsh
 # as it's platform-specific
 
-# Lando
-alias l="lando"
-alias lcr="l drush cr"
-alias lrs="l restart"
-alias lrb="l rebuild -y"
-alias ldr='l drush'
-alias recompose="rm composer.lock; lando composer update"
-alias vlando="v .lando.local.yml"
+# ---------------------------------------------------------------------------
+# Dev tool toggle (lando <-> ddev)
+# Persistent selection stored in ~/.config/yalesites/devtool
+# Switch with: use-ddev / use-lando
+# Check with:  devtool
+# ---------------------------------------------------------------------------
+_ys_devtool_file="${XDG_CONFIG_HOME:-$HOME/.config}/yalesites/devtool"
+_ys_rc_dir="${0:A:h}"
+
+_ys_tool() {
+  if [ -f "$_ys_devtool_file" ]; then
+    cat "$_ys_devtool_file"
+  else
+    echo "ddev"
+  fi
+}
+
+devtool() {
+  echo "Current dev tool: $(_ys_tool)"
+}
+
+use-ddev() {
+  mkdir -p "$(dirname "$_ys_devtool_file")"
+  echo "ddev" > "$_ys_devtool_file"
+  echo "Switched to ddev (restart shell or run: source ~/.zshrc)"
+}
+
+use-lando() {
+  mkdir -p "$(dirname "$_ys_devtool_file")"
+  echo "lando" > "$_ys_devtool_file"
+  echo "Switched to lando (restart shell or run: source ~/.zshrc)"
+}
+
+# ---------------------------------------------------------------------------
+# Shared aliases and functions (tool-agnostic)
+# ---------------------------------------------------------------------------
 alias cyp="c yalesites-project"
 
 # Get the login url copied to the clipboard
 # If a parameter is given it's assumed it is a terminus remote command to run
 # the same login retrieval on.
+# Options:
+#   --copy        Copy the login url to clipboard instead of opening it
+#   --uri=<url>   Override the base URI (e.g. --uri=commencement.yale.edu)
 function llogin() {
   local url
   local copy
+  local uri
   local args
 
   copy=false
+  uri=""
   args=()
 
   while [[ $# -gt 0 ]]; do
@@ -29,6 +62,14 @@ function llogin() {
       --copy)
         copy=true
         shift
+        ;;
+      --uri=*)
+        uri="${1#--uri=}"
+        shift
+        ;;
+      --uri)
+        uri="$2"
+        shift 2
         ;;
       *)
         args+=("$1")
@@ -38,10 +79,18 @@ function llogin() {
   done
 
   if [ ${#args[@]} -eq 0 ]; then
-    url=$(l drush uli)
-    url="${url::-1}"
+    if [ -n "$uri" ]; then
+      url=$(l drush uli --uri="$uri")
+    else
+      url=$(l drush uli)
+      url="${url::-1}"
+    fi
   else
-    url=$(terminus drush $args[@] -- user:login)
+    if [ -n "$uri" ]; then
+      url=$(terminus drush $args[@] -- user:login --uri="$uri")
+    else
+      url=$(terminus drush $args[@] -- user:login)
+    fi
   fi
 
   if [ -z "$url" ]; then
@@ -49,7 +98,6 @@ function llogin() {
     return
   fi
 
-  # if the last argument is --copy, then copy the url to the clipboard
   if [ $copy != false ]; then
     echo "$url" | clipboard_copy
     echo "login copied to clipboard"
@@ -72,18 +120,8 @@ function watchdog() {
   fi
 }
 
-# Open the current local site
-function ysopen() {
-  local rootPath=$(git rev-parse --show-toplevel)
-  local landoFile="$rootPath/.lando.local.yml"
-  local siteName=$(cat $landoFile | grep name: | cut -d':' -f2- | awk '{$1=$1};1')
-
-  open_file "https://$siteName.lndo.site"
-}
-
 # update all three repos
 function yspull() {
-  # Get the git rootPath
   local rootPath=$(git rev-parse --show-toplevel)
   cd "$rootPath"
   g pull --rebase
@@ -93,14 +131,29 @@ function yspull() {
 }
 
 function gcbcreate() {
-  # Get the git rootPath
   local rootPath=$(git rev-parse --show-toplevel)
   cd "$rootPath"
-  local branch=$(git symbolic-ref --short HEAD)
 
-  if [ -z "$branch" ]; then
+  local target_branch="$1"
+  local current_branch=$(git symbolic-ref --short HEAD)
+
+  if [ -z "$current_branch" ]; then
     echo "Not in a git repo"
     return
+  fi
+
+  local branch
+  if [ -n "$target_branch" ]; then
+    if [ "$current_branch" != "$target_branch" ]; then
+      if git show-ref --verify --quiet "refs/heads/$target_branch"; then
+        git checkout "$target_branch"
+      else
+        git checkout -b "$target_branch"
+      fi
+    fi
+    branch="$target_branch"
+  else
+    branch="$current_branch"
   fi
 
   if [ "$branch" = "develop" ]; then
@@ -124,7 +177,6 @@ function gcbcreate() {
   cd "$rootPath" && echo "component-library-twig is now up to date"
 }
 
-# Attempts to git-checkout a YaleSite with the current branch
 gyst() {
   local branch=$(git symbolic-ref --short HEAD)
 
@@ -134,35 +186,65 @@ gyst() {
   fi
 
   npm run local:git-checkout -- -b "$branch"
+
+  if [ "$branch" = "develop" ]; then
+    echo "On develop -- pulling latest for each repo on its default branch..."
+
+    git pull
+
+    local root_git_dir
+    root_git_dir=$(git rev-parse --show-toplevel 2>/dev/null)
+
+    local -a sub_repos=(
+      "web/themes/contrib/atomic"
+      "atomic/_yale-packages/component-library-twig"
+      "atomic/_yale-packages/tokens"
+    )
+
+    for repo in "${sub_repos[@]}"; do
+      if [ ! -d "$repo" ]; then
+        echo "Skipping $repo (directory not found)"
+        continue
+      fi
+
+      local sub_git_dir
+      sub_git_dir=$(git -C "$repo" rev-parse --show-toplevel 2>/dev/null)
+      if [ -z "$sub_git_dir" ] || [ "$sub_git_dir" = "$root_git_dir" ]; then
+        echo "Skipping $repo (not a separate git repo)"
+        continue
+      fi
+
+      local sub_branch
+      sub_branch=$(git -C "$repo" symbolic-ref --short HEAD 2>/dev/null)
+      if [ "$sub_branch" = "main" ] || [ "$sub_branch" = "develop" ]; then
+        echo "Pulling $repo (on $sub_branch)..."
+        git -C "$repo" pull
+      fi
+    done
+  fi
 }
 
-# get the site id of a site
 siteid() {
   if [ $# -eq 0 ]; then
     echo "Usage: $0 <site name without environment>"
     return
   fi
 
-  # check if they passed -f as an end argument to know if we need to disregard cache.
   local force=false
   if [ "${2}" = "-f" ]; then
     force=true
   fi
 
   local site_name="$1"
-
-  # See if the temp directory exists to store this site_id for the name.
   local siteid_dir="${XDG_DATA_HOME:-$HOME/.local/share}/siteids"
   if [ ! -d "$siteid_dir" ]; then
     mkdir -p "$siteid_dir"
   fi
 
   if [ "$force" = true ]; then
-    # If we are forcing, then remove the siteid file so we can get a new one.
     rm -f "$siteid_dir/$site_name"
   fi
 
-  # Check if the siteid already exists in that directory for the filenamee so we don't have to look it up again.
   if [ -f "$siteid_dir/$site_name" ]; then
     cat "$siteid_dir/$site_name"
     return
@@ -176,25 +258,8 @@ siteid() {
   fi
 
   local site_id=$(echo "$site_info" | awk '{print $1}')
-
-  # Create the cache for the siteid so we never have to look it up again.
   echo "$site_id" > "$siteid_dir/$site_name"
-
   echo "$site_id"
-}
-
-# Replace the name of the site referenced to the directory name
-replace_name_with_folder() {
-  local folder_name=$(basename $(pwd))
-  local file_name='.lando.local.yml'
-
-  if [ ! -f "$file_name" ]; then
-    cp .lando.local.example.yml $file_name
-  fi
-
-  sed -i '' "s/name: .*/name: $folder_name/" $file_name
-  # Replace DRUSH_OPTIONS_URI with the folder name
-  sed -i '' "s/DRUSH_OPTIONS_URI: .*/DRUSH_OPTIONS_URI: \"https:\/\/$folder_name.lndo.site\/\"/" $file_name
 }
 
 # Since I always confim followed by cache clear
@@ -202,43 +267,12 @@ confim() {
   npm run confim && lcr
 }
 
-# Shortcut for exporting configs
 confex() {
   npm run confex
 }
 
-# NOTE: the following are made due to the NPM defaults being dev
-# This allows me to pull any db/files I wish
-# Get the database and files together from a multidev
-dbandfiles() {
-  local multidev="${1:-dev}"
-  l pull --code=none --database="$multidev" --files="$multidev"
-  lcr
-}
-
-# Get only the database from a multidev
-dbget() {
-  local multidev="${1:-dev}"
-  l pull --code=none --database="$multidev" --files=none
-  l drush config:set cas.settings server.cert NULL -y
-  l drush config:set ai_engine_embedding.settings enable 0 -y
-  lcr
-}
-
 fixcas() {
   l drush config:set cas.settings server.cert NULL -y
-}
-
-# Get only the files form a multidev
-filesget() {
-  local multidev="${1:-dev}"
-  l pull --code=none --database=none --files="$multidev"
-  lcr
-}
-
-# Rebuild the lando site--useful when you change .lando.local.yml
-rebuild() {
-  l rebuild -y
 }
 
 # Keep up to date
@@ -247,7 +281,6 @@ gfetchpull() {
   g pull
 }
 
-# Keep all yalesites up to date
 gpullall() {
   gfetchpull
   cd atomic
@@ -264,41 +297,10 @@ ctags-php() {
 
 export DEBUG_COLORS=0
 
-# Find the port that changes each time it's rebuilt for lando instances
-dbport() {
-  lando info --format json | jq '.[] | select(.service == "database").external_connection.port' | sed 's/[^0-9]//g' | clipboard_copy
-  echo "Database port copied to clipboard"
-}
-
 local-setup() {
   replace_name_with_folder
   npm run setup
   gyst
-}
-
-rmys() {
-  local dirname
-
-  if [ -f composer.json ]; then
-    dirname=$(pwd)
-  else
-    dirname=$1
-  fi
-
-  # exit if dirname is not a valid directory
-  if [ ! -d "$dirname" ]; then
-    echo "Invalid directory: $dirname"
-    return
-  fi
-
-  cd "$dirname"
-  l destroy -y
-  cd ..
-  rm -rfI "$dirname"
-}
-
-running-yalesites() {
-  docker ps --format '{{.Names}}' | grep appserver | awk -F'_' '{print $1}' | sort -u
 }
 
 gtodo() {
@@ -313,6 +315,15 @@ grtm() {
   gh pr list -B develop --search 'label:"ready to merge"'
 }
 
+disable_ai() {
+  if [ $# -eq 0 ]; then
+    echo "Usage: $0 <site name>"
+    return
+  fi
+
+  terminus drush "$1" -- config:set ai_engine_embedding.settings enable 0 -y
+}
+
 # Consolidated PKG_CONFIG_PATH for multiple Homebrew libraries
 export PKG_CONFIG_PATH="/opt/homebrew/opt/{openssl,libtiff,gmp,libpng,ncurses,mpfr,libyaml,icu4c,readline,webp,unixodbc,jpeg,libpq,imagemagick}/lib/pkgconfig"
 
@@ -320,3 +331,12 @@ export PKG_CONFIG_PATH="/opt/homebrew/opt/{openssl,libtiff,gmp,libpng,ncurses,mp
 export LDFLAGS="$LDFLAGS -L/opt/homebrew/opt/imagemagick/lib"
 export CPPFLAGS="$CPPFLAGS -I/opt/homebrew/opt/imagemagick/include"
 export PHP_CONFIGURE_OPTS="--with-imagick=/opt/homebrew/opt/imagemagick"
+
+# ---------------------------------------------------------------------------
+# Load tool-specific file based on current selection
+# ---------------------------------------------------------------------------
+if [ "$(_ys_tool)" = "lando" ]; then
+  source "$_ys_rc_dir/yalesites-lando.zsh"
+else
+  source "$_ys_rc_dir/yalesites-ddev.zsh"
+fi
