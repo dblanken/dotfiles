@@ -34,7 +34,10 @@ When stowed, files are symlinked from `~/.dotfiles/<package>/<path>` to `~/<path
 - `nvim/` - Legacy/alternative Neovim configuration
 - `alacritty/` - Terminal emulator configuration
 - `git/` - Git configuration and global gitignore
-- `scripts/` - Utility scripts in `.local/bin/`
+- `scripts/` - Cross-platform utility scripts in `.local/bin/`
+- `scripts-linux/` - Linux-only scripts in `.local/bin/` (display management, gaming backups)
+- `scripts-mac/` - macOS-only scripts in `.local/bin/` (lock, killexchange, Lando/Drupal tools)
+- `archive/` - Archived scripts kept for reference, not stowed
 - `autostart/` - Linux desktop autostart entries (Linux-specific)
 - `mise/` - Runtime version manager configuration
 
@@ -212,7 +215,9 @@ This environment is heavily customized for YaleSites Drupal development in `yale
 
 ## Utility Scripts
 
-Located in `scripts/.local/bin/`:
+Scripts are split across three stow packages that all symlink into `~/.local/bin/`. Stow only the packages relevant to your platform.
+
+**`scripts/` — Cross-platform** (stow on all machines):
 
 **clipboard** - Cross-platform clipboard utility
 - Provides `copy` and `paste` subcommands
@@ -237,12 +242,23 @@ Located in `scripts/.local/bin/`:
 
 **enable_portkey** - Sources Portkey configuration for Claude Code
 
-**Linux-specific display scripts** - Monitor and display management (X11/xrandr)
-- `fix-hdmi-monitor.sh` - Configures multi-monitor setup with custom resolution
-- `enable-vrr.sh` - Enables VRR/FreeSync on DisplayPort monitors
-- `disable_monitors.sh` - Disables all monitors except primary DisplayPort
+**`scripts-linux/` — Linux-only** (stow on Linux machines):
+- `fix-hdmi-monitor.sh` - Configures multi-monitor setup with custom resolution (X11/xrandr)
+- `toggle-monitors.sh` - Toggle secondary monitors for FreeSync gaming (KDE Wayland/kscreen-doctor)
 - `mirror-tv.sh` - Mirrors displays for presentation mode
-- **Note**: These scripts are hardware-specific and may need adjustment for different setups
+- `backup-vs.sh` - Vintage Story saves and config backup
+- `minecraft-backup.sh` - Prism Launcher (Minecraft) backup
+
+**`scripts-mac/` — macOS-only** (stow on macOS machines):
+- `lock` - Sleep display via pmset
+- `debug-with-chrome` - Launch Chrome with remote debugging enabled
+- `killexchange` - Kill Exchange sync daemon
+- `drupal_startover.sh` - Destroy and rebuild a Lando Drupal environment
+- `lando-reduce-retries.sh` - Inject Lando scanner retry configuration
+- `switch-cache-mode.sh` - Toggle between dev/multidev Drupal caching modes
+
+**`archive/scripts/`** — Obsolete scripts kept for reference (not stowed):
+- Nobara, Pop!_OS, and Arch-specific scripts from previous Linux installs
 
 
 ## Installation and Management
@@ -265,7 +281,8 @@ The script will:
 ```bash
 make install              # Run install.sh
 make stow-core            # Stow essential packages (zsh, git, tmux, scripts)
-make stow-linux           # Stow Linux-specific packages (autostart, mise)
+make stow-mac             # Stow macOS-specific packages (scripts-mac)
+make stow-linux           # Stow Linux-specific packages (autostart, mise, scripts-linux)
 make stow-optional        # Stow optional packages (alacritty, lazyvim, etc.)
 make stow-zsh             # Stow specific package
 make validate             # Run dotfiles health check
@@ -316,16 +333,19 @@ make restow-<package>   # Restow after editing configs
 
 ### Package Categories
 
-**Core packages** (essential):
+**Core packages** (essential, all platforms):
 - `zsh` - Shell configuration
 - `git` - Git configuration
 - `tmux` - Terminal multiplexer
-- `scripts` - Utility scripts
+- `scripts` - Cross-platform utility scripts
+
+**macOS-specific packages**:
+- `scripts-mac` - macOS-only scripts (lock, killexchange, Lando/Drupal tools)
 
 **Linux-specific packages**:
 - `autostart` - Desktop autostart entries for display configuration
 - `mise` - Runtime version manager configuration
-
+- `scripts-linux` - Linux-only scripts (display management, gaming backups)
 
 **Optional packages**:
 - `alacritty` - Terminal emulator

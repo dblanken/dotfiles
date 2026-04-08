@@ -165,13 +165,19 @@ This repository uses **GNU Stow** for dotfile management. Each top-level directo
 dotfiles/
 ├── alacritty/          # Terminal emulator config
 │   └── .config/alacritty/
+├── archive/            # Archived scripts (not stowed; kept for reference)
+│   └── scripts/
 ├── git/                # Git configuration
 │   ├── .gitconfig
 │   ├── .gitignore (global)
 │   └── .gitmessage
 ├── lazyvim/            # Neovim LazyVim config
 │   └── .config/lazyvim/
-├── scripts/            # Utility scripts
+├── scripts/            # Cross-platform utility scripts
+│   └── .local/bin/
+├── scripts-linux/      # Linux-only scripts (display management, gaming backups)
+│   └── .local/bin/
+├── scripts-mac/        # macOS-only scripts (lock, killexchange, Lando/Drupal tools)
 │   └── .local/bin/
 ├── tmux/               # tmux configuration
 │   └── .tmux.conf
@@ -185,6 +191,8 @@ dotfiles/
 ├── vim/                # Fallback vim config (optional)
 └── asdf/               # Legacy version manager config (optional)
 ```
+
+Multiple packages can share the same target directory — `scripts/`, `scripts-linux/`, and `scripts-mac/` all symlink files into `~/.local/bin/`. Stow only the packages relevant to your platform.
 
 When you stow a package, files are symlinked from `~/.dotfiles/<package>/<path>` to `~/<path>`.
 
@@ -214,17 +222,25 @@ If you prefer manual control:
 # Initialize submodules (zsh plugins)
 git submodule update --init --recursive
 
-# Stow individual packages
+# Stow core packages (all platforms)
 stow zsh
 stow tmux
 stow git
-stow alacritty
-stow lazyvim
 stow scripts
 
-# Optional packages
+# macOS-specific
+stow scripts-mac
 stow hammerspoon
 stow karabiner
+
+# Linux-specific
+stow scripts-linux
+stow autostart
+stow mise
+
+# Optional packages
+stow alacritty
+stow lazyvim
 stow nvim       # Alternative neovim config
 stow vim        # Fallback vim config
 ```

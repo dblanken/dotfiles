@@ -1,6 +1,6 @@
 .PHONY: help install update stow-all unstow-all restow-all clean
 .PHONY: stow-% unstow-% restow-%
-.PHONY: stow-core stow-optional stow-linux
+.PHONY: stow-core stow-optional stow-linux stow-mac
 .PHONY: validate check-platform install-linux-extras
 
 # Colors
@@ -12,18 +12,20 @@ NC := \033[0m
 # Dotfiles directory
 DOTFILES := $(HOME)/.dotfiles
 
-# Core packages
+# Core packages (cross-platform)
 CORE_PACKAGES := zsh git tmux scripts
 
-# Linux-specific packages
-LINUX_PACKAGES := autostart mise
+# macOS-specific packages
+MAC_PACKAGES := scripts-mac
 
+# Linux-specific packages
+LINUX_PACKAGES := autostart mise scripts-linux
 
 # Optional packages
 OPTIONAL_PACKAGES := alacritty lazyvim hammerspoon karabiner
 
 # All packages
-ALL_PACKAGES := $(CORE_PACKAGES) $(LINUX_PACKAGES) $(OPTIONAL_PACKAGES) nvim vim asdf
+ALL_PACKAGES := $(CORE_PACKAGES) $(MAC_PACKAGES) $(LINUX_PACKAGES) $(OPTIONAL_PACKAGES) nvim vim asdf
 
 help: ## Show this help message
 	@echo "$(BLUE)Dotfiles Makefile$(NC)"
@@ -39,6 +41,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(GREEN)Available packages:$(NC)"
 	@echo "  Core:     $(CORE_PACKAGES)"
+	@echo "  macOS:    $(MAC_PACKAGES)"
 	@echo "  Linux:    $(LINUX_PACKAGES)"
 	@echo "  Optional: $(OPTIONAL_PACKAGES)"
 	@echo "  Other:    nvim vim asdf"
@@ -102,7 +105,7 @@ stow-optional: ## Stow optional packages (alacritty, lazyvim, etc.)
 	done
 	@echo "$(GREEN)✓$(NC) Optional packages stowed"
 
-stow-linux: ## Stow Linux-specific packages (autostart, mise)
+stow-linux: ## Stow Linux-specific packages (autostart, mise, scripts-linux)
 	@echo "$(BLUE)==>$(NC) Stowing Linux-specific packages..."
 	@for package in $(LINUX_PACKAGES); do \
 		echo "  Stowing $$package..."; \
@@ -111,6 +114,18 @@ stow-linux: ## Stow Linux-specific packages (autostart, mise)
 	done
 	@echo "$(GREEN)✓$(NC) Linux packages stowed"
 
+stow-mac: ## Stow macOS-specific packages (scripts-mac)
+	@if [ "$$(uname -s)" != "Darwin" ]; then \
+		echo "$(YELLOW)⚠$(NC) This target is for macOS only"; \
+		exit 1; \
+	fi
+	@echo "$(BLUE)==>$(NC) Stowing macOS-specific packages..."
+	@for package in $(MAC_PACKAGES); do \
+		echo "  Stowing $$package..."; \
+		stow -d $(DOTFILES) -t $(HOME) $$package 2>/dev/null || \
+			echo "$(YELLOW)⚠$(NC) Conflict stowing $$package"; \
+	done
+	@echo "$(GREEN)✓$(NC) macOS packages stowed"
 
 stow-%: ## Stow a specific package
 	@if [ -d "$*" ]; then \

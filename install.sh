@@ -248,6 +248,7 @@ EOF
     local optional_packages=()
     if [[ "$OS_TYPE" == "Darwin" ]]; then
         optional_packages=(
+            "scripts-mac:macOS-specific scripts (lock, killexchange, Lando/Drupal tools)"
             "alacritty:Terminal emulator configuration"
             "lazyvim:Neovim LazyVim configuration"
             "hammerspoon:macOS automation (requires Hammerspoon app)"
@@ -255,6 +256,7 @@ EOF
         )
     else
         optional_packages=(
+            "scripts-linux:Linux-specific scripts (display management, gaming backups)"
             "alacritty:Terminal emulator configuration"
             "lazyvim:Neovim LazyVim configuration"
         )
