@@ -37,6 +37,11 @@ alias b="bundle"
 alias r="bundle exec rails"
 alias coverage="COVERAGE=true be rails test"
 
+# Ollama / local AI
+alias ask="ask-ollama -m llama3.1:8b"
+alias askcode="ask-ollama -m qwen2.5-coder:7b"
+alias quickquestion="ask-ollama -m mistral:7b"
+
 # Searching
 alias '?'=duck
 alias '??'=google

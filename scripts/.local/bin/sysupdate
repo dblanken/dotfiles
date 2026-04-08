@@ -2,12 +2,12 @@
 
 set -eo pipefail
 
-echo "==> Updating system packages (pacman + AUR via yay)..."
-yay -Syu
+echo "==> Updating system packages (pacman + AUR via paru)..."
+paru -Syu
 
 echo ""
 echo "==> Removing unused dependencies..."
-yay -Yc
+paru -c
 
 echo ""
 echo "==> Cleaning package cache (keeping last 2 versions)..."

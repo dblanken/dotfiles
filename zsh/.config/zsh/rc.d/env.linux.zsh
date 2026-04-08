@@ -118,6 +118,17 @@ if [[ -n "$DISTRO_ID" ]]; then
       alias docker=podman
       alias docker-compose=podman-compose
     fi
+
+    # Cachy Linux
+    if [[ "$DISTRO_ID" = "cachyos" ]]; then
+      # Add Arch specific tweaks here
+      :
+      export SUDO_ASKPASS=/usr/bin/ksshaskpass
+      # Podman as Docker replacement
+      alias docker=podman
+      alias docker-compose=podman-compose
+      alias yay=paru
+    fi
 fi
 
 export VINTAGE_STORY=/mnt/games/vintagestory

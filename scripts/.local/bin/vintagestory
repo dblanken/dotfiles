@@ -1,0 +1,4 @@
+#!/bin/bash
+# Wrapper for Vintage Story client that applies CachyOS gaming optimizations.
+# Lives outside /opt/vintagestory so it survives game updates.
+exec game-performance mangohud --dlsym /opt/vintagestory/run.sh "$@"

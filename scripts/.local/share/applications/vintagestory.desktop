@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Categories=Game;
+Name=Vintage Story
+Comment=Uncompromising wilderness survival sandbox game
+Icon=vintagestory
+Exec=/home/dblanken/.local/bin/vintagestory
+Path=/opt/vintagestory
+NoDisplay=false
+Terminal=false
+StartupNotify=false
+StartupWMClass=Vintagestory
