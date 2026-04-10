@@ -59,6 +59,15 @@ export RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
 # Linux-specific environment variables
 # =============================================================================
 
+# AMD GPU ROCm compatibility: RX 6600 XT (gfx1032) is not in Ollama's compiled
+# kernel list, so override to gfx1030 (same RDNA2 ISA, fully compatible).
+export HSA_OVERRIDE_GFX_VERSION=10.3.0
+
+# Ollama default context window: models default to 4096 tokens without this.
+# 16384 fits entirely in VRAM on 8GB RX 6600 XT with qwen3:8b (avoids CPU spill).
+# 32768 works but causes 33/67 CPU/GPU split which serializes inference.
+export OLLAMA_CONTEXT_LENGTH=16384
+
 # QT/GTK theme consistency (if using GUI applications)
 # Uncomment if you want Qt apps to use GTK theme
 # export QT_QPA_PLATFORMTHEME=gtk2
