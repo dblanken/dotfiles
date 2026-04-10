@@ -26,19 +26,38 @@ c() {
   fi
 }
 
+_c_rebuild_cache() {
+  mkdir -p ~/.cache/zsh
+  fd -H -t d '^\.git$' ~/code --max-depth 6 2>/dev/null \
+    | sed 's|/.git$||; s|.*/||' | sort -u > ~/.cache/zsh/c_repos
+}
+
 _c() {
   local base=$HOME/code
-  local -a repos
+  local cache=~/.cache/zsh/c_repos
+
+  # Build cache on first use if missing
+  [[ -f "$cache" ]] || _c_rebuild_cache
 
   # Offer git repo names as quick completions (the "real" projects)
-  repos=(${(f)"$(find "$base" -maxdepth 6 -name '.git' -type d 2>/dev/null \
-    | sed 's|/.git$||; s|.*/||' | sort -u)"})
+  local -a repos
+  repos=(${(f)"$(<$cache)"})
   compadd -a repos
 
-  # Also support path-based browsing (c apps/<tab>, etc.)
-  _path_files -W "$base" -/
+  # Path-based browsing — directories only (apps/<tab>, etc.)
+  local cur="${words[2]}"
+  local dir_part="${cur:h}"
+  local target_dir
+  [[ "$dir_part" == "." ]] && target_dir="$base" || target_dir="$base/$dir_part"
+  local -a subdirs
+  subdirs=("$target_dir"/*(N-/))
+  subdirs=("${(@)subdirs#$base/}")
+  compadd -a subdirs
 }
 compdef _c c
+
+# Keep cache warm in background on shell startup
+_c_rebuild_cache &!
 
 # gitignore.io integration
 gi() { curl -sLw "\n" https://www.toptal.com/developers/gitignore/api/"$@" ;}
