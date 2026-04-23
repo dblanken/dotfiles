@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# claude-local: Run Claude Code against a local Ollama instance.
-# Usage: claude-local [claude args...]
+# claude-ollama: Run Claude Code against a local Ollama instance.
+# Usage: claude-ollama [claude args...]
 
 set -euo pipefail
 
