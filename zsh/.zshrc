@@ -274,12 +274,13 @@ if [ -d ~/.config/zsh/rc.d ]; then
   # 4. Load aliases and functions
   [ -f ~/.config/zsh/rc.d/aliases.zsh ] && source ~/.config/zsh/rc.d/aliases.zsh
   [ -f ~/.config/zsh/rc.d/functions.zsh ] && source ~/.config/zsh/rc.d/functions.zsh
+  [ -f ~/.config/zsh/rc.d/functions.$OS_TYPE.zsh ] && source ~/.config/zsh/rc.d/functions.$OS_TYPE.zsh
 
   # 5. Load remaining configuration files (e.g., yalesites.zsh)
   for rc_file in ~/.config/zsh/rc.d/*.zsh; do
     # Skip files already loaded
     case "$rc_file" in
-      *platform.zsh|*env.zsh|*env.darwin.zsh|*env.linux.zsh|*aliases.zsh|*functions.zsh)
+      *platform.zsh|*env.zsh|*env.darwin.zsh|*env.linux.zsh|*aliases.zsh|*functions.zsh|*functions.linux.zsh|*functions.darwin.zsh)
         continue
         ;;
     esac
