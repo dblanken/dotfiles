@@ -251,7 +251,11 @@ bindkey "^s" history-incremental-pattern-search-forward
 bindkey -s "^[f" "tmux-sessionizer\n"
 
 # {{{1 FZF
-eval "$(fzf --zsh)"
+FZF_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/fzf-zsh.zsh"
+if [[ ! -f "$FZF_CACHE" || "$FZF_CACHE" -ot "$(command -v fzf)" ]]; then
+  fzf --zsh > "$FZF_CACHE"
+fi
+source "$FZF_CACHE"
 
 # {{{1 Load modular configuration
 # Source configuration files in specific order for cross-platform support

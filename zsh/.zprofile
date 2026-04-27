@@ -44,7 +44,11 @@ if [ "$OS_TYPE" = "darwin" ]; then
   fi
 
   if [[ -n "$BREW_LOCATION" ]]; then
-    eval "$($BREW_LOCATION shellenv)"
+    BREW_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/brew-shellenv.zsh"
+    if [[ ! -f "$BREW_CACHE" || "$BREW_CACHE" -ot "$BREW_LOCATION" ]]; then
+      "$BREW_LOCATION" shellenv > "$BREW_CACHE"
+    fi
+    source "$BREW_CACHE"
   fi
 fi
 
@@ -54,8 +58,8 @@ if [[ -f "$HOME/.zprofile.local" ]]; then
 	source ~/.zprofile.local
 fi
 
-# Switch Alacritty theme (only once per login session)
-if [[ -f "$HOME/.config/alacritty/switch-alacritty-theme.sh" ]]; then
+# Switch Alacritty theme (only on initial login, not inside tmux sub-shells)
+if [[ -z "$TMUX" && -f "$HOME/.config/alacritty/switch-alacritty-theme.sh" ]]; then
 	$HOME/.config/alacritty/switch-alacritty-theme.sh
 fi
 

@@ -46,10 +46,19 @@ export PATH="$HOME/.cache/lm-studio/bin:$PATH"
 # Runtime version managers
 # =============================================================================
 
-# NVM (Node Version Manager) - cross-platform
+# NVM (Node Version Manager) - lazy-loaded for faster startup
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+  _lazy_nvm() {
+    unset -f nvm node npm npx
+    \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  }
+  nvm() { _lazy_nvm; nvm "$@"; }
+  node() { _lazy_nvm; node "$@"; }
+  npm() { _lazy_nvm; npm "$@"; }
+  npx() { _lazy_nvm; npx "$@"; }
+fi
 
 # Bun - cross-platform JavaScript runtime
 export BUN_INSTALL="$HOME/.bun"
@@ -60,6 +69,9 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export DISABLE_TELEMTRY=1
 export DISABLE_AUTOUPDATER=1
 
+# For Homebrew
+export HOMEBREW_NO_AUTO_UPDATE=1
+
 # For Azure CLI / Functions
 export FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT=1
 
@@ -69,5 +81,9 @@ export TERMINUS_ALLOW_UNSUPPORTED_NEWER_PHP=1
 
 # Mise (runtime version manager) - cross-platform
 if command -v mise &> /dev/null; then
-  eval "$(mise activate zsh)"
+  MISE_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/mise-activate.zsh"
+  if [[ ! -f "$MISE_CACHE" || "$MISE_CACHE" -ot "$(command -v mise)" ]]; then
+    mise activate zsh > "$MISE_CACHE"
+  fi
+  source "$MISE_CACHE"
 fi
