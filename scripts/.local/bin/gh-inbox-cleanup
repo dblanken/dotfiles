@@ -1,0 +1,198 @@
+#!/usr/bin/env bash
+# gh-inbox-cleanup: Mark GitHub inbox notifications as done based on state.
+# Usage: gh-inbox-cleanup [options]
+#
+# Marks as done: merged PRs, closed PRs, closed issues, failed CI activity,
+#                any notification where you are the author (regardless of state).
+# Keeps: open PRs/issues you're assigned to, review requests, mentions, etc.
+#
+# Options:
+#   -n, --dry-run    Preview changes without making them
+#   -j, --jobs N     Parallel API calls (default: 8)
+#   --debug          Print raw notification type/reason data and exit
+#   -h, --help       Show this help
+#
+# Requires: gh (GitHub CLI), jq
+
+set -euo pipefail
+
+DRY_RUN=false
+MAX_PARALLEL=8
+DEBUG=false
+
+usage() {
+  grep '^#' "$0" | grep -v '^#!/' | sed 's/^# \?//'
+  exit 0
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -n|--dry-run) DRY_RUN=true ;;
+    -j|--jobs) MAX_PARALLEL="$2"; shift ;;
+    --debug) DEBUG=true ;;
+    -h|--help) usage ;;
+    *) echo "Unknown option: $1" >&2; exit 1 ;;
+  esac
+  shift
+done
+
+command -v gh  &>/dev/null || { echo "Error: gh CLI not installed" >&2; exit 1; }
+command -v jq  &>/dev/null || { echo "Error: jq not installed" >&2; exit 1; }
+gh auth status &>/dev/null || { echo "Error: not authenticated (run: gh auth login)" >&2; exit 1; }
+
+echo "Fetching inbox notifications..."
+all_notifications=$(gh api "/notifications?all=true" --paginate)
+count=$(echo "$all_notifications" | jq 'length')
+echo "Found $count notification(s)."
+
+if [[ "$DEBUG" == true ]]; then
+  echo ""
+  echo "--- DEBUG: raw notification types/reasons ---"
+  echo "$all_notifications" | jq -r '.[] | "\(.subject.type)\t\(.reason)\t\(.subject.title)"' | sort
+  exit 0
+fi
+
+echo ""
+$DRY_RUN && echo "[DRY RUN — no changes will be made]" && echo ""
+
+# Temp files for cross-subprocess counting (one dot per entry = one line = countable)
+export MARKED_FILE KEPT_FILE DRY_RUN MAX_PARALLEL
+MARKED_FILE=$(mktemp)
+KEPT_FILE=$(mktemp)
+trap 'rm -f "$MARKED_FILE" "$KEPT_FILE"' EXIT
+
+check_and_mark() {
+  local id="$1" type="$2" reason="$3" url="$4" title="$5"
+
+  # CI notifications always have null subject.url; use title as the signal instead
+  if [[ "$type" == "CheckSuite" || "$type" == "WorkflowRun" || "$reason" == "ci_activity" ]]; then
+    if echo "$title" | grep -qiE "failed|cancelled|timed.out|startup_failure"; then
+      if [[ "$DRY_RUN" == true ]]; then
+        echo "  [would mark] [failed CI] $title"
+      else
+        echo "  Marking done: [failed CI] $title"
+        gh api -X DELETE "/notifications/threads/$id" 2>/dev/null || true
+      fi
+      echo . >> "$MARKED_FILE"
+    else
+      echo . >> "$KEPT_FILE"
+    fi
+    return
+  fi
+
+  if [[ "$url" == "null" || -z "$url" ]]; then
+    echo . >> "$KEPT_FILE"
+    return
+  fi
+
+  # Author notifications are noise regardless of state — untagged comments on
+  # things you created don't require action; important signals come via mention,
+  # review_requested, or state_change instead.
+  if [[ "$reason" == "author" ]]; then
+    if [[ "$DRY_RUN" == true ]]; then
+      echo "  [would mark] [author] $title"
+    else
+      echo "  Marking done: [author] $title"
+      gh api -X DELETE "/notifications/threads/$id" 2>/dev/null || true
+    fi
+    echo . >> "$MARKED_FILE"
+    return
+  fi
+
+  local api_path="${url#https://api.github.com}"
+  local should_mark=false
+  local mark_reason=""
+
+  case "$type" in
+    PullRequest)
+      local state merged
+      state=$(gh api "$api_path" --jq '.state'  2>/dev/null || echo "error")
+      merged=$(gh api "$api_path" --jq '.merged' 2>/dev/null || echo "false")
+      if [[ "$merged" == "true" ]]; then
+        should_mark=true; mark_reason="merged PR"
+      elif [[ "$state" == "closed" ]]; then
+        should_mark=true; mark_reason="closed PR"
+      fi
+      ;;
+
+    Issue)
+      local state
+      state=$(gh api "$api_path" --jq '.state' 2>/dev/null || echo "error")
+      if [[ "$state" == "closed" ]]; then
+        should_mark=true; mark_reason="closed issue"
+      fi
+      ;;
+
+    # CI: GitHub uses CheckSuite or WorkflowRun as the subject type.
+    # Both support a `conclusion` field. We also fall through here when
+    # reason=ci_activity with an unexpected type, so we catch future variants.
+    CheckSuite|WorkflowRun)
+      local conclusion
+      conclusion=$(gh api "$api_path" --jq '.conclusion // ""' 2>/dev/null || echo "")
+      if [[ "$conclusion" =~ ^(failure|cancelled|timed_out|action_required|startup_failure)$ ]]; then
+        should_mark=true; mark_reason="failed CI ($conclusion)"
+      fi
+      ;;
+
+    *)
+      # Unknown type with ci_activity reason — still try to resolve CI state
+      if [[ "$reason" == "ci_activity" ]]; then
+        local conclusion
+        conclusion=$(gh api "$api_path" --jq '.conclusion // ""' 2>/dev/null || echo "")
+        if [[ "$conclusion" =~ ^(failure|cancelled|timed_out|action_required|startup_failure)$ ]]; then
+          should_mark=true; mark_reason="failed CI/$type ($conclusion)"
+        fi
+      else
+        echo . >> "$KEPT_FILE"
+        return
+      fi
+      ;;
+  esac
+
+  if [[ "$should_mark" == true ]]; then
+    if [[ "$DRY_RUN" == true ]]; then
+      echo "  [would mark] [$mark_reason] $title"
+    else
+      echo "  Marking done: [$mark_reason] $title"
+      gh api -X DELETE "/notifications/threads/$id" 2>/dev/null || true
+    fi
+    echo . >> "$MARKED_FILE"
+  else
+    echo . >> "$KEPT_FILE"
+  fi
+}
+
+export -f check_and_mark
+
+# Sliding window job pool — keeps MAX_PARALLEL calls in flight at once
+job_pids=()
+
+while IFS= read -r line; do
+  id=$(echo "$line"     | jq -r '.id')
+  type=$(echo "$line"   | jq -r '.type')
+  reason=$(echo "$line" | jq -r '.reason')
+  url=$(echo "$line"    | jq -r '.url')
+  title=$(echo "$line"  | jq -r '.title')
+
+  check_and_mark "$id" "$type" "$reason" "$url" "$title" &
+  job_pids+=($!)
+
+  if (( ${#job_pids[@]} >= MAX_PARALLEL )); then
+    wait "${job_pids[0]}"
+    job_pids=("${job_pids[@]:1}")
+  fi
+done < <(echo "$all_notifications" | jq -c '.[] | {
+  id:     .id,
+  type:   .subject.type,
+  reason: .reason,
+  url:    .subject.url,
+  title:  .subject.title
+}')
+
+for pid in "${job_pids[@]}"; do wait "$pid"; done
+
+marked=$(wc -l < "$MARKED_FILE" | tr -d ' ')
+kept=$(wc -l   < "$KEPT_FILE"   | tr -d ' ')
+
+echo ""
+echo "Marked as done: $marked | Kept: $kept"
