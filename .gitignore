@@ -24,5 +24,17 @@ mise/.config/mise/shims/
 CLAUDE.md
 CLAUDE_*
 
+# Claude Code stow packages are intentionally tracked
+!claude-work/
+!claude-work/.claude/
+!claude-work/.claude/CLAUDE.md
+!claude-work/.claude/memory/
+!claude-work/.claude/memory/**
+!claude-personal/
+!claude-personal/.claude/
+!claude-personal/.claude/CLAUDE.md
+!claude-personal/.claude/memory/
+!claude-personal/.claude/memory/**
+
 # Git worktrees
 .worktrees/

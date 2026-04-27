@@ -318,6 +318,16 @@ EOF
         done
     fi
 
+    # Claude Code configuration
+    print_header "Claude Code configuration"
+    if [[ "$OS_TYPE" == "Darwin" ]]; then
+        print_info "macOS detected — stowing work Claude config"
+        stow_package "claude-work"
+    else
+        print_info "Linux detected — stowing personal Claude config"
+        stow_package "claude-personal"
+    fi
+
     # Post-installation
     print_header "Post-installation"
 
