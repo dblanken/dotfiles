@@ -327,6 +327,11 @@ EOF
         print_info "Linux detected — stowing personal Claude config"
         stow_package "claude-personal"
     fi
+    if command -v claude-inject-statusline &>/dev/null; then
+        claude-inject-statusline
+    else
+        bash "$DOTFILES_DIR/scripts/.local/bin/claude-inject-statusline"
+    fi
 
     # Post-installation
     print_header "Post-installation"

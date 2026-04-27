@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+# Injects statusLine config into ~/.claude/settings.json if not already present.
+# Safe to run multiple times.
+
+settings="$HOME/.claude/settings.json"
+
+if [ ! -f "$settings" ]; then
+  echo "No settings.json found at $settings — skipping"
+  exit 0
+fi
+
+if ! command -v jq &>/dev/null; then
+  echo "jq is required but not installed — skipping statusLine injection"
+  exit 1
+fi
+
+if jq -e '.statusLine' "$settings" >/dev/null 2>&1; then
+  echo "statusLine already configured in $settings"
+  exit 0
+fi
+
+tmp=$(mktemp)
+jq '. + {"statusLine": {"type": "command", "command": "bash ~/.claude/statusline-command.sh"}}' "$settings" > "$tmp" && mv "$tmp" "$settings"
+echo "Injected statusLine config into $settings"
