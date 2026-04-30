@@ -16,7 +16,7 @@ DOTFILES := $(HOME)/.dotfiles
 CORE_PACKAGES := zsh git tmux scripts
 
 # macOS-specific packages
-MAC_PACKAGES := scripts-mac
+MAC_PACKAGES := scripts-mac alacritty-mac
 
 # Linux-specific packages
 LINUX_PACKAGES := autostart mise scripts-linux
@@ -114,7 +114,7 @@ stow-linux: ## Stow Linux-specific packages (autostart, mise, scripts-linux)
 	done
 	@echo "$(GREEN)✓$(NC) Linux packages stowed"
 
-stow-mac: ## Stow macOS-specific packages (scripts-mac)
+stow-mac: ## Stow macOS-specific packages (scripts-mac, alacritty-mac)
 	@if [ "$$(uname -s)" != "Darwin" ]; then \
 		echo "$(YELLOW)⚠$(NC) This target is for macOS only"; \
 		exit 1; \

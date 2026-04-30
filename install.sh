@@ -250,6 +250,7 @@ EOF
         optional_packages=(
             "scripts-mac:macOS-specific scripts (lock, killexchange, Lando/Drupal tools)"
             "alacritty:Terminal emulator configuration"
+            "alacritty-mac:macOS window decoration overrides for Alacritty"
             "lazyvim:Neovim LazyVim configuration"
             "hammerspoon:macOS automation (requires Hammerspoon app)"
             "karabiner:Keyboard customization (requires Karabiner-Elements)"

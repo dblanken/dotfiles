@@ -31,5 +31,6 @@ option_as_alt = "OnlyLeft"
 [general]
 live_config_reload = true
 import = [
-  '~/.config/alacritty/themes/tokyonight.toml'
+  '~/.config/alacritty/themes/tokyonight.toml',
+  '~/.config/alacritty/os_overrides.toml'
 ]
