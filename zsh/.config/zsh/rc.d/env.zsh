@@ -67,7 +67,7 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # For Claude Code
 export DISABLE_TELEMTRY=1
-export DISABLE_AUTOUPDATER=1
+# export DISABLE_AUTOUPDATER=1
 
 # For Homebrew
 export HOMEBREW_NO_AUTO_UPDATE=1

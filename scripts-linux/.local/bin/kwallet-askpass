@@ -1,0 +1,13 @@
+#!/bin/bash
+# kwallet-askpass: retrieve sudo password from the Secret Service (KWallet 6)
+# Used as SUDO_ASKPASS so Claude Code and non-interactive scripts can run sudo -A
+# without a terminal prompt. The password is read via secret-tool (libsecret),
+# which talks to kwalletd6 over the XDG Secret Service API.
+#
+# Store the password once with:
+#   secret-tool store --label="sudo-askpass" service sudo-askpass username "$USER"
+#
+# Remove it with:
+#   secret-tool clear service sudo-askpass username "$USER"
+
+secret-tool lookup service sudo-askpass username "$USER" 2>/dev/null

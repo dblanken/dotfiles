@@ -122,7 +122,7 @@ if [[ -n "$DISTRO_ID" ]]; then
     if [[ "$DISTRO_ID" = "arch" ]]; then
       # Add Arch specific tweaks here
       :
-      export SUDO_ASKPASS=/usr/bin/ksshaskpass
+      export SUDO_ASKPASS="$HOME/.local/bin/kwallet-askpass"
       # Podman as Docker replacement
       alias docker=podman
       alias docker-compose=podman-compose
@@ -132,7 +132,7 @@ if [[ -n "$DISTRO_ID" ]]; then
     if [[ "$DISTRO_ID" = "cachyos" ]]; then
       # Add Arch specific tweaks here
       :
-      export SUDO_ASKPASS=/usr/bin/ksshaskpass
+      export SUDO_ASKPASS="$HOME/.local/bin/kwallet-askpass"
       # Podman as Docker replacement
       alias docker=podman
       alias docker-compose=podman-compose
@@ -140,6 +140,4 @@ if [[ -n "$DISTRO_ID" ]]; then
     fi
 fi
 
-export VINTAGE_STORY=/mnt/games/vintagestory
-export VINTAGE_STORY=/var/lib/flatpak/app/at.vintagestory.VintageStory/current/active/files/
-export VINTAGE_STORY=/usr/share/vintagestory
+export VINTAGE_STORY=/opt/vintagestory
