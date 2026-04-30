@@ -25,7 +25,7 @@ LINUX_PACKAGES := autostart mise scripts-linux
 OPTIONAL_PACKAGES := alacritty lazyvim hammerspoon karabiner
 
 # All packages
-ALL_PACKAGES := $(CORE_PACKAGES) $(MAC_PACKAGES) $(LINUX_PACKAGES) $(OPTIONAL_PACKAGES) nvim vim asdf
+ALL_PACKAGES := $(CORE_PACKAGES) $(MAC_PACKAGES) $(LINUX_PACKAGES) $(OPTIONAL_PACKAGES) nvim vim asdf kitty
 
 help: ## Show this help message
 	@echo "$(BLUE)Dotfiles Makefile$(NC)"
@@ -44,7 +44,7 @@ help: ## Show this help message
 	@echo "  macOS:    $(MAC_PACKAGES)"
 	@echo "  Linux:    $(LINUX_PACKAGES)"
 	@echo "  Optional: $(OPTIONAL_PACKAGES)"
-	@echo "  Other:    nvim vim asdf"
+	@echo "  Other:    nvim vim asdf kitty"
 
 install: ## Run the interactive installation script
 	@./install.sh
