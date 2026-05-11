@@ -15,12 +15,12 @@ set -euo pipefail
 
 # --- Paths ---
 MODEL="${MODEL:-/mnt/more_games/ai-models/Qwen3.6-35B-A3B-GGUF/Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf}"
-MMPROJ="${MMPROJ:-/mnt/more_games/ai-models/Qwen3.6-35B-A3B-GGUF/mmproj-F16.gguf}"
+MMPROJ="${MMPROJ:-/mnt/more_games/ai-models/Qwen3.6-35B-A3B-GGUF/mmproj-F16.gguf}"   # e.g. $HOME/ai/llama-models/mmproj-Qwen3.6-35B-A3B-F16.gguf
 LLAMA="${LLAMA:-/usr/bin/llama-server}"
 SYSTEM_FILE="${SYSTEM_FILE:-}"  # Doesnt work on web
 
 # --- Network ---
-HOST="${HOST:-127.0.0.1}"
+HOST="${HOST:-0.0.0.0}"
 PORT="${PORT:-8080}"
 API_KEY="${API_KEY:-}"  # optional; clients must send matching Authorization header
 
@@ -32,22 +32,20 @@ REPEAT_PENALTY="${REPEAT_PENALTY:-1.05}"
 
 # --- Compute / offload ---
 GPU_LAYERS="${GPU_LAYERS:-99}"
-CPU_MOE="${CPU_MOE:-20}"
+# MoE expert weights stay in CPU RAM; GPU holds only attention + embeddings (~2GB)
+CMOE="${CMOE:-1}"
 THREADS="${THREADS:-6}"
 
 # --- KV cache ---
 CACHE_TYPE_K="${CACHE_TYPE_K:-q8_0}"
 CACHE_TYPE_V="${CACHE_TYPE_V:-q8_0}"
 
-# --- Fit / memory ---
-FIT="${FIT:-on}"
-FIT_TARGET="${FIT_TARGET:-512}"
-
 # --- Flash attention: on / off / auto ---
 FLASH_ATTN="${FLASH_ATTN:-on}"
 
-# --- Boolean toggle (0 disable, 1 enable) ---
-MLOCK="${MLOCK:-1}"
+# --- Boolean toggles (0 disable, 1 enable) ---
+MLOCK="${MLOCK:-0}"
+NO_MMAP="${NO_MMAP:-0}"
 
 # --- # # #  IMPORTANT # # # : Reasoning budget (0 disables thinking, >0 sets token budget) ---
 REASONING_BUDGET="${REASONING_BUDGET:-0}"
@@ -63,11 +61,11 @@ die() {
 show_help() {
   cat <<EOF
 Usage:
-  aix-server start
+  ai-server start
       Launch llama-server with current config.
-  aix-server status
+  ai-server status
       Print resolved config.
-  aix-server help | -h | --help
+  ai-server help | -h | --help
       Show this help.
 
 Endpoint:
@@ -78,9 +76,8 @@ Environment overrides:
   MODEL, MMPROJ, LLAMA, SYSTEM_FILE
   HOST, PORT, API_KEY
   CTX, TEMP, TOP_P, REPEAT_PENALTY
-  GPU_LAYERS, CPU_MOE, THREADS
+  GPU_LAYERS, CMOE (1=all MoE experts on CPU, 0=GPU), THREADS
   CACHE_TYPE_K, CACHE_TYPE_V
-  FIT, FIT_TARGET
   FLASH_ATTN (on/off/auto), MLOCK (0/1), REASONING_BUDGET
   PARALLEL
 
@@ -99,10 +96,9 @@ Current defaults:
   top-p:            $TOP_P
   repeat-penalty:   $REPEAT_PENALTY
   gpu layers:       $GPU_LAYERS
-  cpu moe:          $CPU_MOE
+  cpu moe (all):    $CMOE
   threads:          $THREADS
   kv cache (k/v):   $CACHE_TYPE_K / $CACHE_TYPE_V
-  fit/fit-target:   $FIT / $FIT_TARGET
   flash-attn:       $FLASH_ATTN
   mlock:            $MLOCK
   reasoning budget: $REASONING_BUDGET
@@ -122,24 +118,23 @@ build_args() {
     --host "$HOST"
     --port "$PORT"
     -c "$CTX"
+    -ngl "$GPU_LAYERS"
     --temp "$TEMP"
     --top-p "$TOP_P"
     --repeat-penalty "$REPEAT_PENALTY"
-    -ngl "$GPU_LAYERS"
-    --n-cpu-moe "$CPU_MOE"
     --threads "$THREADS"
     --cache-type-k "$CACHE_TYPE_K"
     --cache-type-v "$CACHE_TYPE_V"
-    --fit "$FIT"
-    --fit-target "$FIT_TARGET"
     --flash-attn "$FLASH_ATTN"
     --reasoning-budget "$REASONING_BUDGET"
     --parallel "$PARALLEL"
     --jinja
   )
+  [[ "$CMOE" == "1" ]]     && ARGS+=(--cpu-moe)
+  [[ "$NO_MMAP" == "1" ]]  && ARGS+=(--no-mmap)
   [[ -n "$MMPROJ" ]]       && ARGS+=(--mmproj "$MMPROJ")
-  [[ -n "$API_KEY" ]]      && ARGS+=(--api-key "$API_KEY")
-  [[ "$MLOCK" == "1" ]]    && ARGS+=(--mlock)
+  # [[ -n "$API_KEY" ]]      && ARGS+=(--api-key "$API_KEY")
+  # [[ "$MLOCK" == "1" ]]    && ARGS+=(--mlock)
 }
 
 run_server() {
@@ -161,10 +156,9 @@ show_status() {
   echo "top-p:            $TOP_P"
   echo "repeat-penalty:   $REPEAT_PENALTY"
   echo "gpu layers:       $GPU_LAYERS"
-  echo "cpu moe:          $CPU_MOE"
+  echo "cpu moe (all):    $CMOE"
   echo "threads:          $THREADS"
   echo "kv cache (k/v):   $CACHE_TYPE_K / $CACHE_TYPE_V"
-  echo "fit/fit-target:   $FIT / $FIT_TARGET"
   echo "flash-attn:       $FLASH_ATTN"
   echo "mlock:            $MLOCK"
   echo "reasoning budget: $REASONING_BUDGET"

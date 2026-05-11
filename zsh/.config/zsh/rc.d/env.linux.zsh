@@ -59,8 +59,9 @@ export RUBY_CFLAGS="-Wno-error=implicit-function-declaration"
 # Linux-specific environment variables
 # =============================================================================
 
-# AMD GPU ROCm compatibility: RX 6600 XT (gfx1032) is not in Ollama's compiled
-# kernel list, so override to gfx1030 (same RDNA2 ISA, fully compatible).
+# AMD GPU ROCm compatibility: RX 6600 XT reports as gfx1030 to the ROCm runtime.
+# Kept for Ollama, which targets gfx1030. llama.cpp uses the Vulkan backend and
+# ignores this variable entirely.
 export HSA_OVERRIDE_GFX_VERSION=10.3.0
 
 # Ollama default context window: models default to 4096 tokens without this.
