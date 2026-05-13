@@ -2,9 +2,8 @@
 # ============================================================================
 # ai-server
 # ----------------------------------------------------------------------------
-# Thin wrapper around llama-server. Exposes an OpenAI-compatible API at
-#   http://$HOST:$PORT/v1/chat/completions
-# with tool-calling (via --jinja) and optional multimodal support (via mmproj).
+# Thin wrapper around ollama (BACKEND=ollama) or llama-server (BACKEND=llama).
+# Exposes an OpenAI-compatible API at http://$HOST:$PORT/v1/chat/completions
 #
 # Usage:
 #   ai-server start              # launch in foreground
@@ -13,16 +12,23 @@
 # ============================================================================
 set -euo pipefail
 
-# --- Paths ---
-MODEL="${MODEL:-/mnt/more_games/ai-models/Qwen3.6-35B-A3B-GGUF/Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf}"
-MMPROJ="${MMPROJ:-/mnt/more_games/ai-models/Qwen3.6-35B-A3B-GGUF/mmproj-F16.gguf}"   # e.g. $HOME/ai/llama-models/mmproj-Qwen3.6-35B-A3B-F16.gguf
-LLAMA="${LLAMA:-/usr/bin/llama-server}"
-SYSTEM_FILE="${SYSTEM_FILE:-}"  # Doesnt work on web
+# --- Backend ---
+BACKEND="${BACKEND:-ollama}"   # ollama | llama
 
 # --- Network ---
 HOST="${HOST:-0.0.0.0}"
-PORT="${PORT:-8080}"
-API_KEY="${API_KEY:-}"  # optional; clients must send matching Authorization header
+PORT="${PORT:-$([[ "$BACKEND" == "ollama" ]] && echo 11434 || echo 8080)}"
+API_KEY="${API_KEY:-}"
+
+# ── Ollama settings ──────────────────────────────────────────────────────────
+OLLAMA="${OLLAMA:-/usr/bin/ollama}"
+OLLAMA_MODEL="${OLLAMA_MODEL:-qwen3:35b}"   # informational: model clients will request
+
+# ── llama-server settings ────────────────────────────────────────────────────
+MODEL="${MODEL:-/mnt/more_games/ai-models/Qwen3.6-35B-A3B-GGUF/Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf}"
+MMPROJ="${MMPROJ:-/mnt/more_games/ai-models/Qwen3.6-35B-A3B-GGUF/mmproj-F16.gguf}"
+LLAMA="${LLAMA:-/usr/bin/llama-server}"
+SYSTEM_FILE="${SYSTEM_FILE:-}"
 
 # --- Sampling defaults (clients can override per-request) ---
 CTX="${CTX:-32768}"
@@ -47,10 +53,10 @@ FLASH_ATTN="${FLASH_ATTN:-on}"
 MLOCK="${MLOCK:-0}"
 NO_MMAP="${NO_MMAP:-0}"
 
-# --- # # #  IMPORTANT # # # : Reasoning budget (0 disables thinking, >0 sets token budget) ---
+# --- Reasoning budget (0 disables thinking, >0 sets token budget) ---
 REASONING_BUDGET="${REASONING_BUDGET:-0}"
 
-# --- Parallel request slots (bump if you want multiple clients / concurrent streams) ---
+# --- Parallel request slots ---
 PARALLEL="${PARALLEL:-1}"
 
 die() {
@@ -59,7 +65,44 @@ die() {
 }
 
 show_help() {
-  cat <<EOF
+  if [[ "$BACKEND" == "ollama" ]]; then
+    cat <<EOF
+Usage:
+  ai-server start
+      Launch ollama serve with current config.
+  ai-server status
+      Print resolved config.
+  ai-server help | -h | --help
+      Show this help.
+
+Endpoint:
+  OpenAI-compatible:  http://$HOST:$PORT/v1/chat/completions
+  Ollama native:      http://$HOST:$PORT/api/...
+
+How it works:
+  HOST and PORT are passed to ollama via OLLAMA_HOST="$HOST:$PORT" at launch.
+  ollama loads models on-demand per request — no model is locked in at startup.
+  OLLAMA_MODEL names the model clients should request (e.g. in the API's
+  "model" field). It is validated at startup (warns if not yet pulled) but
+  does not pre-load anything. Pull missing models with: ollama pull <model>
+
+Environment overrides (ollama mode):
+  BACKEND       ollama | llama  (default: ollama)
+  OLLAMA        path to the ollama binary  (default: /usr/bin/ollama)
+  OLLAMA_MODEL  model name clients will request, e.g. qwen3:35b  (default: $OLLAMA_MODEL)
+  HOST          bind address  (default: 0.0.0.0)
+  PORT          listen port — becomes OLLAMA_HOST=HOST:PORT  (default: 11434)
+  API_KEY       not enforced by ollama itself; kept for documentation
+
+Current defaults:
+  backend:      $BACKEND
+  ollama:       $OLLAMA
+  model:        $OLLAMA_MODEL
+  host:port:    $HOST:$PORT  → OLLAMA_HOST=$HOST:$PORT
+  api key:      ${API_KEY:+<set>}${API_KEY:-<none>}
+EOF
+  else
+    cat <<EOF
 Usage:
   ai-server start
       Launch llama-server with current config.
@@ -72,8 +115,8 @@ Endpoint:
   OpenAI-compatible:  http://$HOST:$PORT/v1/chat/completions
   Web UI:             http://$HOST:$PORT
 
-Environment overrides:
-  MODEL, MMPROJ, LLAMA, SYSTEM_FILE
+Environment overrides (llama mode):
+  BACKEND, MODEL, MMPROJ, LLAMA, SYSTEM_FILE
   HOST, PORT, API_KEY
   CTX, TEMP, TOP_P, REPEAT_PENALTY
   GPU_LAYERS, CMOE (1=all MoE experts on CPU, 0=GPU), THREADS
@@ -86,6 +129,7 @@ Multimodal:
   Without MMPROJ, the server runs text-only even if the base model supports vision.
 
 Current defaults:
+  backend:          $BACKEND
   model:            $MODEL
   mmproj:           ${MMPROJ:-<text-only>}
   llama-server:     $LLAMA
@@ -104,15 +148,23 @@ Current defaults:
   reasoning budget: $REASONING_BUDGET
   parallel slots:   $PARALLEL
 EOF
+  fi
 }
 
 check_files() {
-  [[ -f "$MODEL" ]] || die "Model not found: $MODEL"
-  [[ -x "$LLAMA" ]] || die "llama-server not found or not executable: $LLAMA"
-  [[ -z "$MMPROJ" || -f "$MMPROJ" ]] || die "mmproj not found: $MMPROJ"
+  if [[ "$BACKEND" == "ollama" ]]; then
+    [[ -x "$OLLAMA" ]] || die "ollama not found or not executable: $OLLAMA"
+    if ! "$OLLAMA" list 2>/dev/null | awk 'NR>1 {print $1}' | grep -qF "$OLLAMA_MODEL"; then
+      echo "Warning: '$OLLAMA_MODEL' not found in 'ollama list'. Pull it first: ollama pull $OLLAMA_MODEL" >&2
+    fi
+  else
+    [[ -f "$MODEL" ]] || die "Model not found: $MODEL"
+    [[ -x "$LLAMA" ]] || die "llama-server not found or not executable: $LLAMA"
+    [[ -z "$MMPROJ" || -f "$MMPROJ" ]] || die "mmproj not found: $MMPROJ"
+  fi
 }
 
-build_args() {
+build_llama_args() {
   ARGS=(
     -m "$MODEL"
     --host "$HOST"
@@ -137,32 +189,43 @@ build_args() {
   # [[ "$MLOCK" == "1" ]]    && ARGS+=(--mlock)
 }
 
-run_server() {
-  build_args
+run_ollama() {
+  echo "Starting ollama on http://$HOST:$PORT"
+  OLLAMA_HOST="$HOST:$PORT" exec "$OLLAMA" serve
+}
+
+run_llama() {
+  build_llama_args
   echo "Starting llama-server on http://$HOST:$PORT"
   [[ -n "$MMPROJ" ]] && echo "Multimodal: enabled"
   exec "$LLAMA" "${ARGS[@]}"
 }
 
 show_status() {
-  echo "llama-server:     $LLAMA"
-  echo "model:            $MODEL"
-  echo "mmproj:           ${MMPROJ:-<text-only>}"
-  echo "system file:      ${SYSTEM_FILE:-<none>}"
+  echo "backend:          $BACKEND"
+  if [[ "$BACKEND" == "ollama" ]]; then
+    echo "ollama:           $OLLAMA"
+    echo "model:            $OLLAMA_MODEL"
+  else
+    echo "llama-server:     $LLAMA"
+    echo "model:            $MODEL"
+    echo "mmproj:           ${MMPROJ:-<text-only>}"
+    echo "system file:      ${SYSTEM_FILE:-<none>}"
+    echo "ctx:              $CTX"
+    echo "temp:             $TEMP"
+    echo "top-p:            $TOP_P"
+    echo "repeat-penalty:   $REPEAT_PENALTY"
+    echo "gpu layers:       $GPU_LAYERS"
+    echo "cpu moe (all):    $CMOE"
+    echo "threads:          $THREADS"
+    echo "kv cache (k/v):   $CACHE_TYPE_K / $CACHE_TYPE_V"
+    echo "flash-attn:       $FLASH_ATTN"
+    echo "mlock:            $MLOCK"
+    echo "reasoning budget: $REASONING_BUDGET"
+    echo "parallel slots:   $PARALLEL"
+  fi
   echo "host:port:        $HOST:$PORT"
   echo "api key:          ${API_KEY:+<set>}${API_KEY:-<none>}"
-  echo "ctx:              $CTX"
-  echo "temp:             $TEMP"
-  echo "top-p:            $TOP_P"
-  echo "repeat-penalty:   $REPEAT_PENALTY"
-  echo "gpu layers:       $GPU_LAYERS"
-  echo "cpu moe (all):    $CMOE"
-  echo "threads:          $THREADS"
-  echo "kv cache (k/v):   $CACHE_TYPE_K / $CACHE_TYPE_V"
-  echo "flash-attn:       $FLASH_ATTN"
-  echo "mlock:            $MLOCK"
-  echo "reasoning budget: $REASONING_BUDGET"
-  echo "parallel slots:   $PARALLEL"
 }
 
 main() {
@@ -175,7 +238,11 @@ main() {
   check_files
   case "${1:-start}" in
     start)
-      run_server
+      if [[ "$BACKEND" == "ollama" ]]; then
+        run_ollama
+      else
+        run_llama
+      fi
       ;;
     status)
       show_status
