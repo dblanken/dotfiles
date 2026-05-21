@@ -3,6 +3,10 @@
 # Uses kscreen-doctor (KDE Wayland). Preserves position/mode on re-enable.
 # DP-2 (TV) only appears in kscreen output when powered on; skip its commands when absent.
 
+# Warm up the KScreen daemon — first invocation after session start can drop writes silently
+kscreen-doctor -o > /dev/null 2>&1
+sleep 0.3
+
 OUTPUTS=$(kscreen-doctor -o 2>&1)
 HAS_DP2=$(echo "$OUTPUTS" | grep -c "DP-2")
 
