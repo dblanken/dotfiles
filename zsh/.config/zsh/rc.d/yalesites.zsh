@@ -316,3 +316,59 @@ grtm() {
   gh pr list -B develop --search 'label:"ready to merge"'
 }
 
+# Disable ai_engine_embedding on one or more Pantheon sites via terminus.
+# Accepts URLs as arguments or reads one URL per line from stdin.
+#
+# Usage:
+#   disable-ai-embedding https://v2220-mysite.pantheonsite.io live-other-site.pantheonsite.io
+#   pbpaste | disable-ai-embedding
+#   disable-ai-embedding <<'EOF'
+#   https://v2220-mysite.pantheonsite.io
+#   https://live-other-site.pantheonsite.io
+#   EOF
+disable-ai-embedding() {
+  local urls=()
+
+  if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    echo "Usage: disable-ai-embedding <env-site.pantheonsite.io> [...]"
+    echo "       pbpaste | disable-ai-embedding"
+    echo ""
+    echo "Disables ai_engine_embedding.settings on one or more Pantheon sites via terminus."
+    echo ""
+    echo "Examples:"
+    echo "  disable-ai-embedding https://v2220-mysite.pantheonsite.io"
+    echo "  pbpaste | disable-ai-embedding"
+    echo "  disable-ai-embedding <<'EOF'"
+    echo "  https://v2220-mysite.pantheonsite.io"
+    echo "  https://live-other-site.pantheonsite.io"
+    echo "  EOF"
+    return 0
+  fi
+
+  if [[ $# -gt 0 ]]; then
+    urls=("$@")
+  else
+    while IFS= read -r line; do
+      [[ -n "$line" ]] && urls+=("$line")
+    done
+  fi
+
+  if [[ ${#urls[@]} -eq 0 ]]; then
+    echo "Usage: disable-ai-embedding <env-site.pantheonsite.io> [...]"
+    echo "       pbpaste | disable-ai-embedding"
+    return 1
+  fi
+
+  for url in "${urls[@]}"; do
+    local slug="${url#https://}"
+    slug="${slug%.pantheonsite.io}"
+
+    local env="${slug%%-*}"
+    local site="${slug#*-}"
+
+    echo "[$site.$env] Disabling ai_engine_embedding.settings..."
+    terminus drush "${site}.${env}" -- config:set ai_engine_embedding.settings enable 0 --yes
+    echo "[$site.$env] Done."
+  done
+}
+

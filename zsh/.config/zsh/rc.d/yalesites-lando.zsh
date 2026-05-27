@@ -149,3 +149,12 @@ rmys() {
 running-yalesites() {
   docker ps --format '{{.Names}}' | grep appserver | awk -F'_' '{print $1}' | sort -u
 }
+
+function yalesites_nuke() {
+  find . -name 'node_modules' -type d -prune | grep -i -E "\.\/node_modules|atomic|ys_admin_theme" | xargs rm -rf
+  find . -name 'package-lock.json' -type f -prune | grep -i -E "\.\/package-lock.json|atomic" | xargs rm -rf
+  lando destroy -y;
+  rm composer.lock;
+  rm -rf vendor;
+  npm run setup
+}
