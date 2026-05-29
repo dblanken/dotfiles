@@ -126,6 +126,26 @@ file contents, grep/search assistance.
 **If `llm -m local` errors for any reason, do not retry — handle the task directly.**
 See `~/.claude/memory/llm-infrastructure.md` for full setup details.
 
+## YaleSites Parallel Development — `yw`
+
+The `yw` command manages isolated git worktree workspaces for parallel development across all four YaleSites repos (yalesites-project, atomic, component-library-twig, tokens). Workspaces live at `~/code/yalesites-worktrees/<name>/`.
+
+**When to use:** When Claude Code needs to work on a feature in isolation without interfering with the main checkout, or when multiple tasks need to run in parallel.
+
+```bash
+yw new <name> --branch <branch> --create   # create workspace; --create makes the branch if missing
+yw list                                     # show all workspaces and Lando status
+yw status <name>                            # git status across all four repos
+yw activate <name>                          # start a dedicated Lando instance for testing
+yw deactivate <name>                        # stop that Lando instance
+yw rm <name>                               # clean up workspace when done
+```
+
+**Important for Claude Code working inside a workspace (`~/code/yalesites-worktrees/<name>/`):**
+- No Lando is running by default — do not attempt `lando drush` or any web-server-dependent commands
+- The workspace CLAUDE.md (at the workspace root) lists the exact repo branches and key paths
+- To request Lando for testing, tell the user to run `yw activate <name>`
+
 ## Plans Location
 - All superpowers plans go to `~/Documents/plans/` instead of the default `docs/superpowers/plans/` within each project
 
