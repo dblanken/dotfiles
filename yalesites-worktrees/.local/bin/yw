@@ -128,17 +128,25 @@ _yw_repo_branch() {
 # Lando helpers
 # ---------------------------------------------------------------------------
 
-# Check if a Lando project is currently running
+# Check if a workspace's Lando project is currently running.
+# Only meaningful after yw activate (requires .lando.local.yml to exist).
 _yw_lando_running() {
-  local lando_name="yalesites-${1}"
-  lando list 2>/dev/null | grep -qi "$lando_name" 2>/dev/null
+  local ws="$1"
+  local lando_local="$ws/yalesites-project/.lando.local.yml"
+  # If the workspace was never activated, nothing can be running
+  [[ -f "$lando_local" ]] || return 1
+  # Read the exact project name we generated — never do a substring match
+  local lando_name
+  lando_name=$(grep '^name:' "$lando_local" | head -1 | sed 's/name: *//')
+  [[ -n "$lando_name" ]] || return 1
+  lando list 2>/dev/null | grep -qF "$lando_name" 2>/dev/null
 }
 
 # Return display status: "running", "stopped", or "-" (not activated)
 _yw_lando_status() {
-  local ws_name="$1" ws="$2"
+  local ws="$1"
   if [[ -f "$ws/yalesites-project/.lando.local.yml" ]]; then
-    if _yw_lando_running "$ws_name"; then
+    if _yw_lando_running "$ws"; then
       echo "running"
     else
       echo "stopped"
@@ -344,7 +352,7 @@ cmd_list() {
     at_branch=$(_yw_read_meta "$ws" "repo_atomic")
     cl_branch=$(_yw_read_meta "$ws" "repo_cl")
     tk_branch=$(_yw_read_meta "$ws" "repo_tokens")
-    lando_status=$(_yw_lando_status "$name" "$ws")
+    lando_status=$(_yw_lando_status "$ws")
 
     case "$lando_status" in
       running) lando_status="${GREEN}running${RESET}" ;;
@@ -422,7 +430,7 @@ cmd_activate() {
   local ws_yp="$ws/yalesites-project"
   [[ -d "$ws_yp" ]] || _yw_die "yalesites-project worktree not found in workspace"
 
-  if _yw_lando_running "$name"; then
+  if _yw_lando_running "$ws"; then
     _yw_warn "Lando is already running for '${name}'"
     echo "  URL: https://yalesites-${name}.lndo.site/"
     return
@@ -473,7 +481,7 @@ cmd_deactivate() {
   local ws
   ws=$(_yw_assert_workspace "$name")
 
-  if ! _yw_lando_running "$name"; then
+  if ! _yw_lando_running "$ws"; then
     _yw_warn "Lando does not appear to be running for '${name}'"
   fi
 
@@ -508,8 +516,8 @@ cmd_rm() {
     [[ "$confirm" =~ ^[Yy]$ ]] || { echo "Aborted."; return; }
   fi
 
-  # Stop Lando if running
-  if _yw_lando_running "$name"; then
+  # Stop Lando only if this workspace was activated and is actually running
+  if _yw_lando_running "$ws"; then
     _yw_info "Stopping Lando first..."
     (cd "$ws/yalesites-project" && lando stop) || _yw_warn "lando stop failed — continuing"
   fi
