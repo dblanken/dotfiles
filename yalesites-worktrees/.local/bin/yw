@@ -1,0 +1,597 @@
+#!/usr/bin/env bash
+# yw — YaleSites Worktree Workspace Manager
+#
+# Manages isolated multi-repo workspaces for parallel development.
+# Each workspace contains git worktrees of all four YaleSites repos
+# with cross-symlinks mirroring the standard dev setup.
+#
+# Usage: yw <command> [options]
+#   yw new <name> [--branch <branch>] [--create]
+#   yw list
+#   yw status [<name>]
+#   yw activate <name>
+#   yw deactivate <name>
+#   yw rm <name> [--force]
+
+set -euo pipefail
+
+# ---------------------------------------------------------------------------
+# Configuration (override via env vars)
+# ---------------------------------------------------------------------------
+YW_WORKTREES_DIR="${YW_WORKTREES_DIR:-$HOME/code/yalesites-worktrees}"
+YW_MAIN_REPO="${YW_MAIN_REPO:-$HOME/code/yalesites-project}"
+YW_ATOMIC_REPO="${YW_ATOMIC_REPO:-$YW_MAIN_REPO/web/themes/contrib/atomic}"
+YW_CL_REPO="${YW_CL_REPO:-$YW_ATOMIC_REPO/_yale-packages/component-library-twig}"
+YW_TOKENS_REPO="${YW_TOKENS_REPO:-$YW_ATOMIC_REPO/_yale-packages/tokens}"
+YW_FALLBACK_BRANCH="${YW_FALLBACK_BRANCH:-develop}"
+
+# ---------------------------------------------------------------------------
+# Color output
+# ---------------------------------------------------------------------------
+if [[ -t 1 ]] && command -v tput &>/dev/null && tput colors &>/dev/null 2>&1; then
+  RED=$(tput setaf 1); GREEN=$(tput setaf 2); YELLOW=$(tput setaf 3)
+  CYAN=$(tput setaf 6); BOLD=$(tput bold); RESET=$(tput sgr0)
+else
+  RED=''; GREEN=''; YELLOW=''; CYAN=''; BOLD=''; RESET=''
+fi
+
+_yw_info()    { printf '%s==>%s %s\n' "$CYAN$BOLD" "$RESET" "$*"; }
+_yw_success() { printf '%s  ✓%s %s\n' "$GREEN" "$RESET" "$*"; }
+_yw_warn()    { printf '%s  !%s %s\n' "$YELLOW" "$RESET" "$*" >&2; }
+_yw_error()   { printf '%serror:%s %s\n' "$RED$BOLD" "$RESET" "$*" >&2; }
+_yw_die()     { _yw_error "$*"; exit 1; }
+
+# ---------------------------------------------------------------------------
+# Git helpers
+# ---------------------------------------------------------------------------
+
+# Detect the default branch for a repo (follows origin/HEAD, falls back to develop/main)
+_yw_default_branch() {
+  local repo="$1"
+  # Try origin/HEAD first (most reliable)
+  local head
+  head=$(git -C "$repo" symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||')
+  [[ -n "$head" ]] && echo "$head" && return
+
+  # Fall back to well-known names
+  for candidate in develop main master; do
+    if git -C "$repo" show-ref --verify --quiet "refs/remotes/origin/$candidate" 2>/dev/null \
+    || git -C "$repo" show-ref --verify --quiet "refs/heads/$candidate" 2>/dev/null; then
+      echo "$candidate"
+      return
+    fi
+  done
+
+  # Last resort: current HEAD
+  git -C "$repo" symbolic-ref --short HEAD 2>/dev/null || echo "HEAD"
+}
+
+# Check if a branch is currently locked (checked out in an existing worktree)
+_yw_branch_locked() {
+  local repo="$1" branch="$2"
+  git -C "$repo" worktree list --porcelain 2>/dev/null \
+    | grep -qF "branch refs/heads/${branch}"
+}
+
+# Add a worktree for a branch. Handles local, remote-only, new branch creation,
+# and branches already locked by an existing worktree (detached fallback).
+# Returns 0 on success, 1 if branch not found and --create was not requested.
+_yw_add_worktree() {
+  local repo="$1" path="$2" branch="$3" create_if_missing="${4:-false}"
+  local detached=false
+
+  # If the branch is already locked by another worktree, use a detached HEAD
+  if _yw_branch_locked "$repo" "$branch"; then
+    local commit
+    commit=$(git -C "$repo" rev-parse "$branch" 2>/dev/null)
+    git -C "$repo" worktree add --detach "$path" "$commit" --quiet
+    _yw_warn "  (detached HEAD — branch '$branch' is already checked out in main workspace)"
+    return 0
+  fi
+
+  # Local branch exists — check it out directly
+  if git -C "$repo" show-ref --verify --quiet "refs/heads/$branch" 2>/dev/null; then
+    git -C "$repo" worktree add "$path" "$branch" --quiet
+    return 0
+  fi
+
+  # Try to fetch from origin and create a local tracking branch
+  if git -C "$repo" fetch origin "${branch}:${branch}" --no-tags --quiet 2>/dev/null; then
+    git -C "$repo" worktree add "$path" "$branch" --quiet
+    return 0
+  fi
+
+  # Branch doesn't exist anywhere — create from repo's default branch if requested
+  if [[ "$create_if_missing" == "true" ]]; then
+    local default_branch
+    default_branch=$(_yw_default_branch "$repo")
+    git -C "$repo" fetch origin "${default_branch}:${default_branch}" --no-tags --quiet 2>/dev/null || true
+    local base="HEAD"
+    if git -C "$repo" show-ref --verify --quiet "refs/heads/$default_branch" 2>/dev/null; then
+      base="$default_branch"
+    fi
+    git -C "$repo" worktree add "$path" -b "$branch" "$base" --quiet
+    return 0
+  fi
+
+  return 1
+}
+
+# Get the current branch name for a path inside a git worktree
+_yw_repo_branch() {
+  git -C "$1" symbolic-ref --short HEAD 2>/dev/null \
+    || git -C "$1" rev-parse --short HEAD 2>/dev/null \
+    || echo "?"
+}
+
+# ---------------------------------------------------------------------------
+# Lando helpers
+# ---------------------------------------------------------------------------
+
+# Check if a Lando project is currently running
+_yw_lando_running() {
+  local lando_name="yalesites-${1}"
+  lando list 2>/dev/null | grep -qi "$lando_name" 2>/dev/null
+}
+
+# Return display status: "running", "stopped", or "-" (not activated)
+_yw_lando_status() {
+  local ws_name="$1" ws="$2"
+  if [[ -f "$ws/yalesites-project/.lando.local.yml" ]]; then
+    if _yw_lando_running "$ws_name"; then
+      echo "running"
+    else
+      echo "stopped"
+    fi
+  else
+    echo "-"
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# Workspace helpers
+# ---------------------------------------------------------------------------
+
+_yw_assert_workspace() {
+  local name="$1"
+  local ws="$YW_WORKTREES_DIR/$name"
+  [[ -d "$ws" && -f "$ws/.workspace" ]] || _yw_die "workspace '$name' not found at $ws"
+  echo "$ws"
+}
+
+_yw_read_meta() {
+  local ws="$1" key="$2"
+  grep "^${key}=" "$ws/.workspace" 2>/dev/null | cut -d= -f2-
+}
+
+_yw_preflight() {
+  [[ -d "$YW_MAIN_REPO/.git" ]] || \
+    _yw_die "main repo not found at $YW_MAIN_REPO"
+  [[ -d "$YW_ATOMIC_REPO/.git" ]] || \
+    _yw_die "atomic repo not found at $YW_ATOMIC_REPO (run gyst first to set up sub-repos)"
+  [[ -d "$YW_CL_REPO/.git" ]] || \
+    _yw_die "component-library-twig repo not found at $YW_CL_REPO"
+  [[ -d "$YW_TOKENS_REPO/.git" ]] || \
+    _yw_die "tokens repo not found at $YW_TOKENS_REPO"
+}
+
+# ---------------------------------------------------------------------------
+# CLAUDE.md template
+# ---------------------------------------------------------------------------
+_yw_write_claude_md() {
+  local ws="$1" name="$2" ys_br="$3" at_br="$4" cl_br="$5" tk_br="$6"
+  cat > "$ws/CLAUDE.md" <<CLAUDEMD
+# YaleSites Worktree Workspace: ${name}
+
+This is an isolated git worktree workspace — not the primary YaleSites checkout.
+
+## Important: No Lando Available
+
+This workspace does not have a running Drupal environment by default. You can
+read and edit files freely. Lint checks work via the CLI tools directly.
+
+Do not attempt \`lando drush\`, \`npm run confim\`, or any command that requires
+a running web server unless the user explicitly confirms Lando is active for
+this workspace by running \`yw activate ${name}\`.
+
+## Workspace Repos
+
+| Repo                   | Branch      | Path                         |
+|------------------------|-------------|------------------------------|
+| yalesites-project      | ${ys_br}    | ./yalesites-project/         |
+| atomic                 | ${at_br}    | ./atomic/                    |
+| component-library-twig | ${cl_br}    | ./component-library-twig/    |
+| tokens                 | ${tk_br}    | ./tokens/                    |
+
+## Key Paths
+
+- Drupal custom modules: \`yalesites-project/web/profiles/custom/yalesites_profile/modules/custom/\`
+- Drupal config YAML:    \`yalesites-project/web/profiles/custom/yalesites_profile/config/sync/\`
+- Twig components:       \`component-library-twig/components/\`
+- Design tokens:         \`tokens/\`
+- Atomic Drupal theme:   \`atomic/\`
+
+## Commands (run from your terminal, not from within Claude)
+
+- \`yw status ${name}\` — git status across all four repos
+- \`yw activate ${name}\` — start a dedicated Lando instance for this workspace
+- \`yw rm ${name}\` — clean up this workspace when done
+CLAUDEMD
+}
+
+# ---------------------------------------------------------------------------
+# cmd: new
+# ---------------------------------------------------------------------------
+cmd_new() {
+  local name="" branch="" create_if_missing="false"
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --branch|-b) branch="$2"; shift 2 ;;
+      --create|-c) create_if_missing="true"; shift ;;
+      -*) _yw_die "unknown option: $1" ;;
+      *)  [[ -z "$name" ]] || _yw_die "unexpected argument: $1"
+          name="$1"; shift ;;
+    esac
+  done
+
+  [[ -n "$name" ]] || _yw_die "usage: yw new <name> [--branch <branch>] [--create]"
+  [[ "$name" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]*$ ]] || \
+    _yw_die "name must be alphanumeric with hyphens (cannot start with a hyphen)"
+
+  local ws="$YW_WORKTREES_DIR/$name"
+  [[ ! -d "$ws" ]] || _yw_die "workspace '$name' already exists at $ws"
+
+  _yw_preflight
+
+  # Default to current branch in main repo
+  if [[ -z "$branch" ]]; then
+    branch=$(git -C "$YW_MAIN_REPO" symbolic-ref --short HEAD 2>/dev/null || echo "$YW_FALLBACK_BRANCH")
+    _yw_info "Using branch '${branch}' (pass --branch <name> to override)"
+  fi
+
+  _yw_info "Creating workspace '${BOLD}${name}${RESET}${CYAN}' — branch '${branch}'"
+  if [[ "$create_if_missing" == "true" ]]; then
+    _yw_info "  --create: will create branch from '${YW_FALLBACK_BRANCH}' where it doesn't exist"
+  fi
+  mkdir -p "$ws"
+
+  local ys_branch at_branch cl_branch tk_branch
+
+  # Helper: add worktree with per-repo default-branch fallback
+  _add_repo_worktree() {
+    local repo="$1" dest="$2" label="$3"
+    local actual_branch="$branch"
+    if _yw_add_worktree "$repo" "$dest" "$branch" "$create_if_missing"; then
+      # Detect actual branch (may be detached)
+      actual_branch=$(git -C "$dest" symbolic-ref --short HEAD 2>/dev/null || echo "(detached)")
+    else
+      local fallback
+      fallback=$(_yw_default_branch "$repo")
+      _yw_warn "${label}: '$branch' not found, using ${fallback}"
+      if _yw_branch_locked "$repo" "$fallback"; then
+        local commit; commit=$(git -C "$repo" rev-parse "$fallback")
+        git -C "$repo" worktree add --detach "$dest" "$commit" --quiet
+        actual_branch="(detached@${fallback})"
+      else
+        git -C "$repo" worktree add "$dest" "$fallback" --quiet
+        actual_branch="$fallback"
+      fi
+    fi
+    echo "$actual_branch"
+  }
+
+  ys_branch=$(_add_repo_worktree "$YW_MAIN_REPO"    "$ws/yalesites-project"      "yalesites-project")
+  _yw_success "yalesites-project @ ${ys_branch}"
+
+  at_branch=$(_add_repo_worktree "$YW_ATOMIC_REPO"  "$ws/atomic"                 "atomic")
+  _yw_success "atomic @ ${at_branch}"
+
+  cl_branch=$(_add_repo_worktree "$YW_CL_REPO"      "$ws/component-library-twig" "component-library-twig")
+  _yw_success "component-library-twig @ ${cl_branch}"
+
+  tk_branch=$(_add_repo_worktree "$YW_TOKENS_REPO"  "$ws/tokens"                 "tokens")
+  _yw_success "tokens @ ${tk_branch}"
+
+  # Symlinks in yalesites-project worktree (mirrors main checkout convenience links)
+  ln -s "../atomic"                 "$ws/yalesites-project/atomic"
+  ln -s "../component-library-twig" "$ws/yalesites-project/component-library-twig"
+  ln -s "../tokens"                 "$ws/yalesites-project/tokens"
+
+  # Symlinks in atomic worktree so _yale-packages/ resolution works
+  mkdir -p "$ws/atomic/_yale-packages"
+  ln -s "../../component-library-twig" "$ws/atomic/_yale-packages/component-library-twig"
+  ln -s "../../tokens"                 "$ws/atomic/_yale-packages/tokens"
+
+  # Metadata + CLAUDE.md
+  cat > "$ws/.workspace" <<META
+name=${name}
+branch=${branch}
+created=$(date +%Y-%m-%d)
+repo_yalesites=${ys_branch}
+repo_atomic=${at_branch}
+repo_cl=${cl_branch}
+repo_tokens=${tk_branch}
+META
+
+  _yw_write_claude_md "$ws" "$name" "$ys_branch" "$at_branch" "$cl_branch" "$tk_branch"
+
+  echo ""
+  _yw_success "Workspace ready: ${BOLD}${ws}${RESET}"
+  echo "  Open in Claude Code:        claude ${ws}"
+  echo "  Activate Lando when needed: yw activate ${name}"
+}
+
+# ---------------------------------------------------------------------------
+# cmd: list
+# ---------------------------------------------------------------------------
+cmd_list() {
+  [[ -d "$YW_WORKTREES_DIR" ]] || { echo "No workspaces yet. Use: yw new <name>"; return; }
+
+  local found=false
+  printf "${BOLD}%-22s %-18s %-18s %-18s %-18s %s${RESET}\n" \
+    "NAME" "YS-BRANCH" "ATOMIC" "CL" "TOKENS" "LANDO"
+
+  for ws_dot in "$YW_WORKTREES_DIR"/*/; do
+    [[ -d "$ws_dot" && -f "${ws_dot}.workspace" ]] || continue
+    found=true
+
+    local ws="${ws_dot%/}"
+    local name; name=$(basename "$ws")
+    local ys_branch at_branch cl_branch tk_branch lando_status
+
+    ys_branch=$(_yw_read_meta "$ws" "repo_yalesites")
+    at_branch=$(_yw_read_meta "$ws" "repo_atomic")
+    cl_branch=$(_yw_read_meta "$ws" "repo_cl")
+    tk_branch=$(_yw_read_meta "$ws" "repo_tokens")
+    lando_status=$(_yw_lando_status "$name" "$ws")
+
+    case "$lando_status" in
+      running) lando_status="${GREEN}running${RESET}" ;;
+      stopped) lando_status="${YELLOW}stopped${RESET}" ;;
+    esac
+
+    printf "%-22s %-18s %-18s %-18s %-18s %b\n" \
+      "$name" "$ys_branch" "$at_branch" "$cl_branch" "$tk_branch" "$lando_status"
+  done
+
+  [[ "$found" == "true" ]] || echo "No workspaces found. Use: yw new <name>"
+}
+
+# ---------------------------------------------------------------------------
+# cmd: status
+# ---------------------------------------------------------------------------
+cmd_status() {
+  local name="${1:-}"
+
+  _show_ws_status() {
+    local ws="$1" ws_name="$2"
+    printf "\n${BOLD}${CYAN}=== %s ===${RESET}\n" "$ws_name"
+
+    local repos=("yalesites-project" "atomic" "component-library-twig" "tokens")
+    for repo in "${repos[@]}"; do
+      local repo_path="$ws/$repo"
+      if [[ ! -d "$repo_path" ]]; then
+        _yw_warn "$repo: not found"
+        continue
+      fi
+
+      local branch ahead behind dirty
+      branch=$(_yw_repo_branch "$repo_path")
+      ahead=$(git -C "$repo_path" rev-list --count "origin/${branch}..HEAD" 2>/dev/null || echo "?")
+      behind=$(git -C "$repo_path" rev-list --count "HEAD..origin/${branch}" 2>/dev/null || echo "?")
+      dirty=$(git -C "$repo_path" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+
+      printf "  ${BOLD}%-30s${RESET}  %s  ahead:%-4s behind:%-4s dirty:%s\n" \
+        "$repo" "$branch" "$ahead" "$behind" "$dirty"
+
+      local status_out
+      status_out=$(git -C "$repo_path" status --short 2>/dev/null)
+      if [[ -n "$status_out" ]]; then
+        echo "$status_out" | sed 's/^/    /'
+      fi
+    done
+  }
+
+  if [[ -n "$name" ]]; then
+    local ws
+    ws=$(_yw_assert_workspace "$name")
+    _show_ws_status "$ws" "$name"
+  else
+    [[ -d "$YW_WORKTREES_DIR" ]] || { echo "No workspaces yet."; return; }
+    local found=false
+    for ws_dot in "$YW_WORKTREES_DIR"/*/; do
+      [[ -d "$ws_dot" && -f "${ws_dot}.workspace" ]] || continue
+      found=true
+      local ws="${ws_dot%/}"
+      _show_ws_status "$ws" "$(basename "$ws")"
+    done
+    [[ "$found" == "true" ]] || echo "No workspaces found."
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# cmd: activate
+# ---------------------------------------------------------------------------
+cmd_activate() {
+  local name="${1:-}"
+  [[ -n "$name" ]] || _yw_die "usage: yw activate <name>"
+
+  local ws
+  ws=$(_yw_assert_workspace "$name")
+  local ws_yp="$ws/yalesites-project"
+  [[ -d "$ws_yp" ]] || _yw_die "yalesites-project worktree not found in workspace"
+
+  if _yw_lando_running "$name"; then
+    _yw_warn "Lando is already running for '${name}'"
+    echo "  URL: https://yalesites-${name}.lndo.site/"
+    return
+  fi
+
+  _yw_info "Activating Lando for workspace '${name}'..."
+
+  # Create web/themes/contrib/atomic symlink so Drupal can find the theme
+  local contrib_dir="$ws_yp/web/themes/contrib"
+  if [[ ! -e "$contrib_dir/atomic" ]]; then
+    mkdir -p "$contrib_dir"
+    ln -s "../../../../atomic" "$contrib_dir/atomic"
+    _yw_success "Created web/themes/contrib/atomic → workspace atomic"
+  fi
+
+  # Generate .lando.local.yml from the example (same pattern as replace_name_with_folder)
+  local example_file="$ws_yp/.lando.local.example.yml"
+  [[ -f "$example_file" ]] || \
+    _yw_die ".lando.local.example.yml not found in worktree — is yalesites-project checked out?"
+
+  local lando_name="yalesites-${name}"
+  local lando_uri="https://${lando_name}.lndo.site/"
+
+  sed \
+    -e "s/name: .*/name: ${lando_name}/" \
+    -e "s|DRUSH_OPTIONS_URI: .*|DRUSH_OPTIONS_URI: \"${lando_uri}\"|" \
+    "$example_file" > "$ws_yp/.lando.local.yml"
+
+  _yw_success "Generated .lando.local.yml  (name: ${lando_name})"
+
+  _yw_info "Starting Lando..."
+  (cd "$ws_yp" && lando start)
+
+  echo ""
+  _yw_success "Lando is running for '${name}'"
+  printf "  URL:  %s\n" "$lando_uri"
+  echo "  DB:   lando pull  or  lando drush si  (to populate the database)"
+  echo "  Stop: yw deactivate ${name}"
+}
+
+# ---------------------------------------------------------------------------
+# cmd: deactivate
+# ---------------------------------------------------------------------------
+cmd_deactivate() {
+  local name="${1:-}"
+  [[ -n "$name" ]] || _yw_die "usage: yw deactivate <name>"
+
+  local ws
+  ws=$(_yw_assert_workspace "$name")
+
+  if ! _yw_lando_running "$name"; then
+    _yw_warn "Lando does not appear to be running for '${name}'"
+  fi
+
+  _yw_info "Stopping Lando for workspace '${name}'..."
+  (cd "$ws/yalesites-project" && lando stop)
+  _yw_success "Lando stopped"
+}
+
+# ---------------------------------------------------------------------------
+# cmd: rm
+# ---------------------------------------------------------------------------
+cmd_rm() {
+  local name="" force="false"
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --force|-f) force="true"; shift ;;
+      -*) _yw_die "unknown option: $1" ;;
+      *)  [[ -z "$name" ]] || _yw_die "unexpected argument: $1"
+          name="$1"; shift ;;
+    esac
+  done
+
+  [[ -n "$name" ]] || _yw_die "usage: yw rm <name> [--force]"
+
+  local ws
+  ws=$(_yw_assert_workspace "$name")
+
+  if [[ "$force" != "true" ]]; then
+    printf "Remove workspace '%s' at %s? [y/N] " "$name" "$ws"
+    read -r confirm
+    [[ "$confirm" =~ ^[Yy]$ ]] || { echo "Aborted."; return; }
+  fi
+
+  # Stop Lando if running
+  if _yw_lando_running "$name"; then
+    _yw_info "Stopping Lando first..."
+    (cd "$ws/yalesites-project" && lando stop) || _yw_warn "lando stop failed — continuing"
+  fi
+
+  _yw_info "Removing git worktrees..."
+
+  # Remove in reverse dependency order; use delimiter '|' to avoid path splitting issues
+  local wt_pairs=(
+    "${YW_TOKENS_REPO}|tokens"
+    "${YW_CL_REPO}|component-library-twig"
+    "${YW_ATOMIC_REPO}|atomic"
+    "${YW_MAIN_REPO}|yalesites-project"
+  )
+  local force_flag=""
+  [[ "$force" == "true" ]] && force_flag="--force"
+
+  for pair in "${wt_pairs[@]}"; do
+    local repo_path="${pair%%|*}"
+    local repo_name="${pair##*|}"
+    local wt_path="$ws/$repo_name"
+
+    if [[ -d "$wt_path" ]]; then
+      # shellcheck disable=SC2086
+      git -C "$repo_path" worktree remove $force_flag "$wt_path" 2>/dev/null \
+        || _yw_warn "$repo_name: could not remove cleanly (uncommitted changes? use --force)"
+      _yw_success "Removed $repo_name worktree"
+    fi
+  done
+
+  rm -rf "$ws"
+  _yw_success "Workspace '${name}' removed"
+}
+
+# ---------------------------------------------------------------------------
+# usage
+# ---------------------------------------------------------------------------
+cmd_usage() {
+  cat <<USAGE
+${BOLD}yw${RESET} — YaleSites Worktree Workspace Manager
+
+${BOLD}COMMANDS${RESET}
+  ${CYAN}new${RESET} <name> [--branch <branch>] [--create]
+      Create a new isolated workspace with git worktrees of all four YaleSites repos.
+      --branch  Branch to check out (default: current HEAD of main repo)
+      --create  If the branch doesn't exist in a repo, create it from '${YW_FALLBACK_BRANCH}'
+                (without this flag, missing-branch repos fall back to '${YW_FALLBACK_BRANCH}')
+
+  ${CYAN}list${RESET}
+      List all workspaces with per-repo branches and Lando status.
+
+  ${CYAN}status${RESET} [<name>]
+      Show git status for each repo in a workspace (or all workspaces if no name given).
+
+  ${CYAN}activate${RESET} <name>
+      Start a dedicated Lando instance for the workspace.
+      Generates .lando.local.yml and runs \`lando start\` from the workspace.
+      You still need to populate the database after activating.
+
+  ${CYAN}deactivate${RESET} <name>
+      Stop the Lando instance for the workspace.
+
+  ${CYAN}rm${RESET} <name> [--force]
+      Remove a workspace: stops Lando, removes all git worktrees, deletes the directory.
+      --force   Skip confirmation prompt and force-remove dirty worktrees.
+
+${BOLD}ENVIRONMENT${RESET}
+  YW_WORKTREES_DIR    Workspace root  (default: ~/code/yalesites-worktrees)
+  YW_MAIN_REPO        Main repo path  (default: ~/code/yalesites-project)
+  YW_FALLBACK_BRANCH  Fallback branch (default: develop)
+USAGE
+}
+
+# ---------------------------------------------------------------------------
+# Dispatch
+# ---------------------------------------------------------------------------
+case "${1:-help}" in
+  new)        shift; cmd_new "$@" ;;
+  list)       shift; cmd_list "$@" ;;
+  status)     shift; cmd_status "$@" ;;
+  activate)   shift; cmd_activate "$@" ;;
+  deactivate) shift; cmd_deactivate "$@" ;;
+  rm|remove)  shift; cmd_rm "$@" ;;
+  help|--help|-h) cmd_usage ;;
+  *) _yw_error "unknown command: $1"; echo ""; cmd_usage; exit 1 ;;
+esac

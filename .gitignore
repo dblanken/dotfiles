@@ -14,6 +14,7 @@ git/.local
 !scripts-linux/.local/
 !scripts-mac/.local/
 !autostart/.local/
+!yalesites-worktrees/.local/
 
 # Mise runtime metadata
 mise/.config/mise/cache/
