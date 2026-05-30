@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# nomnom - launcher for NomNom (No Man's Sky save editor) under Proton/Wine
+#
+# Install:
+#   chmod +x nomnom
+#   mv nomnom ~/.local/bin/   # or anywhere on $PATH
+#
+# Usage:
+#   nomnom              Launch NomNom
+#   nomnom --install    Install .NET 8 Desktop Runtime + WebView2 into NMS prefix
+#   nomnom --help       Show this message
+
+set -euo pipefail
+
+# === Configuration ===
+APPID=275850
+NOMNOM_PATH="${NOMNOM_PATH:-$HOME/Applications/NomNom/NomNom.exe}"
+
+# === Helpers ===
+usage() {
+  cat <<EOF
+nomnom - launch NomNom under Proton (NMS save editor)
+
+Usage:
+  nomnom              Launch NomNom
+  nomnom --install    Install .NET 8 Desktop Runtime + WebView2 prereqs
+  nomnom -h|--help    Show this message
+
+Environment:
+  NOMNOM_PATH         Path to NomNom.exe (default: ~/Apps/NomNom/NomNom.exe)
+
+Notes:
+  Launch NMS at least once via Steam before --install so the Proton prefix exists.
+  If NomNom crashes on the platform selection dialog, close it with the X instead
+  of clicking OK (zencq/NomNom#306).
+EOF
+}
+
+die() { echo "error: $*" >&2; exit 1; }
+
+require() {
+  command -v "$1" >/dev/null 2>&1 || die "missing dependency: $1"
+}
+
+install_prereqs() {
+  require protontricks
+  require winetricks
+
+  echo ">> updating winetricks"
+  winetricks --self-update || echo "   (self-update failed, continuing with current version)"
+
+  echo ">> installing .NET 8 Desktop Runtime into NMS prefix (appid $APPID)"
+  protontricks "$APPID" -q dotnetdesktop8 || die ".NET 8 install failed"
+
+  echo ">> installing WebView2 Runtime"
+  protontricks "$APPID" -q --force webview2 || \
+    echo "   webview2 reported failure; NomNom usually still works for basic editing"
+
+  echo
+  echo "done. run 'nomnom' to launch."
+}
+
+launch() {
+  require protontricks-launch
+  [[ -f "$NOMNOM_PATH" ]] || die "NomNom.exe not found at $NOMNOM_PATH (set NOMNOM_PATH or edit this script)"
+  exec protontricks-launch --appid "$APPID" "$NOMNOM_PATH"
+}
+
+# === Main ===
+case "${1:-}" in
+  --install)    install_prereqs ;;
+  -h|--help)    usage ;;
+  "")           launch ;;
+  *)            echo "unknown option: $1" >&2; usage; exit 1 ;;
+esac
+
