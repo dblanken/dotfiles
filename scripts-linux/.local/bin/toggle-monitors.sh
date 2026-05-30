@@ -10,9 +10,21 @@ sleep 0.3
 OUTPUTS=$(kscreen-doctor -o 2>&1)
 HAS_DP2=$(echo "$OUTPUTS" | grep -c "DP-2")
 
+disable_secondary() {
+    if [ "$HAS_DP2" -gt 0 ]; then
+        kscreen-doctor output.HDMI-A-1.disable output.DP-2.disable
+    else
+        kscreen-doctor output.HDMI-A-1.disable
+    fi
+}
+
 if echo "$OUTPUTS" | grep -A2 "HDMI-A-1" | grep -q "enabled"; then
-    kscreen-doctor output.HDMI-A-1.disable
-    [ "$HAS_DP2" -gt 0 ] && kscreen-doctor output.DP-2.disable
+    disable_secondary
+    # KDE's kscreen daemon can auto-restore its saved config within ~1s; re-apply if it does.
+    sleep 1
+    if kscreen-doctor -o 2>&1 | grep -A2 "HDMI-A-1" | grep -q "enabled"; then
+        disable_secondary
+    fi
     notify-send "Monitors" "Secondary monitors disabled — FreeSync ready"
 else
     # Enable HDMI-A-1 first with explicit position so it stays independent (not mirrored)
