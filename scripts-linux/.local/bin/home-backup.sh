@@ -39,6 +39,7 @@ RSYNC_OPTS=(
     --exclude='.local/share/mise/'
     --exclude='.local/share/PrismLauncher/libraries/'
     --exclude='.local/share/PrismLauncher/cache/'
+    --exclude='.local/share/containers/storage/overlay/'
 )
 
 # If a previous snapshot exists, hard-link unchanged files from it (saves space)
