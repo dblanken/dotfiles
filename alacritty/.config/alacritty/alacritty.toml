@@ -42,7 +42,7 @@ post_processing = true
 persist = false
 mouse = { enabled = true, mods = "Shift" }
 binding = { key = "o", mods = "Control|Shift" }
-regex = '''(?:~|/)[^\s"'<>{}|\\^`\[\](]*\.md'''
+regex = '''(?:~?/|\.\.?/|[a-zA-Z0-9_.-]+/)[^\s"'<>{}|\\^`\[\](]*\.md'''
 
 [[hints.enabled]]
 command = { program = "sh", args = ["-c", "open \"$(echo \"$1\" | sed 's|~|'\"$HOME\"'|')\"", "--"] }
