@@ -36,6 +36,15 @@ import = [
 ]
 
 [[hints.enabled]]
+command = { program = "/Users/db2553/.local/bin/open-md-nvim", args = [] }
+hyperlinks = false
+post_processing = true
+persist = false
+mouse = { enabled = true, mods = "Shift" }
+binding = { key = "o", mods = "Control|Shift" }
+regex = '''(?:~|/)[^\s"'<>{}|\\^`\[\](]*\.md'''
+
+[[hints.enabled]]
 command = { program = "sh", args = ["-c", "open \"$(echo \"$1\" | sed 's|~|'\"$HOME\"'|')\"", "--"] }
 hyperlinks = false
 post_processing = true

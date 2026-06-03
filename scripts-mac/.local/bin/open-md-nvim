@@ -1,0 +1,12 @@
+#!/bin/bash
+export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+FILE="${1/#\~/$HOME}"
+[[ "$FILE" != /* ]] && FILE="$(pwd)/$FILE"
+
+tmux_session=$(tmux ls -F "#{?session_attached,#{session_name},}" 2>/dev/null | grep -v "^$" | head -1)
+if [[ -n "$tmux_session" ]]; then
+    tmux new-window -t "$tmux_session:" "zsh -l -c 'nvim +MarkdownPreview $(printf '%q' "$FILE")'"
+    tmux select-window -t "$tmux_session:{end}"
+else
+    open -a Alacritty --args -e nvim "$FILE"
+fi
