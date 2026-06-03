@@ -8,5 +8,5 @@ if [[ -n "$tmux_session" ]]; then
     tmux new-window -t "$tmux_session:" "zsh -l -c 'nvim +MarkdownPreview $(printf '%q' "$FILE")'"
     tmux select-window -t "$tmux_session:{end}"
 else
-    open -a Alacritty --args -e nvim "$FILE"
+    alacritty -e zsh -l -c "nvim +MarkdownPreview '$FILE'"
 fi

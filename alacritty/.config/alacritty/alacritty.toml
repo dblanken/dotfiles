@@ -36,7 +36,7 @@ import = [
 ]
 
 [[hints.enabled]]
-command = { program = "/Users/db2553/.local/bin/open-md-nvim", args = [] }
+command = { program = "sh", args = ["-c", "$HOME/.local/bin/open-md-nvim \"$1\"", "--"] }
 hyperlinks = false
 post_processing = true
 persist = false
