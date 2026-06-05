@@ -90,22 +90,6 @@ The following files are in ~/.claude/memory/ — read them when working in their
 - `wcag-checklist.md` — WCAG 2.1 AA compliance checklist (forms, navigation, dynamic content)
 - `owasp-security.md` — OWASP Top 10 prevention with PHP/JS/Python examples
 - `solid-principles.md` — SOLID principles with practical decision guide
-- `llm-infrastructure.md` — LLM provider stack and routing (local only, not in dotfiles git)
-
-## Local Model Delegation
-A local Qwen3 8B model runs on the CachyOS machine (192.168.86.47:8080) and is
-accessible via the `llm` CLI. Use it to offload menial tasks:
-
-```bash
-llm -m local "<prompt>" < <file>   # summarize or analyze a file
-llm -m local "<prompt>"             # general lightweight query
-```
-
-Good uses: summarizing files, reading large logs, answering simple questions about
-file contents, grep/search assistance.
-
-**If `llm -m local` errors for any reason, do not retry — handle the task directly.**
-See `~/.claude/memory/llm-infrastructure.md` for full setup details.
 
 ## Plans Location
 - All superpowers plans go to `~/Documents/plans/` instead of the default `docs/superpowers/plans/` within each project
