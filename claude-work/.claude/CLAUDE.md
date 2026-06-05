@@ -19,33 +19,18 @@ Universal coding standards and preferences across all projects.
 - **Tools**: Docker, Composer, NPM, Git
 - **Editors**: Vim/Neovim (primary), VSCode (secondary)
 
-## Language-Specific Standards
+## Path-Scoped Rules
 
-### PHP
-- **Indentation**: 2 spaces; PSR-12; PHPUnit; Composer
-- Prefer `use` statements over fully-qualified class names
+Language- and UI-specific standards live in `~/.claude/rules/` and load only when
+Claude works with matching files (via `paths:` frontmatter), keeping this file focused
+on always-relevant guidance:
 
-### JavaScript/TypeScript
-- **Indentation**: 2 spaces
-- **Linting**: ESLint
-- **Testing**: Playwright (E2E), Jest (unit)
-- **Build Tools**: Webpack, Vite
-- **Package Manager**: NPM
-
-### CSS
-- **Indentation**: 2 spaces
-- **Linting**: Stylelint
-- **Accessibility**: WCAG compliance required
-
-### Python
-- **Indentation**: 4 spaces
-- **Testing**: pytest
-- **Package Manager**: pip
-
-### Bash
-- Follow shell scripting best practices
-- Proper error handling and exit codes
-- Comments for complex operations
+- `php.md` — PHP / Drupal (`*.php`, `*.module`, `*.theme`, …)
+- `javascript.md` — JS / TS (`*.{js,jsx,ts,tsx,mjs,cjs}`)
+- `css.md` — CSS / SCSS (`*.{css,scss,sass,less}`)
+- `python.md` — Python (`*.py`)
+- `bash.md` — shell scripts (`*.{sh,bash,zsh}`)
+- `accessibility.md` — WCAG 2.1 A/AA for UI files (`*.tsx`, `*.scss`, `*.twig`, …)
 
 ## Git Workflow Standards
 - **Branch Naming**: Adapt to project conventions
@@ -94,10 +79,6 @@ Detailed explanation when valuable:
 - See ~/.claude/memory/owasp-security.md for examples when working on security-sensitive code
 - Use up-to-date dependencies; run vulnerability scans before adding packages
 
-## Accessibility Standards
-- **Minimum**: WCAG 2.1 A and AA — always apply when implementing or fixing UI
-- See ~/.claude/memory/wcag-checklist.md for the full checklist when building or reviewing UI
-
 ## Documentation Standards
 - **Professional Tone**: Never use emojis in documentation, code comments, commit messages, or any project files
 - Use clear, concise language without decorative symbols
@@ -125,26 +106,6 @@ file contents, grep/search assistance.
 
 **If `llm -m local` errors for any reason, do not retry — handle the task directly.**
 See `~/.claude/memory/llm-infrastructure.md` for full setup details.
-
-## YaleSites Parallel Development — `yw`
-
-The `yw` command manages isolated git worktree workspaces for parallel development across all four YaleSites repos (yalesites-project, atomic, component-library-twig, tokens). Workspaces live at `~/code/yalesites-worktrees/<name>/`.
-
-**When to use:** When Claude Code needs to work on a feature in isolation without interfering with the main checkout, or when multiple tasks need to run in parallel.
-
-```bash
-yw new <name> --branch <branch> --create   # create workspace; --create makes the branch if missing
-yw list                                     # show all workspaces and Lando status
-yw status <name>                            # git status across all four repos
-yw activate <name>                          # start a dedicated Lando instance for testing
-yw deactivate <name>                        # stop that Lando instance
-yw rm <name>                               # clean up workspace when done
-```
-
-**Important for Claude Code working inside a workspace (`~/code/yalesites-worktrees/<name>/`):**
-- No Lando is running by default — do not attempt `lando drush` or any web-server-dependent commands
-- The workspace CLAUDE.md (at the workspace root) lists the exact repo branches and key paths
-- To request Lando for testing, tell the user to run `yw activate <name>`
 
 ## Plans Location
 - All superpowers plans go to `~/Documents/plans/` instead of the default `docs/superpowers/plans/` within each project
