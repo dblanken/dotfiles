@@ -1,11 +1,27 @@
 #!/bin/bash
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+LOG=/tmp/open-md-nvim.log
+echo "---" >> "$LOG"
+echo "arg1='$1' HOME='$HOME'" >> "$LOG"
 FILE="${1/#\~/$HOME}"
+echo "after tilde expand: FILE='$FILE'" >> "$LOG"
 tmux_session=$(tmux ls -F "#{?session_attached,#{session_name},}" 2>/dev/null | grep -v "^$" | head -1)
+echo "tmux_session='$tmux_session'" >> "$LOG"
 if [[ "$FILE" != /* ]]; then
-    pane_dir=$(tmux display-message -p -t "$tmux_session" "#{pane_current_path}" 2>/dev/null)
-    FILE="${pane_dir:-$HOME}/$FILE"
+    client=$(tmux list-clients -t "$tmux_session" -F "#{client_name}" 2>/dev/null | head -1)
+    pane_dir=$(tmux display-message -p -c "$client" "#{pane_current_path}" 2>/dev/null)
+    echo "client='$client' pane_dir='$pane_dir'" >> "$LOG"
+    if [[ -n "$pane_dir" && -f "$pane_dir/$FILE" ]]; then
+        FILE="$pane_dir/$FILE"
+    else
+        search_root="${pane_dir:-$HOME/code}"
+        resolved=$(fd --type f "$(basename "$FILE")" "$search_root" 2>/dev/null \
+            | grep -F "/$FILE" | head -1)
+        echo "find resolved='$resolved'" >> "$LOG"
+        FILE="${resolved:-$HOME/$FILE}"
+    fi
 fi
+echo "final FILE='$FILE'" >> "$LOG"
 if [[ -n "$tmux_session" ]]; then
     tmux new-window -t "$tmux_session:" "zsh -l -c 'nvim +MarkdownPreview $(printf '%q' "$FILE")'"
     tmux select-window -t "$tmux_session:{end}"

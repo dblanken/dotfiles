@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# claude-home: Run Claude Code against the CachyOS Ollama instance (home network only).
+# Usage: claude-home [claude args...]
+
+set -euo pipefail
+
+ANTHROPIC_AUTH_TOKEN=ollama \
+ANTHROPIC_BASE_URL="${CLAUDE_HOME_BASE_URL:-http://192.168.86.47:11434}" \
+ANTHROPIC_MODEL="${CLAUDE_HOME_MODEL:-qwen3.6:27b}" \
+exec claude "$@"
