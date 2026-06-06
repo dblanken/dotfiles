@@ -1,6 +1,6 @@
 .PHONY: help install update stow-all unstow-all restow-all clean
 .PHONY: stow-% unstow-% restow-%
-.PHONY: stow-core stow-optional stow-linux stow-mac
+.PHONY: stow-core stow-optional stow-linux stow-mac stow-yalesites
 .PHONY: validate check-platform install-linux-extras
 
 # Colors
@@ -16,7 +16,7 @@ DOTFILES := $(HOME)/.dotfiles
 CORE_PACKAGES := zsh git tmux scripts
 
 # macOS-specific packages
-MAC_PACKAGES := scripts-mac alacritty-mac
+MAC_PACKAGES := scripts-mac alacritty-mac yalesites
 
 # Linux-specific packages
 LINUX_PACKAGES := autostart mise scripts-linux
@@ -44,7 +44,7 @@ help: ## Show this help message
 	@echo "  macOS:    $(MAC_PACKAGES)"
 	@echo "  Linux:    $(LINUX_PACKAGES)"
 	@echo "  Optional: $(OPTIONAL_PACKAGES)"
-	@echo "  Other:    nvim vim asdf kitty"
+	@echo "  Other:    nvim vim asdf kitty yalesites-worktrees"
 
 install: ## Run the interactive installation script
 	@./install.sh

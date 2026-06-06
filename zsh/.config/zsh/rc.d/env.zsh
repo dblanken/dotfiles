@@ -66,7 +66,7 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # For Claude Code
-export DISABLE_TELEMTRY=1
+export DISABLE_TELEMETRY=1
 # export DISABLE_AUTOUPDATER=1
 
 # For Homebrew

@@ -28,7 +28,7 @@ package/
 When stowed, files are symlinked from `~/.dotfiles/<package>/<path>` to `~/<path>`.
 
 **Key packages:**
-- `zsh/` - Shell configuration with extensive YaleSites-specific functions
+- `zsh/` - Shell configuration (cross-platform)
 - `tmux/` - Terminal multiplexer with vim-aware navigation
 - `lazyvim/` - Neovim configuration (LazyVim distribution)
 - `nvim/` - Legacy/alternative Neovim configuration
@@ -37,7 +37,11 @@ When stowed, files are symlinked from `~/.dotfiles/<package>/<path>` to `~/<path
 - `scripts/` - Cross-platform utility scripts in `.local/bin/`
 - `scripts-linux/` - Linux-only scripts in `.local/bin/` (display management, gaming backups)
 - `scripts-mac/` - macOS-only scripts in `.local/bin/` (lock, killexchange, Lando/Drupal tools)
-- `archive/` - Archived scripts kept for reference, not stowed
+- `yalesites/` - YaleSites/Drupal shell functions — **macOS/work only**, stow on macOS
+- `yalesites-worktrees/` - Git worktree helpers for multi-repo YaleSites development — **macOS/work only**
+- `claude-work/` - Claude Code config for the work Mac: rules, memory files, statusline for Drupal/PHP/JS work
+- `claude-personal/` - Claude Code config for the personal Linux machine: shared memory files, no work-specific rules
+- `archive/` - Archived scripts kept for reference, not stowed (old Nobara/Pop!_OS/Arch scripts)
 - `autostart/` - Linux desktop autostart entries (Linux-specific)
 - `mise/` - Runtime version manager configuration
 
@@ -56,7 +60,7 @@ The configuration automatically detects the operating system and loads platform-
    - `env.$OS_TYPE.zsh` - Platform-specific environment (env.darwin.zsh or env.linux.zsh)
    - `aliases.zsh` - Shell aliases
    - `functions.zsh` - Shell functions
-   - `yalesites.zsh` - YaleSites-specific utilities
+   - Any remaining `*.zsh` files in `rc.d/` (e.g. `yalesites.zsh` when the `yalesites` package is stowed on macOS)
    - Other modules as needed
 
 **Wrapper Functions:**
@@ -339,13 +343,17 @@ make restow-<package>   # Restow after editing configs
 - `tmux` - Terminal multiplexer
 - `scripts` - Cross-platform utility scripts
 
-**macOS-specific packages**:
+**macOS-specific packages** (stow on work Mac only):
 - `scripts-mac` - macOS-only scripts (lock, killexchange, Lando/Drupal tools)
+- `yalesites` - YaleSites/Drupal shell functions (llogin, dbget, yspull, etc.)
+- `yalesites-worktrees` - Git worktree helpers for multi-repo YaleSites development
+- `claude-work` - Claude Code configuration for Drupal/PHP/JS work environment
 
-**Linux-specific packages**:
+**Linux-specific packages** (stow on personal Linux machine):
 - `autostart` - Desktop autostart entries for display configuration
 - `mise` - Runtime version manager configuration
 - `scripts-linux` - Linux-only scripts (display management, gaming backups)
+- `claude-personal` - Claude Code configuration for personal Linux environment
 
 **Optional packages**:
 - `alacritty` - Terminal emulator
