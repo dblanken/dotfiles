@@ -7,14 +7,14 @@
 #
 # Usage:
 #   nomnom              Launch NomNom
-#   nomnom --install    Install .NET 8 Desktop Runtime + WebView2 into NMS prefix
+#   nomnom --install    Install .NET 10 Desktop Runtime + WebView2 into NMS prefix
 #   nomnom --help       Show this message
 
 set -euo pipefail
 
 # === Configuration ===
 APPID=275850
-NOMNOM_PATH="${NOMNOM_PATH:-$HOME/Applications/NomNom/NomNom.exe}"
+NOMNOM_PATH="${NOMNOM_PATH:-$HOME/Applications/NomNom/current/NomNom.exe}"
 
 # === Helpers ===
 usage() {
@@ -23,11 +23,11 @@ nomnom - launch NomNom under Proton (NMS save editor)
 
 Usage:
   nomnom              Launch NomNom
-  nomnom --install    Install .NET 8 Desktop Runtime + WebView2 prereqs
+  nomnom --install    Install .NET 10 Desktop Runtime + WebView2 prereqs
   nomnom -h|--help    Show this message
 
 Environment:
-  NOMNOM_PATH         Path to NomNom.exe (default: ~/Apps/NomNom/NomNom.exe)
+  NOMNOM_PATH         Path to NomNom.exe (default: ~/Applications/NomNom/current/NomNom.exe)
 
 Notes:
   Launch NMS at least once via Steam before --install so the Proton prefix exists.
@@ -49,8 +49,8 @@ install_prereqs() {
   echo ">> updating winetricks"
   winetricks --self-update || echo "   (self-update failed, continuing with current version)"
 
-  echo ">> installing .NET 8 Desktop Runtime into NMS prefix (appid $APPID)"
-  protontricks "$APPID" -q dotnetdesktop8 || die ".NET 8 install failed"
+  echo ">> installing .NET 10 Desktop Runtime into NMS prefix (appid $APPID)"
+  protontricks "$APPID" -q dotnetdesktop10 || die ".NET 10 install failed"
 
   echo ">> installing WebView2 Runtime"
   protontricks "$APPID" -q --force webview2 || \
