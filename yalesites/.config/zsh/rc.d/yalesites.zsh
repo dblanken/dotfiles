@@ -86,45 +86,41 @@ function ysopen() {
 
 # update all three repos
 function yspull() {
-  # Get the git rootPath
-  local rootPath=$(git rev-parse --show-toplevel)
-  cd "$rootPath"
+  local rootPath
+  rootPath=$(git rev-parse --show-toplevel) || { echo "Not in a git repo"; return 1; }
+  cd "$rootPath" || return 1
   g pull --rebase
   echo "$rootPath is now up to date"
-  cd atomic && g pull --rebase && cd "$rootPath" && echo "atomic is now up to date"
-  cd component-library-twig && g pull --rebase && cd "$rootPath" && echo "component-library-twig is now up to date"
+  cd "$rootPath/atomic" || { echo "atomic not found at $rootPath/atomic"; return 1; }
+  g pull --rebase
+  echo "atomic is now up to date"
+  cd "$rootPath/component-library-twig" || { echo "component-library-twig not found"; return 1; }
+  g pull --rebase
+  echo "component-library-twig is now up to date"
+  cd "$rootPath"
 }
 
 function gcbcreate() {
-  # Get the git rootPath
-  local rootPath=$(git rev-parse --show-toplevel)
+  local rootPath
+  rootPath=$(git rev-parse --show-toplevel) || { echo "Not in a git repo"; return 1; }
+  cd "$rootPath" || return 1
+  local branch
+  branch=$(git symbolic-ref --short HEAD) || { echo "Not on a branch"; return 1; }
+
+  case "$branch" in
+    develop|master|main)
+      echo "Cannot create a branch from $branch"
+      return 1
+      ;;
+  esac
+
+  cd "$rootPath/atomic" || { echo "atomic not found at $rootPath/atomic"; return 1; }
+  gcb "$branch"; gco "$branch"
+  echo "atomic: created and checked out $branch"
+  cd "$rootPath/component-library-twig" || { echo "component-library-twig not found"; return 1; }
+  gcb "$branch"; gco "$branch"
+  echo "component-library-twig: created and checked out $branch"
   cd "$rootPath"
-  local branch=$(git symbolic-ref --short HEAD)
-
-  if [ -z "$branch" ]; then
-    echo "Not in a git repo"
-    return
-  fi
-
-  if [ "$branch" = "develop" ]; then
-    echo "Cannot create a branch from develop"
-    return
-  fi
-
-  if [ "$branch" = "master" ]; then
-    echo "Cannot create a branch from master"
-    return
-  fi
-
-  if [ "$branch" = "main" ]; then
-    echo "Cannot create a branch from main"
-    return
-  fi
-
-  cd atomic; gcb "$branch"; gco "$branch";
-  cd "$rootPath" && echo "atomic is now up to date"
-  cd component-library-twig; gcb "$branch"; gco "$branch"
-  cd "$rootPath" && echo "component-library-twig is now up to date"
 }
 
 # Attempts to git-checkout a YaleSite with the current branch
@@ -252,12 +248,14 @@ gfetchpull() {
 
 # Keep all yalesites up to date
 gpullall() {
+  local rootPath
+  rootPath=$(git rev-parse --show-toplevel) || { echo "Not in a git repo"; return 1; }
   gfetchpull
-  cd atomic
+  cd "$rootPath/atomic" || { echo "atomic not found"; return 1; }
   gfetchpull
-  cd ../component-library-twig
+  cd "$rootPath/component-library-twig" || { echo "component-library-twig not found"; return 1; }
   gfetchpull
-  cd ..
+  cd "$rootPath"
   echo "All done"
 }
 

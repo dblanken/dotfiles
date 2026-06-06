@@ -319,6 +319,16 @@ EOF
         done
     fi
 
+    # YaleSites configuration (macOS/work only)
+    if [[ "$OS_TYPE" == "Darwin" ]]; then
+        print_header "YaleSites configuration"
+        print_info "macOS detected — stowing YaleSites shell functions"
+        stow_package "yalesites"
+        if ask_yes_no "Install yalesites-worktrees helpers?"; then
+            stow_package "yalesites-worktrees"
+        fi
+    fi
+
     # Claude Code configuration
     print_header "Claude Code configuration"
     if [[ "$OS_TYPE" == "Darwin" ]]; then
