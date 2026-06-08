@@ -191,7 +191,7 @@ build_llama_args() {
 
 run_ollama() {
   echo "Starting ollama on http://$HOST:$PORT"
-  OLLAMA_HOST="$HOST:$PORT" exec "$OLLAMA" serve
+  OLLAMA_HOST="$HOST:$PORT" OLLAMA_MODELS=/mnt/more_games/ai-models exec "$OLLAMA" serve
 }
 
 run_llama() {
