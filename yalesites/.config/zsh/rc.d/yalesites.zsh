@@ -235,6 +235,88 @@ filesget() {
   lcr
 }
 
+# Recover from a corrupted local MariaDB volume. Symptom: lando fails to start
+# the database with an InnoDB crash-recovery error, e.g. "Missing FILE_CREATE...
+# before FILE_CHECKPOINT", "Plugin 'InnoDB' init function returned error", or
+# "Data structure corruption" -- caused by an unclean container shutdown.
+#
+# Wipes the Lando app + DB volume (lando destroy), recreates it, then re-pulls
+# and deploys the database from Pantheon. The local DB is disposable, so this is
+# the fast, reliable fix. Host-side code, files, and -- if gyst was run -- the
+# cross-repo clones/symlinks/npm-links all live on the bind mount and are NOT
+# touched by lando destroy. We deliberately avoid composer update / atomic
+# npm install (i.e. npm run build) so the gyst setup is preserved.
+#
+# Run from the yalesites-project root. Usage: ys-reset-db [multidev]  (default: dev)
+ys-reset-db() {
+  local multidev="${1:-dev}"
+
+  if [ ! -f .lando.local.yml ]; then
+    echo "Run this from the yalesites-project root (no .lando.local.yml here)."
+    return 1
+  fi
+
+  # The root-level 'atomic' symlink only exists if gyst was run here; only then
+  # is the gyst-preservation note relevant.
+  local gyst_note=""
+  [ -L atomic ] && gyst_note=" Your gyst cross-repo clones/symlinks/links are NOT affected."
+
+  echo "This DESTROYS the local Lando app + database volume, then re-pulls and"
+  echo "deploys the '$multidev' database from Pantheon. Code and files are NOT"
+  echo "affected.${gyst_note}"
+  echo -n "Continue? [y/N] "
+  read -r reply
+  [[ "$reply" =~ ^[Yy]$ ]] || { echo "Aborted."; return 1; }
+
+  l destroy -y || return 1
+  l start      || return 1
+  l pull --code=none --database="$multidev" --files=none || return 1
+
+  # npm run confim == drush deploy (updatedb + config import + cr + deploy hooks).
+  confim || return 1
+
+  # Local-only overrides, applied AFTER confim so its config import doesn't revert them.
+  fixcas
+  l drush config:set ai_engine_embedding.settings enable 0 -y
+  lcr
+}
+
+# Symlink each sub-repo's CLAUDE.md from a common canonical source so every
+# yalesites-project checkout (including yw worktrees) shares one copy. These
+# CLAUDE.md files are globally gitignored, so they are never committed to the
+# sub-repos and must be re-linked after a fresh instance. Canonical source:
+# ~/.claude/yalesites/claude-md/{atomic,component-library-twig,tokens}.md
+# Run from a yalesites-project checkout root; wired into local-setup.
+ys-link-claude-md() {
+  local src="$HOME/.claude/yalesites/claude-md"
+  local atomic="web/themes/contrib/atomic"
+
+  if [ ! -d "$atomic" ]; then
+    echo "Run this from a yalesites-project checkout root (no $atomic)."
+    return 1
+  fi
+
+  local linked=0
+  for pair in \
+    "atomic.md:$atomic" \
+    "component-library-twig.md:$atomic/_yale-packages/component-library-twig" \
+    "tokens.md:$atomic/_yale-packages/tokens"; do
+    local file="${pair%%:*}" dir="${pair#*:}"
+    if [ ! -f "$src/$file" ]; then
+      echo "skip: canonical $src/$file missing"
+      continue
+    fi
+    if [ ! -d "$dir" ]; then
+      echo "skip: $dir not present yet (run gyst first)"
+      continue
+    fi
+    ln -sf "$src/$file" "$dir/CLAUDE.md"
+    echo "linked $dir/CLAUDE.md -> $src/$file"
+    linked=$((linked + 1))
+  done
+  echo "Linked $linked CLAUDE.md file(s)."
+}
+
 # Rebuild the lando site--useful when you change .lando.local.yml
 rebuild() {
   l rebuild -y
@@ -275,6 +357,7 @@ local-setup() {
   replace_name_with_folder
   npm run setup
   gyst
+  ys-link-claude-md
 }
 
 rmys() {
