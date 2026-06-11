@@ -23,8 +23,13 @@ if [ "$TMUX" = "" ]; then tmux attach || tmux -2 new -s "$HOST" && exit; fi
 export HASBREW="$(command -v brew)"
 export UNAME="$(uname)"
 
-if [[ "$HASBREW" == "" ]]; then
-  fpath+=("/opt/homebrew/share/zsh/site-functions")
+# Ensure homebrew zsh functions are in fpath (critical for non-login shells in tmux)
+# This must happen before any autoload calls
+if [[ "$HASBREW" != "" ]]; then
+  fpath=("/opt/homebrew/share/zsh/functions" "/opt/homebrew/share/zsh/site-functions" $fpath)
+else
+  # Fallback for systems without homebrew
+  fpath=("/usr/share/zsh/site-functions" "/usr/share/zsh/functions" $fpath)
 fi
 
 typeset -A __DBLANKEN
