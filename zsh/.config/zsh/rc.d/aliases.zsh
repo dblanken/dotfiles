@@ -16,6 +16,8 @@ alias tmuxconf="v ~/.tmux.conf"
 
 # Claude Code CLI (if installed)
 [ -f "$HOME/.claude/local/claude" ] && alias claude="$HOME/.claude/local/claude"
+alias claude-personal='CLAUDE_CONFIG_DIR=~/.claude-personal claude'
+alias claude-desktop-personal='open -n -a "Claude" --args --user-data-dir="$HOME/Library/Application Support/Claude-Personal"'
 
 # Git
 alias g=git
