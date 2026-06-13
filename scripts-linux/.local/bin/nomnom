@@ -15,6 +15,7 @@ set -euo pipefail
 # === Configuration ===
 APPID=275850
 NOMNOM_PATH="${NOMNOM_PATH:-$HOME/Applications/NomNom/current/NomNom.exe}"
+NOMNOM_DATA="${NOMNOM_DATA:-$HOME/.config/nomnom-data}"
 
 # === Helpers ===
 usage() {
@@ -28,6 +29,7 @@ Usage:
 
 Environment:
   NOMNOM_PATH         Path to NomNom.exe (default: ~/Applications/NomNom/current/NomNom.exe)
+  NOMNOM_DATA         Directory where NomNom writes data (default: ~/.config/nomnom-data)
 
 Notes:
   Launch NMS at least once via Steam before --install so the Proton prefix exists.
@@ -63,6 +65,8 @@ install_prereqs() {
 launch() {
   require protontricks-launch
   [[ -f "$NOMNOM_PATH" ]] || die "NomNom.exe not found at $NOMNOM_PATH (set NOMNOM_PATH or edit this script)"
+  mkdir -p "$NOMNOM_DATA"
+  cd "$NOMNOM_DATA"
   exec protontricks-launch --appid "$APPID" "$NOMNOM_PATH"
 }
 
