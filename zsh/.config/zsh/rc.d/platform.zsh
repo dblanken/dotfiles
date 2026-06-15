@@ -147,3 +147,16 @@ platform_info() {
         fi
     fi
 }
+
+# =============================================================================
+# AUR helper (Arch/CachyOS only)
+# =============================================================================
+
+# Route interactive `paru` through paru-safe, which scans AUR PKGBUILDs for
+# supply-chain IOCs before handing off to the real paru. Linux-only and only if
+# paru-safe is installed. This affects only commands you type at the prompt;
+# CachyOS update tooling (cachy-update/arch-update) calls /usr/bin/paru directly
+# and is unaffected by this alias.
+if is_linux && command -v paru-safe &> /dev/null; then
+    alias paru='paru-safe'
+fi
