@@ -1,0 +1,527 @@
+#!/usr/bin/env bash
+# paru-safe — AUR PKGBUILD security scanner wrapper
+#
+# Intercepts paru install/upgrade operations, fetches PKGBUILDs for any AUR
+# packages (and their AUR dependencies), scans them for known Atomic Arch
+# IOCs and general supply-chain attack patterns, then passes through to the
+# real paru binary if everything looks clean.
+#
+# INSTALL:
+#   sudo install -m 755 paru-safe /usr/local/bin/paru-safe
+#   # Then add to your shell config (~/.bashrc or ~/.zshrc):
+#   alias paru='paru-safe'
+#
+# CONFIG (environment variables):
+#   PARU_SAFE_BIN       Path to real paru binary        (default: /usr/bin/paru)
+#   PARU_SAFE_MAX_DEPTH Max AUR dependency scan depth   (default: 2)
+#   PARU_SAFE_NO_COLOR  Set to any value to disable colours
+#
+# FLAGS (consumed by paru-safe, not forwarded to paru):
+#   --dry-run           Run the scan and print the paru command that would be
+#                       executed, but skip the actual install/upgrade handoff.
+#                       Non-interactive: a flagged package reports and exits 1
+#                       rather than prompting. (Upgrade detection may still run
+#                       a read-only `paru -Qu` query to find pending updates.)
+
+set -uo pipefail
+
+# ── Configuration ─────────────────────────────────────────────────────────────
+
+REAL_PARU="${PARU_SAFE_BIN:-/usr/bin/paru}"
+MAX_DEPTH="${PARU_SAFE_MAX_DEPTH:-2}"
+AUR_CGIT="https://aur.archlinux.org/cgit/aur.git/plain"
+DRY_RUN=0   # set to 1 by the --dry-run flag: scan and report, but skip the paru handoff
+
+# ── Colours ───────────────────────────────────────────────────────────────────
+
+if [[ -t 1 && -z "${PARU_SAFE_NO_COLOR:-}" ]]; then
+    RED='\033[0;31m'; YELLOW='\033[1;33m'; GREEN='\033[0;32m'
+    BLUE='\033[0;34m'; BOLD='\033[1m'; DIM='\033[2m'; NC='\033[0m'
+else
+    RED=''; YELLOW=''; GREEN=''; BLUE=''; BOLD=''; DIM=''; NC=''
+fi
+
+# ── Known IOCs ────────────────────────────────────────────────────────────────
+# Update these as new campaign indicators are published.
+# Sources: Sonatype Atomic Arch report, lenucksi/aur-malware-check, PrivacyGuides.
+
+KNOWN_BAD_PKGS=(
+    atomic-lockfile
+    lockfile-js
+    js-digest
+    atomic-sleep
+    node-preinstall-hook
+    prebuild-helper
+    lockfile-js-node
+)
+
+# Regex patterns signalling suspicious build-time behaviour.
+# Designed to catch the Atomic Arch pattern (npm install of malicious package
+# in .install/.hook files) and general download-and-execute patterns.
+SUSPICIOUS_PATTERNS=(
+    # Unexpected package manager calls during PKGBUILD execution
+    'npm[[:space:]]+(install|i|ci)[[:space:]]'
+    'bun[[:space:]]+(install|add|i)[[:space:]]'
+    'yarn[[:space:]]+(add|install)[[:space:]]'
+    'pip[[:space:]]+install[[:space:]]'
+    'pip3[[:space:]]+install[[:space:]]'
+    'uv[[:space:]]+pip[[:space:]]+install[[:space:]]'
+    # Download-and-execute
+    'curl[^|#\n]*\|[[:space:]]*(ba)?sh'
+    'wget[^|#\n]*\|[[:space:]]*(ba)?sh'
+    # Obfuscation / runtime code generation
+    'base64[[:space:]]+(--decode|-d)[[:space:]]'
+    'eval[[:space:]]+\$\('
+    'eval[[:space:]]+`'
+    # Temp directory execution (rare in legitimate PKGBUILDs)
+    '(chmod|install)[[:space:]]+[+0-9]*x[^#\n]+/tmp/'
+    '/tmp/[^[:space:]]*\.(sh|py|elf|bin)[[:space:]]'
+    # Atomic Arch specific hook path
+    '\./src/hooks/'
+    # Inline Python execution (uncommon in PKGBUILDs, high signal)
+    'python3?[[:space:]]+-c[[:space:]]+["\x27]'
+)
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+
+_log()   { echo -e "${BLUE}[paru-safe]${NC} $*" >&2; }
+_ok()    { echo -e "${GREEN}[paru-safe] ✔${NC} $*" >&2; }
+_warn()  { echo -e "${YELLOW}[paru-safe] ⚠${NC} $*" >&2; }
+_bad()   { echo -e "${RED}[paru-safe] ✘ FLAGGED —${NC} $*" >&2; }
+_dim()   { echo -e "${DIM}$*${NC}" >&2; }
+
+# ── State ─────────────────────────────────────────────────────────────────────
+
+declare -A _cache=()          # pkg_name → 0 (clean) | 1 (flagged)
+declare -A _official_cache=() # pkg_name → 0 (official) | 1 (not official)
+declare -a _flagged=()
+declare -a _clean=()
+
+# ── Utility functions ─────────────────────────────────────────────────────────
+
+# Returns 0 if package is in official pacman repos, 1 otherwise.
+# Result is cached: common deps (glibc, gcc, python…) recur across packages
+# and depth levels, and each miss would otherwise fork a fresh pacman -Si.
+is_official() {
+    if [[ -v _official_cache["$1"] ]]; then
+        return "${_official_cache[$1]}"
+    fi
+    pacman -Si -- "$1" &>/dev/null
+    local rc=$?
+    _official_cache["$1"]=$rc
+    return $rc
+}
+
+# Fetches a file from the AUR cgit for a given package.
+# Prints content to stdout; empty on failure (tolerates network errors).
+fetch_aur_file() {
+    local pkg="$1" file="$2"
+    curl -sf --max-time 15 "${AUR_CGIT}/${file}?h=${pkg}" 2>/dev/null || true
+}
+
+# Parses a bash array variable from PKGBUILD text without sourcing the file.
+# Reads PKGBUILD content from stdin; prints one dep name per line.
+# Version constraints (>=, <=, =, >, <, !) are stripped.
+extract_pkgbuild_array() {
+    local array_name="$1"
+    python3 - "$array_name" <<'PYEOF'
+import sys, re
+
+name = sys.argv[1]
+content = sys.stdin.read()
+
+# Find "array_name=(" allowing optional whitespace
+m = re.search(rf'(?m)^{re.escape(name)}\s*=\s*\(', content)
+if not m:
+    sys.exit(0)
+
+# Walk forward to find the matching closing paren (handles multi-line arrays)
+start = m.end()
+depth, i = 1, start
+while i < len(content) and depth:
+    ch = content[i]
+    if ch == '(':
+        depth += 1
+    elif ch == ')':
+        depth -= 1
+    i += 1
+
+inner = content[start : i - 1]
+
+# Extract tokens: single-quoted, double-quoted, or bare words
+for groups in re.findall(r"'([^']*)'|\"([^\"]*)\"|(\S+)", inner):
+    item = next(g for g in groups if g != '')
+    item = item.split('#')[0].strip()           # strip inline comments
+    item = re.sub(r'[><=!:]+.*$', '', item)     # strip version constraints
+    item = item.strip()
+    if item and not item.startswith('$') and item != '\\':
+        print(item)
+PYEOF
+}
+
+# ── Pattern scanner ───────────────────────────────────────────────────────────
+# Reads content from stdin. Prints flagged lines.
+# Returns 0 if clean, 1 if any issues found.
+scan_content() {
+    local pkg="$1" label="$2"
+    local content flagged=0
+
+    content=$(cat) || true
+    [[ -z "$content" ]] && return 0
+
+    for pat in "${SUSPICIOUS_PATTERNS[@]}"; do
+        local hits
+        hits=$(echo "$content" | grep -nEi -- "$pat" 2>/dev/null || true)
+        if [[ -n "$hits" ]]; then
+            _bad "${BOLD}${pkg}${NC} / ${label} — suspicious pattern: ${YELLOW}${pat}${NC}"
+            while IFS= read -r line; do
+                # Defang attacker-controlled content before display: strip control
+                # bytes (raw ANSI/ESC) and print the text with %s so that
+                # echo-style backslash escapes in the PKGBUILD are not interpreted
+                # (prevents terminal-escape injection from a hostile PKGBUILD).
+                line="${line//[[:cntrl:]]/}"
+                printf '    %b%s%b\n' "$RED" "$line" "$NC" >&2
+            done <<< "$hits"
+            flagged=1
+        fi
+    done
+
+    for bad in "${KNOWN_BAD_PKGS[@]}"; do
+        if echo "$content" | grep -qF -- "$bad" 2>/dev/null; then
+            _bad "${BOLD}${pkg}${NC} / ${label} — known malicious reference: ${RED}${bad}${NC}"
+            flagged=1
+        fi
+    done
+
+    return $flagged
+}
+
+# ── Package scanner ───────────────────────────────────────────────────────────
+# Recursively scans an AUR package and its AUR dependencies.
+# Returns 0 (clean) or 1 (flagged).
+scan_package() {
+    local pkg="$1" depth="${2:-0}"
+
+    # Return cached result if already scanned
+    if [[ -v _cache["$pkg"] ]]; then
+        return "${_cache[$pkg]}"
+    fi
+
+    local indent
+    indent=$(printf '%*s' $((depth * 2)) '')
+    _log "${indent}Scanning ${BOLD}${pkg}${NC}..."
+
+    local flagged=0
+
+    # ── Fetch PKGBUILD ──────────────────────────────────────────────────────
+    local pkgbuild
+    pkgbuild=$(fetch_aur_file "$pkg" "PKGBUILD")
+
+    if [[ -z "$pkgbuild" ]]; then
+        _warn "${pkg}: could not fetch PKGBUILD (not in AUR, or network error) — skipping"
+        _cache["$pkg"]=0
+        return 0
+    fi
+
+    # ── Scan PKGBUILD ───────────────────────────────────────────────────────
+    if ! echo "$pkgbuild" | scan_content "$pkg" "PKGBUILD"; then
+        flagged=1
+    fi
+
+    # ── Scan .install file if referenced ───────────────────────────────────
+    # The install= field in PKGBUILD names a script run at install/upgrade time.
+    # Atomic Arch used this as the injection point.
+    local install_ref
+    install_ref=$(echo "$pkgbuild" \
+        | grep -oP "(?m)^install\s*=\s*['\"]?\K[^'\"\s)]+" \
+        | head -1 || true)
+
+    if [[ -n "$install_ref" ]]; then
+        if [[ "$install_ref" =~ ^[A-Za-z0-9._+-]+$ ]]; then
+            local install_content
+            install_content=$(fetch_aur_file "$pkg" "$install_ref")
+            if [[ -n "$install_content" ]]; then
+                _log "${indent}  Scanning ${install_ref}..."
+                if ! echo "$install_content" | scan_content "$pkg" "$install_ref"; then
+                    flagged=1
+                fi
+            fi
+        else
+            # A bare filename is the only legitimate install= value. Anything with
+            # path, query, or scheme characters (/, ?, :, ..) would inject into the
+            # cgit fetch URL — treat it as an indicator rather than fetching it.
+            _bad "${BOLD}${pkg}${NC} — suspicious install reference: ${RED}${install_ref//[[:cntrl:]]/}${NC}"
+            flagged=1
+        fi
+    fi
+
+    # ── Scan .hook files referenced in PKGBUILD ────────────────────────────
+    local hook_file
+    while IFS= read -r hook_file; do
+        [[ -z "$hook_file" ]] && continue
+        local hook_content
+        hook_content=$(fetch_aur_file "$pkg" "$hook_file")
+        [[ -z "$hook_content" ]] && continue
+        _log "${indent}  Scanning ${hook_file}..."
+        if ! echo "$hook_content" | scan_content "$pkg" "$hook_file"; then
+            flagged=1
+        fi
+    done < <(echo "$pkgbuild" | grep -oP '[\w.-]+\.hook' 2>/dev/null || true)
+
+    # ── Recurse into AUR dependencies ──────────────────────────────────────
+    if [[ $depth -lt $MAX_DEPTH ]]; then
+        local all_deps
+        all_deps=$(
+            echo "$pkgbuild" | extract_pkgbuild_array depends
+            echo "$pkgbuild" | extract_pkgbuild_array makedepends
+            echo "$pkgbuild" | extract_pkgbuild_array checkdepends
+        )
+
+        local dep
+        while IFS= read -r dep; do
+            [[ -z "$dep" ]] && continue
+
+            # Use cached result if available
+            if [[ -v _cache["$dep"] ]]; then
+                if [[ "${_cache[$dep]}" -eq 1 ]]; then
+                    _bad "${pkg}: dependency '${dep}' was previously flagged"
+                    flagged=1
+                fi
+                continue
+            fi
+
+            # Skip if in official repos (fast local check)
+            if is_official "$dep"; then
+                continue
+            fi
+
+            # Not official → treat as AUR, recurse
+            _log "${indent}  AUR dep: ${dep}"
+            if ! scan_package "$dep" $((depth + 1)); then
+                _bad "${pkg}: AUR dependency '${RED}${dep}${NC}' is flagged"
+                flagged=1
+            fi
+        done <<< "$all_deps"
+    fi
+
+    # ── Cache and record ────────────────────────────────────────────────────
+    _cache["$pkg"]=$flagged
+    if [[ $flagged -eq 0 ]]; then
+        _ok "${indent}${pkg}: clean"
+        _clean+=("$pkg")
+    else
+        _flagged+=("$pkg")
+    fi
+
+    return $flagged
+}
+
+# ── Argument parser ───────────────────────────────────────────────────────────
+# Determines whether this paru invocation installs/upgrades anything, and
+# returns the list of AUR package names to scan via the nameref array.
+#
+# Returns without populating the array for non-install operations
+# (search, query, info, remove, etc.) so they pass through immediately.
+collect_aur_targets() {
+    local -n _targets=$1
+    shift
+    local args=("$@")
+
+    # ── Detect non-install operations and pass straight through ─────────────
+    # These operation flags never install packages.
+    for arg in "${args[@]}"; do
+        case "$arg" in
+            # Remove
+            -R*|--remove)               return 0 ;;
+            # Query (includes -Qu which lists updates — not an install)
+            -Q*|--query)                return 0 ;;
+            # Database
+            -D*|--database)             return 0 ;;
+            # Files
+            -F*|--files)                return 0 ;;
+            # Help / version
+            -h|--help|-V|--version)     return 0 ;;
+            # Upgrade a local package file (-U): the target is a local .pkg.tar.*,
+            # not an AUR package — there is no PKGBUILD to fetch, so scanning it
+            # as an AUR name would 404 and report a false "clean". Pass through.
+            -U*|--upgrade)              return 0 ;;
+            # Get-pkgbuild (-G): clones an AUR repo locally, installs nothing.
+            -G*|--getpkgbuild)          return 0 ;;
+            # Sync sub-operations that don't install:
+            #   -Ss search, -Si info, -Sc clean, -Sg groups,
+            #   -Sl list, -Sp print, -Sw download-only
+            -Ss*|-Si*|-Sc*|-Sg*|-Sl*|-Sp*|-Sw*) return 0 ;;
+        esac
+    done
+
+    # ── Identify sync/upgrade intent and collect bare package names ─────────
+    local has_sync=0 has_upgrade=0
+    local pkg_args=()
+
+    for arg in "${args[@]}"; do
+        case "$arg" in
+            -S|--sync)          has_sync=1 ;;
+            -Sy)                has_sync=1 ;;
+            -Su|--sysupgrade)   has_sync=1; has_upgrade=1 ;;
+            -Syu|-Syyu|-Syuu)   has_sync=1; has_upgrade=1 ;;
+            -u)                 has_sync=1; has_upgrade=1 ;;  # split form: paru -S -u
+            -y)                 has_sync=1 ;;                 # split form: paru -S -y
+            -S?*)               has_sync=1 ;;   # e.g. -Sv, -Sd, etc.
+            --needed|--noconfirm|--noprogressbar|\
+            --ask|--asdeps|--asexplicit|\
+            --overwrite|--noredownload|--redownload|\
+            --rebuild|--rebuildall|--rebuildtree|\
+            --skipreview|--review|\
+            --sudoloop|--devel|\
+            -*)                 ;;              # other flags, ignore
+            *)                  pkg_args+=("$arg") ;;  # bare word = package name
+        esac
+    done
+
+    # Bare package names with no explicit operation = implicit -S in paru
+    if [[ ${#pkg_args[@]} -gt 0 && $has_sync -eq 0 ]]; then
+        has_sync=1
+    fi
+
+    [[ $has_sync -eq 0 ]] && return 0
+
+    # ── Specific packages requested ─────────────────────────────────────────
+    for pkg in "${pkg_args[@]}"; do
+        if ! is_official "$pkg"; then
+            _targets+=("$pkg")
+        fi
+    done
+
+    # ── Upgrade operation with no specific packages ─────────────────────────
+    # Find which currently-installed AUR packages have updates pending.
+    if [[ $has_upgrade -eq 1 && ${#pkg_args[@]} -eq 0 ]]; then
+        _log "Upgrade mode — identifying AUR packages with pending updates..."
+
+        # Foreign packages = everything installed from outside official repos
+        local foreign_pkgs
+        foreign_pkgs=$(pacman -Qm 2>/dev/null | awk '{print $1}' || true)
+
+        # Packages paru reports as upgradeable
+        local upgradeable
+        upgradeable=$("$REAL_PARU" -Qu 2>/dev/null | awk '{print $1}' || true)
+
+        # Intersection: AUR packages that are also upgradeable
+        local pkg
+        while IFS= read -r pkg; do
+            [[ -z "$pkg" ]] && continue
+            if echo "$upgradeable" | grep -qxF "$pkg"; then
+                _targets+=("$pkg")
+            fi
+        done <<< "$foreign_pkgs"
+
+        if [[ ${#_targets[@]} -eq 0 ]]; then
+            _log "No AUR packages have pending updates."
+        fi
+    fi
+}
+
+# ── Main ──────────────────────────────────────────────────────────────────────
+
+# Hands off to the real paru — or, under --dry-run, prints the command that
+# would run and exits without touching the system. Replaces every exec point so
+# the wrapper's scan/decision logic can be exercised in tests.
+run_paru() {
+    if [[ $DRY_RUN -eq 1 ]]; then
+        _log "${BOLD}DRY RUN${NC} — would exec: ${REAL_PARU}${*:+ $*}"
+        exit 0
+    fi
+    exec "$REAL_PARU" "$@"
+}
+
+main() {
+    # Consume our own --dry-run flag before parsing; it is not a paru flag and
+    # must never be forwarded to paru.
+    local -a passthru=()
+    local arg
+    for arg in "$@"; do
+        if [[ "$arg" == "--dry-run" ]]; then
+            DRY_RUN=1
+        else
+            passthru+=("$arg")
+        fi
+    done
+    set -- "${passthru[@]}"
+
+    # No arguments: pass straight through
+    [[ $# -eq 0 ]] && run_paru
+
+    # Collect AUR packages that need scanning
+    declare -a targets=()
+    collect_aur_targets targets "$@"
+
+    # Nothing AUR to scan: transparent pass-through (e.g. pacman-only install)
+    if [[ ${#targets[@]} -eq 0 ]]; then
+        run_paru "$@"
+    fi
+
+    # Remove duplicates while preserving order
+    local deduped=()
+    declare -A _seen=()
+    for pkg in "${targets[@]}"; do
+        if [[ ! -v _seen["$pkg"] ]]; then
+            deduped+=("$pkg")
+            _seen["$pkg"]=1
+        fi
+    done
+    targets=("${deduped[@]}")
+
+    echo "" >&2
+    echo -e "${BOLD}╔══════════════════════════════════════════╗${NC}" >&2
+    echo -e "${BOLD}║   paru-safe: AUR Security Pre-Scan       ║${NC}" >&2
+    echo -e "${BOLD}╚══════════════════════════════════════════╝${NC}" >&2
+    echo -e "${DIM}Scanning ${#targets[@]} AUR package(s): ${targets[*]}${NC}" >&2
+    echo -e "${DIM}IOC list: ${#KNOWN_BAD_PKGS[@]} known-bad packages, ${#SUSPICIOUS_PATTERNS[@]} patterns${NC}" >&2
+    echo "" >&2
+
+    local any_flagged=0
+    for pkg in "${targets[@]}"; do
+        if ! scan_package "$pkg" 0; then
+            any_flagged=1
+        fi
+        echo "" >&2
+    done
+
+    # ── Summary ─────────────────────────────────────────────────────────────
+    echo -e "${BOLD}── Summary ──────────────────────────────────────${NC}" >&2
+    if [[ ${#_clean[@]} -gt 0 ]]; then
+        echo -e "${GREEN}  Clean   :${NC} ${_clean[*]}" >&2
+    fi
+    if [[ ${#_flagged[@]} -gt 0 ]]; then
+        echo -e "${RED}  Flagged :${NC} ${_flagged[*]}" >&2
+    fi
+    echo "" >&2
+
+    # ── Decision ─────────────────────────────────────────────────────────────
+    if [[ $any_flagged -eq 1 ]]; then
+        echo -e "${RED}${BOLD}  SCAN FAILED.${NC}" >&2
+        echo -e "${YELLOW}  One or more packages triggered security checks.${NC}" >&2
+        echo -e "${YELLOW}  Review the flagged output above before deciding.${NC}" >&2
+        echo "" >&2
+        # Dry-run is non-interactive by contract: report and exit without
+        # prompting on /dev/tty (which would hang or error in CI/pipes).
+        if [[ $DRY_RUN -eq 1 ]]; then
+            _log "${BOLD}DRY RUN${NC} — packages flagged; paru would NOT be called without confirmation."
+            exit 1
+        fi
+        echo -ne "${YELLOW}  Proceed anyway? (NOT recommended) [y/N]: ${NC}" >&2
+        read -r response </dev/tty
+        if [[ ! "${response:-n}" =~ ^[Yy]$ ]]; then
+            echo -e "${RED}  Aborted. paru was not called.${NC}" >&2
+            exit 1
+        fi
+        echo -e "${YELLOW}  Proceeding at your own risk...${NC}" >&2
+        echo "" >&2
+    else
+        echo -e "${GREEN}${BOLD}  All packages clean. Handing off to paru.${NC}" >&2
+        echo "" >&2
+    fi
+
+    run_paru "$@"
+}
+
+main "$@"
