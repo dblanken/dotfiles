@@ -394,13 +394,13 @@ collect_aur_targets() {
 
     for arg in "${args[@]}"; do
         case "$arg" in
-            -S|--sync)          has_sync=1 ;;
-            -Sy)                has_sync=1 ;;
-            -Su|--sysupgrade)   has_sync=1; has_upgrade=1 ;;
-            -Syu|-Syyu|-Syuu)   has_sync=1; has_upgrade=1 ;;
-            -u)                 has_sync=1; has_upgrade=1 ;;  # split form: paru -S -u
+            # Any -S token containing 'u' is a sysupgrade (-Su, -Syu, -Sua,
+            # -Syua, …). Non-install sync sub-ops (-Ss/-Si/-Sp/-Sw/…) were
+            # already passed through above, so a 'u' here always means upgrade.
+            -S*u*)              has_sync=1; has_upgrade=1 ;;
+            --sysupgrade|-u)    has_sync=1; has_upgrade=1 ;;  # long form / split: paru -S -u
             -y)                 has_sync=1 ;;                 # split form: paru -S -y
-            -S?*)               has_sync=1 ;;   # e.g. -Sv, -Sd, etc.
+            -S|--sync|-S?*)     has_sync=1 ;;   # sync, no upgrade: -S, -Sy, -Sv, …
             --needed|--noconfirm|--noprogressbar|\
             --ask|--asdeps|--asexplicit|\
             --overwrite|--noredownload|--redownload|\
