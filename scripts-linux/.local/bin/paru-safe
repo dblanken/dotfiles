@@ -30,6 +30,7 @@ set -uo pipefail
 REAL_PARU="${PARU_SAFE_BIN:-/usr/bin/paru}"
 MAX_DEPTH="${PARU_SAFE_MAX_DEPTH:-2}"
 AUR_CGIT="https://aur.archlinux.org/cgit/aur.git/plain"
+AUR_RPC="https://aur.archlinux.org/rpc/v5"
 DRY_RUN=0   # set to 1 by the --dry-run flag: scan and report, but skip the paru handoff
 
 # ── Colours ───────────────────────────────────────────────────────────────────
@@ -94,6 +95,7 @@ _dim()   { echo -e "${DIM}$*${NC}" >&2; }
 
 declare -A _cache=()          # pkg_name → 0 (clean) | 1 (flagged)
 declare -A _official_cache=() # pkg_name → 0 (official) | 1 (not official)
+declare -A _pkgbase_cache=()  # pkg_name → pkgbase (cgit serves files by pkgbase)
 declare -a _flagged=()
 declare -a _clean=()
 
@@ -112,11 +114,39 @@ is_official() {
     return $rc
 }
 
-# Fetches a file from the AUR cgit for a given package.
+# Fetches a file from the AUR cgit for a given package base.
 # Prints content to stdout; empty on failure (tolerates network errors).
 fetch_aur_file() {
-    local pkg="$1" file="$2"
-    curl -sf --max-time 15 "${AUR_CGIT}/${file}?h=${pkg}" 2>/dev/null || true
+    local base="$1" file="$2"
+    curl -sf --max-time 15 "${AUR_CGIT}/${file}?h=${base}" 2>/dev/null || true
+}
+
+# Resolves the AUR pkgbase for a package name and prints it.
+#
+# cgit serves PKGBUILD/.install/.hook files keyed on the *pkgbase*, which differs
+# from the pkgname for split packages (e.g. a -git, multi-output, or lib32-*
+# package). Fetching by pkgname would 404 and the package would be silently
+# skipped — a scan bypass. The AUR RPC `info` endpoint returns PackageBase.
+#
+# Falls back to the name itself when the lookup yields nothing or an unexpected
+# value (RPC down, package not in AUR, etc.); the subsequent cgit fetch then
+# behaves exactly as before. Result is cached per name.
+resolve_pkgbase() {
+    local pkg="$1"
+    if [[ -v _pkgbase_cache["$pkg"] ]]; then
+        printf '%s\n' "${_pkgbase_cache[$pkg]}"
+        return 0
+    fi
+    local base
+    base=$(curl -sf --max-time 15 -g "${AUR_RPC}/info?arg[]=${pkg}" 2>/dev/null \
+        | grep -oP '"PackageBase"\s*:\s*"\K[^"]+' | head -1 || true)
+    # Validate before the value is ever placed into a cgit URL: a pkgbase is a
+    # plain package name, never a path/query/scheme. Anything else → use pkg.
+    if [[ ! "$base" =~ ^[A-Za-z0-9@._+-]+$ ]]; then
+        base="$pkg"
+    fi
+    _pkgbase_cache["$pkg"]="$base"
+    printf '%s\n' "$base"
 }
 
 # Parses a bash array variable from PKGBUILD text without sourcing the file.
@@ -213,9 +243,13 @@ scan_package() {
 
     local flagged=0
 
+    # Resolve the pkgbase: cgit serves files by pkgbase, not pkgname.
+    local base
+    base=$(resolve_pkgbase "$pkg")
+
     # ── Fetch PKGBUILD ──────────────────────────────────────────────────────
     local pkgbuild
-    pkgbuild=$(fetch_aur_file "$pkg" "PKGBUILD")
+    pkgbuild=$(fetch_aur_file "$base" "PKGBUILD")
 
     if [[ -z "$pkgbuild" ]]; then
         _warn "${pkg}: could not fetch PKGBUILD (not in AUR, or network error) — skipping"
@@ -239,7 +273,7 @@ scan_package() {
     if [[ -n "$install_ref" ]]; then
         if [[ "$install_ref" =~ ^[A-Za-z0-9._+-]+$ ]]; then
             local install_content
-            install_content=$(fetch_aur_file "$pkg" "$install_ref")
+            install_content=$(fetch_aur_file "$base" "$install_ref")
             if [[ -n "$install_content" ]]; then
                 _log "${indent}  Scanning ${install_ref}..."
                 if ! echo "$install_content" | scan_content "$pkg" "$install_ref"; then
@@ -260,7 +294,7 @@ scan_package() {
     while IFS= read -r hook_file; do
         [[ -z "$hook_file" ]] && continue
         local hook_content
-        hook_content=$(fetch_aur_file "$pkg" "$hook_file")
+        hook_content=$(fetch_aur_file "$base" "$hook_file")
         [[ -z "$hook_content" ]] && continue
         _log "${indent}  Scanning ${hook_file}..."
         if ! echo "$hook_content" | scan_content "$pkg" "$hook_file"; then
