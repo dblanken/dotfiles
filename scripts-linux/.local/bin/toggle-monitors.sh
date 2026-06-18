@@ -28,7 +28,7 @@ if echo "$OUTPUTS" | grep -A2 "HDMI-A-1" | grep -q "enabled"; then
     notify-send "Monitors" "Secondary monitors disabled — FreeSync ready"
 else
     # Enable HDMI-A-1 first with explicit position so it stays independent (not mirrored)
-    kscreen-doctor output.HDMI-A-1.enable output.HDMI-A-1.position.-1920,0
+    kscreen-doctor output.HDMI-A-1.enable output.HDMI-A-1.position.0,0
     # Then enable DP-2 separately to avoid replication confusion (see arch/freesync-monitor-toggle.md)
     [ "$HAS_DP2" -gt 0 ] && kscreen-doctor output.DP-2.enable
     notify-send "Monitors" "Secondary monitors enabled"
