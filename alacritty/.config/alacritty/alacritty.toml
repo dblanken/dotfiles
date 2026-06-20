@@ -45,10 +45,10 @@ binding = { key = "o", mods = "Control|Shift" }
 regex = '''(?:~?/|\.\.?/|[a-zA-Z0-9_.-]+/)[^\s"'<>{}|\\^`\[\](]*\.md'''
 
 [[hints.enabled]]
-command = { program = "sh", args = ["-c", "open \"$(echo \"$1\" | sed 's|~|'\"$HOME\"'|')\"", "--"] }
+command = { program = "sh", args = ["-c", "$HOME/.local/bin/open-url \"$(echo \"$1\" | sed 's|~|'\"$HOME\"'|')\"", "--"] }
 hyperlinks = false
 post_processing = true
 persist = false
 mouse = { enabled = true, mods = "None" }
 binding = { key = "F", mods = "Control|Shift" }
-regex = '''(?:https?://|ftp://)[^\s"'<>{}|\\^`\[\]]*|(~|/)[^\s"'<>{}|\\^`\[\](]*'''
+regex = '''(?:https?://|ftp://)[^\s"'<>{}|\\^`\[\]]*|(~|/)[^\s"'<>{}|\\^`\[\](]*|(?-u:\b)[a-zA-Z0-9][a-zA-Z0-9.-]*\.(?:com|org|net|us|io|dev|edu|gov|info|biz|me)(?:/[^\s"'<>{}|\\^`\[\](]*)?'''

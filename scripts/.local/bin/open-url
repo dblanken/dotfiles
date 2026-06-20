@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Cross-platform URL/file opener for non-interactive contexts (e.g. Alacritty hints).
+# macOS: /usr/bin/open is a real binary. Linux: only an interactive zsh alias, so
+# we call xdg-open directly here.
+
+# Configurable TLD list for bare-URL detection. Bare strings (no protocol, not
+# an absolute/home path) whose domain TLD matches an entry here get https://
+# prepended. Leave empty ("") to fall back to the conservative check: any bare
+# string whose domain portion contains a dot is treated as a URL.
+KNOWN_TLDS=".com .org .net .us"
+
+# Returns 0 if the argument should have https:// prepended.
+looks_like_url() {
+    local domain="${1%%/*}"   # strip path component: nexusmods.com/foo -> nexusmods.com
+    if [ -n "$KNOWN_TLDS" ]; then
+        local tld=".${domain##*.}"   # extract TLD: nexusmods.com -> .com
+        local t
+        for t in $KNOWN_TLDS; do
+            [ "$tld" = "$t" ] && return 0
+        done
+        return 1
+    else
+        # Conservative fallback: any dot in the domain portion qualifies
+        case "$domain" in
+            *.*) return 0 ;;
+            *)   return 1 ;;
+        esac
+    fi
+}
+
+arg="$1"
+case "$arg" in
+    http://*|https://*|ftp://*) ;;          # already has a protocol
+    /*|~*)                       ;;          # absolute or home-relative path
+    *) looks_like_url "$arg" && arg="https://$arg" ;;
+esac
+
+case "$(uname -s)" in
+    Darwin) exec /usr/bin/open "$arg" ;;
+    Linux)  exec xdg-open "$arg" 2>/dev/null ;;
+    *)      echo "open-url: unsupported OS: $(uname -s)" >&2; exit 1 ;;
+esac
