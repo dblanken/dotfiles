@@ -5,7 +5,7 @@
 	autocrlf = input
 	excludesfile = ~/.gitignore
 [push]
-	default = upstream
+	default = simple
 	autoSetupRemote = true
 [merge]
 	ff = only
