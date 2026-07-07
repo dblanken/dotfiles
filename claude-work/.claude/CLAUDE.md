@@ -41,6 +41,15 @@ Standards for specific file types load only when Claude works with matching file
 - `python.md` — Python (`*.py`)
 - `bash.md` — shell scripts (`*.{sh,bash,zsh}`)
 - `accessibility.md` — WCAG 2.1 A/AA for UI files (`*.tsx`, `*.scss`, `*.twig`, …)
+- `twig.md` — Twig templates (`*.twig`)
+
+## Model-Specific Supplements
+A SessionStart hook (`~/.claude/hooks/model-context.sh`) injects
+`~/.claude/model-notes/<family>.md` matching the active model (currently
+`sonnet.md` and `opus.md`). These are short drift-correction notes for each
+model; the shared operating instructions live in `fable.md` below and load for
+every model. To tune a model's behavior, edit its note file; to cover a new
+model family, drop a matching file in `model-notes/`.
 
 ## Git Workflow
 - **Branch Naming**: adapt to project conventions.
@@ -81,8 +90,9 @@ wanted (e.g., reviewing someone else's work).
 - Maintain comprehensive README.md files.
 
 ## Exploration & Research
-- Prefer a subagent for multi-file exploration or research (roughly 3+ files); return summarized insights, not raw file dumps. Use the Haiku model for menial sweeps.
+- Prefer a subagent for multi-file exploration or research (roughly 3+ files); return summarized insights, not raw file dumps. Use the `haiku-sweep` agent for menial sweeps.
 - Inline work is fine for small, known-scope lookups.
+- Before declaring a large task done, consider a `fresh-eyes-reviewer` pass: it verifies outcomes with no knowledge of the implementation narrative.
 
 ## Plans
 - Superpowers plans go to `~/Documents/Claude/plans/` (not the default `docs/superpowers/plans/` within each project).
@@ -96,3 +106,11 @@ found for a platform/tool limitation, add a one-line bullet here. Keep each unde
 words. No explanations. Only add things that will save time in future sessions.
 
 - `~/.claude/CLAUDE.md` and `rules/` are stow symlinks to `~/.dotfiles/claude-work`; edit the real target.
+- Read a subagent's deliverable before trusting its "done"; status tags aren't proof.
+- Lint green per-file ≠ green in CI; run the project's full lint command before claiming clean.
+- After editing a Docker Compose env_file, recreate the container (`up -d`); `exec` keeps stale env.
+- `git ls-tree`/`cat-file` can exit 0 on a non-matching path; don't infer existence from exit code.
+
+## Other instructions
+
+@~/.claude/fable.md
