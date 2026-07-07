@@ -96,3 +96,11 @@ found for a platform/tool limitation, add a one-line bullet here. Keep each unde
 words. No explanations. Only add things that will save time in future sessions.
 
 - `~/.claude/CLAUDE.md` and `rules/` are stow symlinks to `~/.dotfiles/claude-work`; edit the real target.
+- Read a subagent's deliverable before trusting its "done"; status tags aren't proof.
+- Lint green per-file ≠ green in CI; run the project's full lint command before claiming clean.
+- After editing a Docker Compose env_file, recreate the container (`up -d`); `exec` keeps stale env.
+- `git ls-tree`/`cat-file` can exit 0 on a non-matching path; don't infer existence from exit code.
+
+## Other instructions
+
+@~/.claude/fable.md
