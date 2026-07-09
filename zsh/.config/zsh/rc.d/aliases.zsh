@@ -16,6 +16,14 @@ alias tmuxconf="v ~/.tmux.conf"
 
 # Claude Code CLI (if installed)
 [ -f "$HOME/.claude/local/claude" ] && alias claude="$HOME/.claude/local/claude"
+# macOS: prevent idle sleep while Claude Code runs (caffeinate is macOS-only)
+if is_macos; then
+  if [ -f "$HOME/.claude/local/claude" ]; then
+    alias claude="caffeinate -i $HOME/.claude/local/claude"
+  else
+    alias claude="caffeinate -i claude"
+  fi
+fi
 alias claude-personal='CLAUDE_CONFIG_DIR=~/.claude-personal claude'
 alias claude-portkey='CLAUDE_CONFIG_DIR=~/.claude-portkey claude'
 alias claude-desktop-personal='open -n -a "Claude" --args --user-data-dir="$HOME/Library/Application Support/Claude-Personal"'
