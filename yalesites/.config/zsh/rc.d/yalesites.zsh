@@ -133,6 +133,9 @@ gyst() {
   fi
 
   npm run local:git-checkout -- -b "$branch"
+
+  # Sub-repo dirs now exist; link their canonical CLAUDE.md context files.
+  ys-link-claude-md
 }
 
 # get the site id of a site
@@ -289,10 +292,12 @@ ys-reset-db() {
 # Run from a yalesites-project checkout root; wired into local-setup.
 ys-link-claude-md() {
   local src="$HOME/.claude/yalesites/claude-md"
-  local atomic="web/themes/contrib/atomic"
+  local root
+  root=$(git rev-parse --show-toplevel 2>/dev/null) || { echo "Not in a git repo."; return 1; }
+  local atomic="$root/web/themes/contrib/atomic"
 
   if [ ! -d "$atomic" ]; then
-    echo "Run this from a yalesites-project checkout root (no $atomic)."
+    echo "Run this from a yalesites-project checkout (no $atomic)."
     return 1
   fi
 
