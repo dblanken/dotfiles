@@ -27,6 +27,8 @@ fi
 alias claude-personal='CLAUDE_CONFIG_DIR=~/.claude-personal claude'
 alias claude-portkey='CLAUDE_CONFIG_DIR=~/.claude-portkey claude'
 alias claude-desktop-personal='open -n -a "Claude" --args --user-data-dir="$HOME/Library/Application Support/Claude-Personal"'
+# For an A/B test of Claude Code without any surrounding support
+alias claude-ab='CLAUDE_CONFIG_DIR=~/.claude-ab claude'
 
 # Git
 alias g=git
