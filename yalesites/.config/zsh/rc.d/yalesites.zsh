@@ -222,7 +222,8 @@ dbandfiles() {
 dbget() {
   local multidev="${1:-dev}"
   l pull --code=none --database="$multidev" --files=none
-  l drush config:set cas.settings server.cert NULL -y
+  # NOTE: no CAS cert override here -- confim's config:import reverts it anyway
+  # (cas.settings is tracked in config/sync). Run fixcas after confim if needed.
   l drush config:set ai_engine_embedding.settings enable 0 -y
   lcr
 }
