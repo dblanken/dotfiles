@@ -303,6 +303,7 @@ ys-link-claude-md() {
 
   local linked=0
   for pair in \
+    "yalesites-project.md:." \
     "atomic.md:$atomic" \
     "component-library-twig.md:$atomic/_yale-packages/component-library-twig" \
     "tokens.md:$atomic/_yale-packages/tokens"; do
