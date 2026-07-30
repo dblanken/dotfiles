@@ -110,6 +110,9 @@ words. No explanations. Only add things that will save time in future sessions.
 - Lint green per-file ≠ green in CI; run the project's full lint command before claiming clean.
 - After editing a Docker Compose env_file, recreate the container (`up -d`); `exec` keeps stale env.
 - `git ls-tree`/`cat-file` can exit 0 on a non-matching path; don't infer existence from exit code.
+- Never pipe a long phpunit run through `tail`; it buffers all output until exit.
+- Killing a `lando ssh` task leaves the container process running; kill it inside too.
+- `cd` inside a Bash call persists; use `git -C <path>` so checkouts hit the right repo.
 
 ## Other instructions
 
