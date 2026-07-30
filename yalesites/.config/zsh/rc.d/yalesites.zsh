@@ -460,3 +460,129 @@ disable-ai-embedding() {
   done
 }
 
+
+# Clone any Pantheon environment into a NEW multidev via terminus.
+#
+# terminus multidev:create copies the database AND files from the source
+# environment as part of creating the target, so this is one API call, not a
+# create followed by a separate content clone.
+#
+# Refuses to touch a multidev that already exists, so re-running it cannot
+# overwrite anything.
+#
+# Usage:
+#   clone-multidev <site>.<env> <new-multidev> [--yes]
+#   clone-multidev <env> <new-multidev>          # site read from ./.lando.local.yml
+#
+# Examples:
+#   clone-multidev ys-sustainability-yale-edu.development tagmgmt
+#   clone-multidev development tagmgmt           # from inside the checkout
+#   clone-multidev some-site.live scratch --yes  # skip the confirmation
+clone-multidev() {
+  local source="$1" target="$2" assume_yes=0
+  local site env envs reply
+
+  if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    echo "Usage: clone-multidev <site>.<env> <new-multidev> [--yes]"
+    echo "       clone-multidev <env> <new-multidev>   # site from ./.lando.local.yml"
+    echo ""
+    echo "Creates <new-multidev> as a clone of <env>, copying its database and files."
+    echo "Refuses if <new-multidev> already exists."
+    echo ""
+    echo "Examples:"
+    echo "  clone-multidev ys-sustainability-yale-edu.development tagmgmt"
+    echo "  clone-multidev development tagmgmt"
+    echo "  clone-multidev some-site.live scratch --yes"
+    return 0
+  fi
+
+  if [[ -z "$source" || -z "$target" ]]; then
+    echo "Usage: clone-multidev <site>.<env> <new-multidev> [--yes]" >&2
+    return 1
+  fi
+
+  [[ "$3" == "--yes" || "$3" == "-y" ]] && assume_yes=1
+
+  # Accept either site.env, or a bare env with the site read from the checkout.
+  if [[ "$source" == *.* ]]; then
+    site="${source%%.*}"
+    env="${source#*.}"
+  else
+    env="$source"
+    if [[ ! -f .lando.local.yml ]]; then
+      echo "No site given and no .lando.local.yml in $PWD." >&2
+      echo "Either cd into a checkout, or use: clone-multidev <site>.<env> <new-multidev>" >&2
+      return 1
+    fi
+    site=$(awk '/^[[:space:]]*site:/{print $2; exit}' .lando.local.yml)
+    if [[ -z "$site" ]]; then
+      echo "Could not read 'site:' from $PWD/.lando.local.yml." >&2
+      return 1
+    fi
+  fi
+
+  # Pantheon multidev names: start with a letter, lowercase alphanumeric and
+  # hyphens, 11 characters maximum.
+  if [[ ! "$target" =~ ^[a-z][a-z0-9-]*$ ]]; then
+    echo "Invalid multidev name '$target'." >&2
+    echo "Must start with a letter and contain only lowercase letters, digits and hyphens." >&2
+    return 1
+  fi
+  if (( ${#target} > 11 )); then
+    echo "'$target' is ${#target} characters; Pantheon allows at most 11." >&2
+    return 1
+  fi
+
+  # One API call for the environment list, reused for both checks below. This
+  # also surfaces an expired terminus session before anything is created.
+  if ! envs=$(terminus env:list "$site" --format=list 2>/dev/null); then
+    echo "Cannot list environments for '$site'." >&2
+    echo "If your session expired, run: terminus auth:login" >&2
+    return 1
+  fi
+
+  if ! print -r -- "$envs" | grep -qx "$env"; then
+    echo "Source environment '$env' does not exist on $site." >&2
+    echo "Available: $(print -r -- "$envs" | tr '\n' ' ')" >&2
+    return 1
+  fi
+
+  if print -r -- "$envs" | grep -qx "$target"; then
+    echo "'$target' already exists on $site - refusing to overwrite it." >&2
+    echo "" >&2
+    echo "To refresh its content from $env instead:" >&2
+    echo "  terminus env:clone-content $site.$env $target --cc --yes" >&2
+    echo "To delete it and start over:" >&2
+    echo "  terminus multidev:delete $site.$target --delete-branch --yes" >&2
+    return 1
+  fi
+
+  if (( ! assume_yes )); then
+    echo "Clone $site.$env -> new multidev '$target' (database and files)."
+    read -r "reply?Type '$target' to continue: "
+    if [[ "$reply" != "$target" ]]; then
+      echo "Aborted. Nothing was created."
+      return 1
+    fi
+  fi
+
+  echo "[$site.$target] Creating from '$env' (clones database and files)..."
+  terminus multidev:create "$site.$env" "$target" || return 1
+
+  terminus env:wake "$site.$target" >/dev/null 2>&1
+  terminus env:clear-cache "$site.$target" >/dev/null 2>&1
+
+  # Compare node counts so a silently empty clone does not pass as a success.
+  local src_nodes tgt_nodes
+  src_nodes=$(terminus drush "$site.$env" -- sqlq "SELECT COUNT(*) FROM node" 2>/dev/null | tr -dc '0-9')
+  tgt_nodes=$(terminus drush "$site.$target" -- sqlq "SELECT COUNT(*) FROM node" 2>/dev/null | tr -dc '0-9')
+  echo "[$site.$target] nodes: $env=${src_nodes:-?} $target=${tgt_nodes:-?}"
+  if [[ -n "$src_nodes" && "$src_nodes" == "$tgt_nodes" ]]; then
+    echo "[$site.$target] Clone verified."
+  else
+    echo "[$site.$target] Counts differ or could not be read - check before trusting it." >&2
+  fi
+
+  echo "[$site.$target] https://$target-$site.pantheonsite.io"
+  echo "[$site.$target] Delete with: terminus multidev:delete $site.$target --delete-branch --yes"
+}
