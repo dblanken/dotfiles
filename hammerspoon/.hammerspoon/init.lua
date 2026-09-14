@@ -564,11 +564,16 @@ hs.hotkey.bind({ "ctrl", "alt", "cmd" }, "f5", function()
 	hs.toggleConsole()
 end)
 
--- Uncomment to learn the bundle id of an active app
--- hs.hotkey.bind({ "cmd", "shift" }, "w", function()
--- 	local current_application = hs.application.frontmostApplication()
--- 	debugMsg(current_application:bundleID())
--- end)
+-- Focus the app you want the bundle ID of, then press cmd+shift+w.
+-- Shows the bundle ID on screen and logs it to the Hammerspoon Console
+-- (menu bar icon > Console).
+hs.hotkey.bind({ "cmd", "shift" }, "w", function()
+	local current_application = hs.application.frontmostApplication()
+	local name = current_application:name()
+	local bundleID = current_application:bundleID()
+	debugMsg(name .. ": " .. bundleID)
+	hs.alert(name .. "\n" .. bundleID)
+end)
 
 -- Maps the numberOpenings to CMD-# where # is a number 1-9
 -- for easy switching
