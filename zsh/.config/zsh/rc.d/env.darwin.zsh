@@ -70,6 +70,17 @@ if command -v dry &> /dev/null; then
 fi
 
 # =============================================================================
+# App Nap exemptions
+# =============================================================================
+
+# Amazon Music Web (Safari "Add to Dock" web-app): without this, App Nap
+# throttles the background webview and playback silently stops after a
+# while. Bundle ID is the auto-generated UUID for this one web-app instance;
+# re-check it (osascript -e 'id of app "Amazon Music Web"') if the app is
+# ever recreated.
+defaults write com.apple.Safari.WebApp.E09EE667-849A-485B-92D4-461511021098 NSAppSleepDisabled -bool YES
+
+# =============================================================================
 # macOS-specific aliases
 # =============================================================================
 
