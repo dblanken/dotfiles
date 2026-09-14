@@ -1,0 +1,162 @@
+#!/bin/bash
+#
+# Print the list of Pantheon sites used to cut a YaleSites release candidate.
+#
+# The list is not in the repo -- it is the GitHub Actions repository variable
+# RELEASE_SITES on yalesites-org/yalesites-project, so it can be changed without
+# a commit. It is a newline-separated list of "site.env" sources.
+#
+# What the release workflow does with it (.ci/github/deploy_release_sites, run by
+# the "Release pull request" workflow): for each entry it pushes the release
+# branch to that Pantheon site and creates a multidev named after the branch,
+# cloned from the listed environment -- so the environment actually under test is
+# "<site>.<RELEASE_BRANCH>", not the "site.env" in the variable. yalesites-platform
+# is the one exception: its multidev is created --no-db --no-files and then gets a
+# fresh `drush si` plus starterkit content.
+#
+# That distinction is why --multidev exists. Use the default output to see how the
+# list is configured; use --multidev to get targets you can act on.
+#
+# Reads two repository variables, both public to anyone with repo read access
+# (they are variables, not secrets):
+#   RELEASE_SITES   the site.env list
+#   RELEASE_BRANCH  the current release branch, e.g. v2260
+#
+# Usage:
+#   ys-release-sites [options]
+#
+# Options:
+#   -m, --multidev      Print the RC environments under test, "<site>.<branch>",
+#                       instead of the configured "site.env" sources.
+#   -s, --sites-only    Print bare Pantheon site machine names, no environment.
+#   -b, --branch NAME   Release branch for --multidev. Defaults to the repo's
+#                       RELEASE_BRANCH variable.
+#   -j, --json          JSON array of {site, source_env, rc_env} objects.
+#   -r, --repo O/R      Repository holding the variables.
+#                       Default yalesites-org/yalesites-project.
+#   -V, --var NAME      Variable holding the list. Default RELEASE_SITES.
+#   -q, --quiet         Suppress the informational header on stderr.
+#   -h, --help          Show this help.
+#
+# Only the list goes to stdout; the header goes to stderr, so this pipes cleanly.
+#
+# Examples:
+#   ys-release-sites                     # the list as configured
+#   ys-release-sites --multidev          # the v2260 environments under test
+#   ys-release-sites --sites-only        # just site names
+#
+#   # Feed the RC environments straight into another operator script:
+#   ys-release-sites -m -q | beacon-bump-top-k -f - --dry-run
+
+set -uo pipefail
+
+REPO='yalesites-org/yalesites-project'
+LIST_VAR='RELEASE_SITES'
+BRANCH_VAR='RELEASE_BRANCH'
+BRANCH=''
+MODE='source'
+JSON=0
+QUIET=0
+
+# Prints the header comment block (everything from line 3 up to the first line
+# that is not a comment) as the help text, so the two never drift apart.
+usage() {
+  awk 'NR > 2 { if ($0 !~ /^#/) exit; sub(/^# ?/, ""); print }' "${BASH_SOURCE[0]}"
+}
+
+die() {
+  echo "error: $*" >&2
+  exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -m|--multidev)   MODE='multidev'; shift ;;
+    -s|--sites-only) MODE='site';     shift ;;
+    -j|--json)       JSON=1;          shift ;;
+    -q|--quiet)      QUIET=1;         shift ;;
+    -b|--branch)
+      [[ $# -ge 2 ]] || die "$1 requires a branch name"
+      BRANCH="$2"; shift 2 ;;
+    -r|--repo)
+      [[ $# -ge 2 ]] || die "$1 requires an owner/repo"
+      REPO="$2"; shift 2 ;;
+    -V|--var)
+      [[ $# -ge 2 ]] || die "$1 requires a variable name"
+      LIST_VAR="$2"; shift 2 ;;
+    -h|--help) usage; exit 0 ;;
+    *) die "unknown option: $1" ;;
+  esac
+done
+
+command -v gh >/dev/null 2>&1 || die "gh not found on PATH"
+gh auth status >/dev/null 2>&1 || die "gh is not authenticated; run: gh auth login"
+
+# Reads an Actions repository variable's value. Fails loudly rather than
+# returning empty, so a renamed or missing variable is never mistaken for an
+# empty site list.
+read_var() {
+  local name="$1" out
+  if ! out="$(gh api "repos/$REPO/actions/variables/$name" --jq '.value' 2>&1)"; then
+    die "could not read variable $name from $REPO: $out"
+  fi
+  printf '%s' "$out"
+}
+
+raw="$(read_var "$LIST_VAR")"
+
+# The workflow strips carriage returns before splitting, so do the same: the
+# variable is edited through a web textarea and can pick up CRLF.
+entries=()
+while IFS= read -r line; do
+  line="${line//$'\r'/}"
+  line="${line//[[:space:]]/}"
+  [[ -n "$line" ]] && entries+=("$line")
+done <<< "$raw"
+
+[[ ${#entries[@]} -gt 0 ]] || die "$LIST_VAR on $REPO is empty"
+
+# The release branch is only needed for the environments actually under test.
+if [[ "$MODE" == 'multidev' || $JSON -eq 1 ]]; then
+  if [[ -z "$BRANCH" ]]; then
+    BRANCH="$(read_var "$BRANCH_VAR")"
+    BRANCH="${BRANCH//[[:space:]]/}"
+    [[ -n "$BRANCH" ]] || die "$BRANCH_VAR on $REPO is empty; pass --branch explicitly"
+  fi
+fi
+
+if [[ $QUIET -eq 0 ]]; then
+  {
+    echo "$LIST_VAR on $REPO: ${#entries[@]} sites"
+    [[ -n "$BRANCH" ]] && echo "Release branch ($BRANCH_VAR): $BRANCH"
+    case "$MODE" in
+      source)   echo 'Showing the configured source environments each RC multidev is cloned from.' ;;
+      multidev) echo "Showing the RC environments under test (<site>.$BRANCH)." ;;
+      site)     echo 'Showing Pantheon site machine names only.' ;;
+    esac
+    echo
+  } >&2
+fi
+
+if [[ $JSON -eq 1 ]]; then
+  printf '%s\n' "${entries[@]}" | BRANCH="$BRANCH" python3 -c '
+import json, os, sys
+branch = os.environ["BRANCH"]
+out = []
+for line in sys.stdin.read().split():
+    site, _, env = line.partition(".")
+    out.append({"site": site, "source_env": env, "rc_env": f"{site}.{branch}"})
+json.dump(out, sys.stdout, indent=2)
+print()
+'
+  exit $?
+fi
+
+for entry in "${entries[@]}"; do
+  site="${entry%%.*}"
+  case "$MODE" in
+    source)   echo "$entry" ;;
+    site)     echo "$site" ;;
+    multidev) echo "$site.$BRANCH" ;;
+  esac
+done

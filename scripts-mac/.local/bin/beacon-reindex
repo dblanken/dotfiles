@@ -1,0 +1,324 @@
+#!/bin/bash
+#
+# Queue a full Beacon Search API reindex across a list of Pantheon
+# environments (typically multidevs) -- but only on sites where Beacon is
+# actually turned on.
+#
+# ys_beacon ships its own drush commands (ys_beacon:repin, which repoints and
+# reindexes as a side effect of moving to a new Azure service, and
+# ys_beacon:extract-pdf-text) but neither is a plain "reindex in place"
+# command. Search API already has one, though: `search-api:rebuild-tracker`
+# (alias sapi-rt) calls Index::rebuildTracker(), the exact call the "Re-index
+# all content" button on the Beacon settings form makes
+# (BeaconIndexingControlsTrait::reindexAll()). This script drives that same
+# command over terminus, per site. It does not also run
+# ys_beacon:extract-pdf-text, which that button sweeps in too -- chain that
+# script in separately if a backfill of un-extracted PDFs is also wanted.
+#
+# "Beacon turned on" is NOT "the ys_beacon module is installed" -- it is
+# installed on every site via the profile. Whether it is actually active for a
+# given site is decided by the same flags YsBeaconConfigOverrides folds
+# together at runtime (ys_beacon.settings):
+#   - platform_authorized  Platform admin has authorized Beacon for this site.
+#   - enable_chat          The site admin has turned the chat widget on.
+#   - azure_index_name     Non-empty once an index has actually been
+#                          provisioned for this site (BeaconIndexManager).
+# All three must hold, mirroring "$authorized = platform_authorized;
+# $enable_chat = enable_chat && $authorized" plus the index-name check in
+# YsBeaconConfigOverrides::loadOverrides(). A site missing any of these has its
+# Search API index disabled at runtime, so queuing a reindex there would be a
+# silent no-op -- this script skips it instead and reports why.
+#
+# A site with read_only set (search_api.index.<id>:read_only) borrows another
+# site's collection and never writes to it -- reindexAll() itself refuses to
+# queue anything there, so this script skips those too.
+#
+# Usage:
+#   beacon-reindex [options] [target ...]
+#
+# Options:
+#   -f, --file FILE   Read targets from FILE, one per line (# comments and
+#                     blank lines ignored). Use - for stdin.
+#   -s, --site SITE   Pantheon site for bare environment names.
+#   -n, --dry-run     Report what would be queued without writing anything.
+#       --now         Also process the queue immediately (search-api:index),
+#                     the same as clicking "Index now" right after "Re-index
+#                     all content". Without this, queued items are picked up
+#                     by the site's own cron on its normal schedule.
+#   -h, --help        Show this help.
+#
+# Targets are "site.env" (e.g. yalesites-platform.my-multidev) or a bare "env"
+# (e.g. my-multidev), which is resolved against the default site. With no
+# targets on the command line and no --file, the SITES list below is used.
+#
+# Examples:
+#   # Every RC environment under test, straight from ys-release-sites:
+#   ys-release-sites -m -q | beacon-reindex --dry-run
+#   ys-release-sites -m -q | beacon-reindex
+#
+#   # Explicit targets, processed immediately instead of waiting for cron:
+#   beacon-reindex --now my-multidev another-multidev
+
+set -uo pipefail
+
+DRY_RUN=0
+NOW=0
+TARGET_FILE=''
+
+# ---------------------------------------------------------------------------
+# Environments to process.
+#
+# Add one entry per line, as "site.env" or a bare "env". Anything passed on
+# the command line or via --file replaces this list.
+# ---------------------------------------------------------------------------
+SITES=(
+  # my-multidev
+  # yalesites-platform.another-multidev
+)
+
+# Default Pantheon site for bare environment names. When run from inside a
+# yalesites-project checkout, take it from that checkout's .lando.local.yml,
+# since the Pantheon site differs per checkout; otherwise fall back to the
+# platform site. --site overrides either way.
+DEFAULT_SITE='yalesites-platform'
+if [[ -f '.lando.local.yml' ]]; then
+  lando_site="$(awk '/^[[:space:]]+site:[[:space:]]/{print $2; exit}' '.lando.local.yml')"
+  [[ -n "$lando_site" ]] && DEFAULT_SITE="$lando_site"
+fi
+
+# Prints the header comment block (everything from line 3 up to the first line
+# that is not a comment) as the help text, so the two never drift apart.
+usage() {
+  awk 'NR > 2 { if ($0 !~ /^#/) exit; sub(/^# ?/, ""); print }' "${BASH_SOURCE[0]}"
+}
+
+die() {
+  echo "error: $*" >&2
+  exit 1
+}
+
+cli_targets=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -f|--file)
+      [[ $# -ge 2 ]] || die "$1 requires a file argument"
+      TARGET_FILE="$2"
+      shift 2
+      ;;
+    -s|--site)
+      [[ $# -ge 2 ]] || die "$1 requires a site argument"
+      DEFAULT_SITE="$2"
+      shift 2
+      ;;
+    -n|--dry-run)
+      DRY_RUN=1
+      shift
+      ;;
+    --now)
+      NOW=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    -*)
+      die "unknown option: $1"
+      ;;
+    *)
+      cli_targets+=("$1")
+      shift
+      ;;
+  esac
+done
+
+command -v terminus >/dev/null 2>&1 || die "terminus not found on PATH"
+terminus auth:whoami >/dev/null 2>&1 || die "terminus is not authenticated; run: terminus auth:login"
+
+# Piped input with no explicit --file is still targets: `ys-release-sites -m
+# -q | beacon-reindex` should just work rather than requiring `-f -` to say
+# the obvious. Checked with `-p` (stdin is actually a pipe), not `! -t 0`
+# (merely "not a tty") -- the latter is also true for cron's inherited
+# /dev/null stdin, which would wrongly swallow the SITES-list fallback for
+# non-interactive runs that pipe nothing in.
+if [[ ${#cli_targets[@]} -eq 0 && -z "$TARGET_FILE" && -p /dev/stdin ]]; then
+  TARGET_FILE='-'
+fi
+
+# Assemble the target list: command line wins, then --file (or piped stdin),
+# then the SITES list.
+targets=()
+if [[ ${#cli_targets[@]} -gt 0 ]]; then
+  targets=("${cli_targets[@]}")
+elif [[ -n "$TARGET_FILE" ]]; then
+  if [[ "$TARGET_FILE" == '-' ]]; then
+    file_input="$(cat)"
+  else
+    [[ -f "$TARGET_FILE" ]] || die "no such file: $TARGET_FILE"
+    file_input="$(cat "$TARGET_FILE")"
+  fi
+  while IFS= read -r line; do
+    line="${line%%#*}"
+    line="${line//[[:space:]]/}"
+    [[ -n "$line" ]] && targets+=("$line")
+  done <<< "$file_input"
+elif [[ ${#SITES[@]} -gt 0 ]]; then
+  targets=("${SITES[@]}")
+fi
+
+if [[ ${#targets[@]} -eq 0 ]]; then
+  die "no targets. Add entries to the SITES list in this script, pass them as arguments, or use --file."
+fi
+
+# Extracts a top-level field from a JSON object, whether its value is a quoted
+# string or a bare literal (true/false/null/number). Mirrors how
+# beacon-bump-top-k pulls a single value out of `drush config:get --format=json`.
+json_field() {
+  local json="$1" field="$2"
+  printf '%s' "$json" \
+    | sed -n "s/.*\"$field\"[[:space:]]*:[[:space:]]*\"\{0,1\}\([^\",}]*\)\"\{0,1\}.*/\1/p" \
+    | head -1
+}
+
+# Reads the whole ys_beacon.settings object, echoing it as JSON on stdout.
+# Fails when the config object does not exist (module not installed there --
+# should not happen on a YaleSites profile install, but don't assume).
+read_settings() {
+  local target="$1"
+  terminus drush "$target" -- config:get ys_beacon.settings --format=json 2>/dev/null
+}
+
+# Reads whether the given Search API index is read-only, echoing 'true' or
+# 'false' on stdout. Fails (nonzero, nothing echoed) when the read itself
+# fails, so a transient terminus error is never mistaken for "not read-only"
+# and queued anyway -- azure_index_name is already known non-empty by the time
+# this is called, so the index config is expected to exist.
+read_read_only() {
+  local target="$1" index_id="$2" out value
+  out="$(terminus drush "$target" -- config:get "search_api.index.$index_id" read_only --format=json 2>/dev/null)" || return 1
+  value="$(json_field "$out" "search_api\\.index\\.$index_id:read_only")"
+  echo "${value:-false}"
+}
+
+# Reads {indexed, total} for the given index, best-effort. Echoes "?/?" when
+# the read fails, so a status hiccup never blocks the actual reindex action.
+read_status() {
+  local target="$1" index_id="$2" out indexed total
+  out="$(terminus drush "$target" -- search-api:status "$index_id" --format=json 2>/dev/null)" || { echo '?/?'; return; }
+  indexed="$(json_field "$out" 'indexed')"
+  total="$(json_field "$out" 'total')"
+  echo "${indexed:-?}/${total:-?}"
+}
+
+queued=(); skipped=(); read_only_list=(); failed=()
+
+echo "Beacon reindex (search-api:rebuild-tracker, matching the 'Re-index all content' button)"
+[[ $NOW -eq 1 ]] && echo "Also processing the queue immediately (--now, search-api:index)."
+echo "Default site for bare environment names: $DEFAULT_SITE"
+[[ $DRY_RUN -eq 1 ]] && echo 'DRY RUN: nothing will be written.'
+echo "Environments: ${#targets[@]}"
+echo
+
+for target in "${targets[@]}"; do
+  # Bare environment names are resolved against the default site.
+  [[ "$target" == *.* ]] || target="$DEFAULT_SITE.$target"
+
+  printf '%-55s ' "$target"
+
+  settings_json="$(read_settings "$target")"
+  if [[ -z "$settings_json" ]]; then
+    echo 'FAILED (could not read ys_beacon.settings; env missing, asleep, or no access)'
+    failed+=("$target")
+    continue
+  fi
+
+  authorized="$(json_field "$settings_json" 'platform_authorized')"
+  enable_chat="$(json_field "$settings_json" 'enable_chat')"
+  index_name="$(json_field "$settings_json" 'azure_index_name')"
+  index_id="$(json_field "$settings_json" 'search_index_id')"
+  [[ -n "$index_id" ]] || index_id='ys_beacon'
+
+  if [[ "$authorized" != 'true' ]]; then
+    echo 'SKIP (not authorized by platform admin)'
+    skipped+=("$target: not authorized")
+    continue
+  fi
+  if [[ "$enable_chat" != 'true' ]]; then
+    echo 'SKIP (chat widget disabled)'
+    skipped+=("$target: chat widget disabled")
+    continue
+  fi
+  if [[ -z "$index_name" ]]; then
+    echo 'SKIP (no Azure index provisioned yet)'
+    skipped+=("$target: no Azure index provisioned")
+    continue
+  fi
+
+  if ! read_only="$(read_read_only "$target" "$index_id")"; then
+    echo 'FAILED (could not read search_api.index read_only status)'
+    failed+=("$target")
+    continue
+  fi
+  if [[ "$read_only" == 'true' ]]; then
+    echo 'SKIP (read-only: borrows another site'"'"'s index)'
+    read_only_list+=("$target")
+    continue
+  fi
+
+  before="$(read_status "$target" "$index_id")"
+
+  if [[ $DRY_RUN -eq 1 ]]; then
+    echo "would queue reindex (index: $index_id, currently $before indexed/total)"
+    queued+=("$target")
+    continue
+  fi
+
+  if ! terminus drush "$target" -- search-api:rebuild-tracker "$index_id" >/dev/null 2>&1; then
+    echo "FAILED (search-api:rebuild-tracker returned an error)"
+    failed+=("$target")
+    continue
+  fi
+
+  if [[ $NOW -eq 1 ]]; then
+    if ! terminus drush "$target" -- search-api:index "$index_id" >/dev/null 2>&1; then
+      echo "FAILED (queued, but search-api:index returned an error)"
+      failed+=("$target")
+      continue
+    fi
+  fi
+
+  after="$(read_status "$target" "$index_id")"
+  if [[ $NOW -eq 1 ]]; then
+    echo "reindexed now (index: $index_id, $before -> $after indexed/total)"
+  else
+    echo "queued for reindex (index: $index_id, $before -> $after indexed/total; picked up on next cron)"
+  fi
+  queued+=("$target")
+done
+
+echo
+echo '--- Summary ---'
+if [[ $DRY_RUN -eq 1 ]]; then
+  echo "Would queue:           ${#queued[@]}"
+else
+  echo "Queued/reindexed:      ${#queued[@]}"
+fi
+echo "Skipped (Beacon off):  ${#skipped[@]}"
+echo "Skipped (read-only):   ${#read_only_list[@]}"
+echo "Failed:                ${#failed[@]}"
+
+for label_and_list in 'Skipped (Beacon off):skipped' 'Skipped (read-only):read_only_list' 'Failed:failed'; do
+  label="${label_and_list%%:*}"
+  case "${label_and_list##*:}" in
+    skipped)         list=("${skipped[@]+"${skipped[@]}"}") ;;
+    read_only_list)  list=("${read_only_list[@]+"${read_only_list[@]}"}") ;;
+    failed)          list=("${failed[@]+"${failed[@]}"}") ;;
+  esac
+  if [[ ${#list[@]} -gt 0 ]]; then
+    echo
+    echo "$label"
+    printf '  %s\n' "${list[@]}"
+  fi
+done
+
+[[ ${#failed[@]} -eq 0 ]] || exit 1

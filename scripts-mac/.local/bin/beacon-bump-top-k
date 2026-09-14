@@ -1,0 +1,276 @@
+#!/bin/bash
+#
+# Bump the ys_beacon "Sources per answer" setting across a list of Pantheon
+# environments (typically multidevs).
+#
+# "Sources per answer" on /admin/yalesites/beacon is ys_beacon.settings:top_k.
+# The value is per-environment database state, not exported config: the profile
+# lists 'ys_beacon*' in config_ignore.settings.yml, so it is absent from
+# config/sync and a `drush deploy` will neither set nor revert it. config:set
+# over terminus is therefore the way to change it in bulk.
+#
+# Each environment is read before it is written: only environments currently at
+# FROM_VALUE are changed. Anything already at TO_VALUE, deliberately tuned to
+# some third value, or missing the setting entirely is left alone and reported.
+#
+# Use --from any when the fleet is already a mix of values -- after an earlier
+# run has moved some environments but not others -- to move everything that is
+# not already at TO_VALUE in a single pass. Environments where the setting is
+# absent are still skipped, so --from any never installs the key on a site that
+# does not have Beacon.
+#
+# Usage:
+#   beacon-bump-top-k [options] [target ...]
+#
+# Options:
+#   -f, --file FILE   Read targets from FILE, one per line (# comments and
+#                     blank lines ignored). Use - for stdin.
+#   -s, --site SITE   Pantheon site for bare environment names.
+#   -n, --dry-run     Report what would change without writing anything.
+#       --from N      Only bump environments currently at N. Default 5. Pass
+#                     'any' to bump every environment not already at --to,
+#                     whatever it is currently set to.
+#       --to N        Value to write. Default 10. Must be 1-20.
+#   -h, --help        Show this help.
+#
+# Targets are "site.env" (e.g. yalesites-platform.my-multidev) or a bare "env"
+# (e.g. my-multidev), which is resolved against the default site. With no
+# targets on the command line and no --file, the SITES list below is used.
+#
+# Examples:
+#   # Edit the SITES list below, then dry-run it:
+#   beacon-bump-top-k --dry-run
+#
+#   # Explicit targets on the command line:
+#   beacon-bump-top-k my-multidev another-multidev
+#
+#   # Every multidev on a site (review the list before piping it in):
+#   terminus env:list yalesites-platform --field=id > /tmp/envs.txt
+#   beacon-bump-top-k -f /tmp/envs.txt
+#
+#   # A later change to a different value, across a fleet that is already a
+#   # mix of 5 and 10:
+#   beacon-bump-top-k --from any --to 15 -f /tmp/envs.txt --dry-run
+
+set -uo pipefail
+
+CONFIG_OBJECT='ys_beacon.settings'
+CONFIG_KEY='top_k'
+# The config object name with dots escaped, for use inside the sed pattern.
+CONFIG_OBJECT_RE='ys_beacon\.settings'
+
+FROM_VALUE=5
+TO_VALUE=10
+DRY_RUN=0
+TARGET_FILE=''
+
+# ---------------------------------------------------------------------------
+# Environments to process.
+#
+# Add one entry per line, as "site.env" or a bare "env". Anything passed on the
+# command line or via --file replaces this list.
+# ---------------------------------------------------------------------------
+SITES=(
+  # my-multidev
+  # yalesites-platform.another-multidev
+)
+
+# Default Pantheon site for bare environment names. When run from inside a
+# yalesites-project checkout, take it from that checkout's .lando.local.yml,
+# since the Pantheon site differs per checkout; otherwise fall back to the
+# platform site. --site overrides either way.
+DEFAULT_SITE='yalesites-platform'
+if [[ -f '.lando.local.yml' ]]; then
+  lando_site="$(awk '/^[[:space:]]+site:[[:space:]]/{print $2; exit}' '.lando.local.yml')"
+  [[ -n "$lando_site" ]] && DEFAULT_SITE="$lando_site"
+fi
+
+# Prints the header comment block (everything from line 3 up to the first line
+# that is not a comment) as the help text, so the two never drift apart.
+usage() {
+  awk 'NR > 2 { if ($0 !~ /^#/) exit; sub(/^# ?/, ""); print }' "${BASH_SOURCE[0]}"
+}
+
+die() {
+  echo "error: $*" >&2
+  exit 1
+}
+
+cli_targets=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -f|--file)
+      [[ $# -ge 2 ]] || die "$1 requires a file argument"
+      TARGET_FILE="$2"
+      shift 2
+      ;;
+    -s|--site)
+      [[ $# -ge 2 ]] || die "$1 requires a site argument"
+      DEFAULT_SITE="$2"
+      shift 2
+      ;;
+    -n|--dry-run)
+      DRY_RUN=1
+      shift
+      ;;
+    --from)
+      [[ $# -ge 2 ]] || die "--from requires a value"
+      FROM_VALUE="$2"
+      shift 2
+      ;;
+    --to)
+      [[ $# -ge 2 ]] || die "--to requires a value"
+      TO_VALUE="$2"
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    -*)
+      die "unknown option: $1"
+      ;;
+    *)
+      cli_targets+=("$1")
+      shift
+      ;;
+  esac
+done
+
+[[ "$FROM_VALUE" =~ ^[0-9]+$ || "$FROM_VALUE" == 'any' ]] \
+  || die "--from must be a whole number or 'any', got: $FROM_VALUE"
+[[ "$TO_VALUE" =~ ^[0-9]+$ ]] || die "--to must be a whole number, got: $TO_VALUE"
+# The admin form constrains "Sources per answer" to 1-20; stay inside it so the
+# value this script writes is one an editor could have set in the UI.
+{ [[ "$TO_VALUE" -ge 1 ]] && [[ "$TO_VALUE" -le 20 ]]; } || die "--to must be between 1 and 20, got: $TO_VALUE"
+
+command -v terminus >/dev/null 2>&1 || die "terminus not found on PATH"
+terminus auth:whoami >/dev/null 2>&1 || die "terminus is not authenticated; run: terminus auth:login"
+
+# Assemble the target list: command line wins, then --file, then the SITES list.
+targets=()
+if [[ ${#cli_targets[@]} -gt 0 ]]; then
+  targets=("${cli_targets[@]}")
+elif [[ -n "$TARGET_FILE" ]]; then
+  if [[ "$TARGET_FILE" == '-' ]]; then
+    file_input="$(cat)"
+  else
+    [[ -f "$TARGET_FILE" ]] || die "no such file: $TARGET_FILE"
+    file_input="$(cat "$TARGET_FILE")"
+  fi
+  while IFS= read -r line; do
+    line="${line%%#*}"
+    line="${line//[[:space:]]/}"
+    [[ -n "$line" ]] && targets+=("$line")
+  done <<< "$file_input"
+elif [[ ${#SITES[@]} -gt 0 ]]; then
+  targets=("${SITES[@]}")
+fi
+
+if [[ ${#targets[@]} -eq 0 ]]; then
+  die "no targets. Add entries to the SITES list in this script, pass them as arguments, or use --file."
+fi
+
+# Reads the current value, echoing it on stdout. Echoes nothing when the key is
+# unset or the config object does not exist (Beacon not installed there).
+read_value() {
+  local target="$1" out
+  out="$(terminus drush "$target" -- config:get "$CONFIG_OBJECT" "$CONFIG_KEY" --format=json 2>/dev/null)" || return 1
+  printf '%s' "$out" \
+    | sed -n "s/.*\"$CONFIG_OBJECT_RE:$CONFIG_KEY\"[[:space:]]*:[[:space:]]*\"\{0,1\}\([^\",}]*\)\"\{0,1\}.*/\1/p" \
+    | head -1
+}
+
+# --input-format=yaml so the value lands as an integer; the default 'string'
+# format would store "10" as a string, against ys_beacon.settings' schema.
+write_value() {
+  local target="$1"
+  terminus drush "$target" -- config:set --input-format=yaml "$CONFIG_OBJECT" "$CONFIG_KEY" "$TO_VALUE" -y >/dev/null 2>&1
+}
+
+bumped=(); already=(); other=(); missing=(); failed=()
+
+if [[ "$FROM_VALUE" == 'any' ]]; then
+  echo "Beacon 'Sources per answer' ($CONFIG_OBJECT:$CONFIG_KEY): any value -> $TO_VALUE"
+else
+  echo "Beacon 'Sources per answer' ($CONFIG_OBJECT:$CONFIG_KEY): $FROM_VALUE -> $TO_VALUE"
+fi
+echo "Default site for bare environment names: $DEFAULT_SITE"
+[[ $DRY_RUN -eq 1 ]] && echo 'DRY RUN: nothing will be written.'
+echo "Environments: ${#targets[@]}"
+echo
+
+for target in "${targets[@]}"; do
+  # Bare environment names are resolved against the default site.
+  [[ "$target" == *.* ]] || target="$DEFAULT_SITE.$target"
+
+  printf '%-55s ' "$target"
+
+  if ! value="$(read_value "$target")"; then
+    echo 'FAILED (could not read config; env missing, asleep, or no access)'
+    failed+=("$target")
+    continue
+  fi
+
+  # The already-at-target check comes before the bump check so that --from any
+  # does not rewrite an environment that needs no change.
+  if [[ -z "$value" || "$value" == 'null' ]]; then
+    echo 'SKIP (setting not present; Beacon likely not installed)'
+    missing+=("$target")
+  elif [[ "$value" == "$TO_VALUE" ]]; then
+    echo "ok (already $TO_VALUE)"
+    already+=("$target")
+  elif [[ "$FROM_VALUE" == 'any' || "$value" == "$FROM_VALUE" ]]; then
+    if [[ $DRY_RUN -eq 1 ]]; then
+      echo "would bump $value -> $TO_VALUE"
+      bumped+=("$target")
+      continue
+    fi
+    if ! write_value "$target"; then
+      echo "FAILED (config:set returned an error; still $value)"
+      failed+=("$target")
+      continue
+    fi
+    # Read back rather than trusting the write, so the summary reflects the
+    # environment's actual state.
+    confirmed="$(read_value "$target")"
+    if [[ "$confirmed" == "$TO_VALUE" ]]; then
+      echo "bumped $value -> $TO_VALUE"
+      bumped+=("$target")
+    else
+      echo "FAILED (wrote $TO_VALUE but reads back as '${confirmed:-unset}')"
+      failed+=("$target")
+    fi
+  else
+    echo "SKIP (set to $value, neither $FROM_VALUE nor $TO_VALUE)"
+    other+=("$target")
+  fi
+done
+
+echo
+echo '--- Summary ---'
+if [[ $DRY_RUN -eq 1 ]]; then
+  echo "Would bump:            ${#bumped[@]}"
+else
+  echo "Bumped to $TO_VALUE:          ${#bumped[@]}"
+fi
+echo "Already $TO_VALUE:            ${#already[@]}"
+echo "Other value (skipped): ${#other[@]}"
+echo "Setting absent:        ${#missing[@]}"
+echo "Failed:                ${#failed[@]}"
+
+for label_and_list in 'Other value:other' 'Setting absent:missing' 'Failed:failed'; do
+  label="${label_and_list%%:*}"
+  case "${label_and_list##*:}" in
+    other)   list=("${other[@]+"${other[@]}"}") ;;
+    missing) list=("${missing[@]+"${missing[@]}"}") ;;
+    failed)  list=("${failed[@]+"${failed[@]}"}") ;;
+  esac
+  if [[ ${#list[@]} -gt 0 ]]; then
+    echo
+    echo "$label"
+    printf '  %s\n' "${list[@]}"
+  fi
+done
+
+[[ ${#failed[@]} -eq 0 ]] || exit 1
