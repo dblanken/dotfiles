@@ -42,7 +42,6 @@ function llogin() {
 
   if [ ${#args[@]} -eq 0 ]; then
     url=$(l drush uli)
-    url="${url::-1}"
   else
     url=$(terminus drush $args[@] -- user:login)
   fi
