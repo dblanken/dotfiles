@@ -25,10 +25,12 @@ if is_macos; then
   fi
 fi
 alias claude-personal='CLAUDE_CONFIG_DIR=~/.claude-personal claude'
-alias claude-portkey='CLAUDE_CONFIG_DIR=~/.claude-portkey claude'
+alias claude-portkey='CLAUDE_CONFIG_DIR=~/.claude-portkey claude --settings ~/.claude-portkey/gateway.json'
+alias claude-hipaa='CLAUDE_CONFIG_DIR=~/.claude-hippa claude'
 alias claude-desktop-personal='open -n -a "Claude" --args --user-data-dir="$HOME/Library/Application Support/Claude-Personal"'
-# For an A/B test of Claude Code without any surrounding support
-alias claude-ab='CLAUDE_CONFIG_DIR=~/.claude-ab claude'
+alias claude-desktop-hipaa='open -n -a "Claude" --args --user-data-dir="$HOME/Library/Application Support/Claude-Hipaa"'
+# Original working claude
+alias claude-old='CLAUDE_CONFIG_DIR=~/.claude-old claude'
 
 # Git
 alias g=git
