@@ -91,3 +91,18 @@ fi
 
 # Create alias if we found mysql8
 [[ -n "$MYSQL8_BIN" ]] && alias mysql8="$MYSQL8_BIN"
+
+# =============================================================================
+# Locale
+# =============================================================================
+
+# Alacritty exports LC_ALL=en_US.UTF-8 on macOS (GUI apps inherit no locale),
+# and tmux then hands it to every pane. Lando/Docker forward it into containers
+# whose glibc only has C/C.UTF-8, so bash warns on every exec:
+#   /bin/bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+# Moving the value to LANG keeps the macOS side identical -- bash falls back
+# quietly for LANG, and only complains about LC_ALL.
+if [[ -n "$LC_ALL" ]]; then
+  export LANG="$LC_ALL"
+  unset LC_ALL
+fi
