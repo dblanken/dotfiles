@@ -56,6 +56,12 @@ export PHP_CONFIGURE_OPTS="--with-imagick=/opt/homebrew/opt/imagemagick"
 export LSCOLORS=gafacadabaegedabagacad
 
 # =============================================================================
+# Disable telemetry from azure function cli
+# =============================================================================
+
+export FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT=1
+
+# =============================================================================
 # Key repeat rate (60 fps)
 # =============================================================================
 
