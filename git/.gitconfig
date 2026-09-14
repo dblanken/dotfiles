@@ -41,6 +41,7 @@
 	defaultRemote = origin
 [safe]
 	directory = /app
+	directory = /app/web/themes/contrib/atomic
 [include]
 	path = ~/.gitconfig.local
 [filter "lfs"]
