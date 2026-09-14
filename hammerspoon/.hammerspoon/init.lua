@@ -119,7 +119,10 @@ local numberOpenings = {
 	"com.apple.mail",
 	"com.apple.MobileSMS",
 	"com.microsoft.teams2",
-	"com.amazon.music",
+	-- Amazon Music.app was discontinued in favor of the web player;
+	-- this is the bundle ID of the Safari Web App ("Amazon Music Web.app")
+	-- replacing it. Regenerated if that web app is ever recreated.
+	"com.apple.Safari.WebApp.E09EE667-849A-485B-92D4-461511021098",
 }
 
 local layoutConfig = {
