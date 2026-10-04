@@ -141,4 +141,12 @@ if [[ -n "$DISTRO_ID" ]]; then
     fi
 fi
 
+# SSH key passphrase via KDE's askpass, remembered in KWallet. Lets ssh-add
+# load the key with no terminal (e.g. the first shell after boot is Claude
+# Code's), instead of failing silently. Separate from SUDO_ASKPASS above.
+if [ -x /usr/bin/ksshaskpass ]; then
+    export SSH_ASKPASS=/usr/bin/ksshaskpass
+    export SSH_ASKPASS_REQUIRE=prefer
+fi
+
 export VINTAGE_STORY=/opt/vintagestory
