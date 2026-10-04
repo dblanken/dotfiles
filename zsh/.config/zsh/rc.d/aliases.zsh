@@ -61,3 +61,7 @@ alias quickquestion="ask-ollama -m phi4-mini:latest"
 alias '?'=duck
 alias '??'=google
 alias '???'=bing
+
+# Claude Code session launchers — start sessions in the right project dir
+# so the correct CLAUDE.md context loads (system work belongs in system-setup)
+alias csys='cd ~/Documents/system-setup && claude'
