@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Toggle HDMI Monitor
+Comment=Enable/disable only the HDMI-A-1 monitor (leaves the Vizio TV mirror alone)
+Exec=/home/dblanken/.local/bin/toggle-hdmi.sh
+Icon=video-display
+Terminal=false
+Categories=System;
+Keywords=monitor;display;hdmi;toggle;
