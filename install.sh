@@ -184,6 +184,8 @@ EOF
             # Check if Debian/Ubuntu-based
             if [[ "$ID_LIKE" == *"debian"* ]] || [[ "$ID" == "ubuntu" ]] || [[ "$ID" == "pop" ]] || [[ "$ID" == "debian" ]]; then
                 print_success "Debian/Ubuntu-based distribution detected"
+            elif [[ "$ID_LIKE" == *"arch"* ]] || [[ "$ID" == "arch" ]]; then
+                print_success "Arch-based distribution detected (packages.arch.txt; unverified)"
             else
                 print_warning "This script is optimized for Debian/Ubuntu-based distributions"
                 print_warning "Your distribution: $NAME"
@@ -193,20 +195,27 @@ EOF
             fi
         fi
 
-        # Check for apt
-        if ! command_exists apt; then
-            print_error "apt package manager not found"
-            print_error "This script requires a Debian/Ubuntu-based distribution"
+        # Package manager: pacman (Arch, CachyOS) or apt (Debian/Ubuntu)
+        if command_exists pacman; then
+            PM=pacman
+        elif command_exists apt; then
+            PM=apt
+        else
+            print_error "No supported package manager found (pacman or apt)"
             exit 1
         fi
-        print_success "apt package manager found"
+        print_success "$PM package manager found"
 
         # Check for GNU Stow
         if ! command_exists stow; then
             print_error "GNU Stow is not installed"
-            if ask_yes_no "Would you like to install it with apt?"; then
-                sudo apt update
-                sudo apt install -y stow
+            if ask_yes_no "Would you like to install it with $PM?"; then
+                if [[ "$PM" == "pacman" ]]; then
+                    sudo pacman -S --needed --noconfirm stow
+                else
+                    sudo apt update
+                    sudo apt install -y stow
+                fi
                 print_success "Installed GNU Stow"
             else
                 print_error "GNU Stow is required for installation"
@@ -364,9 +373,14 @@ EOF
     elif [[ "$OS_TYPE" == "Linux" ]]; then
         echo "Install system packages:"
         echo
-        echo "Essential packages from apt:"
-        echo "  sudo apt update"
-        echo "  sudo apt install -y \$(grep -v '^#' packages.linux.txt | tr '\\n' ' ')"
+        if [[ "${PM:-apt}" == "pacman" ]]; then
+            echo "Essential packages from pacman (packages.arch.txt; names unverified):"
+            echo "  sudo pacman -S --needed \$(grep -v '^#' packages.arch.txt | tr '\\n' ' ')"
+        else
+            echo "Essential packages from apt:"
+            echo "  sudo apt update"
+            echo "  sudo apt install -y \$(grep -v '^#' packages.linux.txt | tr '\\n' ' ')"
+        fi
         echo
         echo "Additional software (manual installation required):"
         echo "  • eza - https://github.com/eza-community/eza/releases"
