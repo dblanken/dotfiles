@@ -329,20 +329,7 @@ EOF
         fi
     fi
 
-    # Claude Code configuration
-    print_header "Claude Code configuration"
-    if [[ "$OS_TYPE" == "Darwin" ]]; then
-        print_info "macOS detected — stowing work Claude config"
-        stow_package "claude-work"
-    else
-        print_info "Linux detected — stowing personal Claude config"
-        stow_package "claude-personal"
-    fi
-    if command -v claude-inject-statusline &>/dev/null; then
-        claude-inject-statusline
-    else
-        bash "$DOTFILES_DIR/scripts/.local/bin/claude-inject-statusline"
-    fi
+    print_info "Claude config lives in the private claude-config repo; see its DEPLOY.md. Skipping."
 
     # Post-installation
     print_header "Post-installation"

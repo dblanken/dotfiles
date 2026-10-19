@@ -37,5 +37,11 @@ CLAUDE_*
 !claude-personal/.claude/memory/
 !claude-personal/.claude/memory/**
 
+# Never track these inside the Claude stow packages
+claude-*/.claude/memory/llm-infrastructure.md
+claude-*/.claude/settings*.json
+claude-*/.claude/hooks/
+claude-*/.claude/commands/
+
 # Git worktrees
 .worktrees/
