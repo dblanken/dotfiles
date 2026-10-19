@@ -99,3 +99,15 @@ if [ -f "${SSH_ENV}" ]; then
 else
   start_agent;
 fi
+
+# Claude Code gateway toggles. These are functions, not scripts in ~/.local/bin, because a script
+# runs in a child process and its exports vanish when it exits.
+enable_portkey() {
+  [[ -r ~/.zprofile.local.portkey ]] || { echo "enable_portkey: ~/.zprofile.local.portkey not found" >&2; return 1; }
+  source ~/.zprofile.local.portkey && echo "Portkey enabled for Claude Code"
+}
+
+enable_claude() {
+  unset PORTKEY_API_KEY ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_CUSTOM_HEADERS
+  echo "Portkey is disabled.  Using Claude directly."
+}
