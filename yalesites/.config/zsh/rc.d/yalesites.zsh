@@ -289,7 +289,8 @@ ys-reset-db() {
 # CLAUDE.md files are globally gitignored, so they are never committed to the
 # sub-repos and must be re-linked after a fresh instance. Canonical source:
 # ~/.claude/yalesites/claude-md/{atomic,component-library-twig,tokens}.md
-# Run from a yalesites-project checkout root; wired into local-setup.
+# Run from a yalesites-project checkout root; wired into local-setup. Also links
+# into every <checkout>/.claude/worktrees/*/ that has a web/ dir.
 ys-link-claude-md() {
   local src="$HOME/.claude/yalesites/claude-md"
   local root
@@ -301,24 +302,38 @@ ys-link-claude-md() {
     return 1
   fi
 
+  # The checkout itself, then each linked worktree under .claude/worktrees/.
+  local bases=("$root")
+  local wt
+  for wt in "$root"/.claude/worktrees/*(N/); do
+    [ -d "$wt/web" ] && bases+=("$wt")
+  done
+
   local linked=0
-  for pair in \
-    "yalesites-project.md:." \
-    "atomic.md:$atomic" \
-    "component-library-twig.md:$atomic/_yale-packages/component-library-twig" \
-    "tokens.md:$atomic/_yale-packages/tokens"; do
-    local file="${pair%%:*}" dir="${pair#*:}"
-    if [ ! -f "$src/$file" ]; then
-      echo "skip: canonical $src/$file missing"
-      continue
-    fi
-    if [ ! -d "$dir" ]; then
-      echo "skip: $dir not present yet (run gyst first)"
-      continue
-    fi
-    ln -sf "$src/$file" "$dir/CLAUDE.md"
-    echo "linked $dir/CLAUDE.md -> $src/$file"
-    linked=$((linked + 1))
+  local base top
+  for base in "${bases[@]}"; do
+    atomic="$base/web/themes/contrib/atomic"
+    # The checkout root keeps its original behavior ("." is the current dir).
+    top="$base"
+    [ "$base" = "$root" ] && top="."
+    for pair in \
+      "yalesites-project.md:$top" \
+      "atomic.md:$atomic" \
+      "component-library-twig.md:$atomic/_yale-packages/component-library-twig" \
+      "tokens.md:$atomic/_yale-packages/tokens"; do
+      local file="${pair%%:*}" dir="${pair#*:}"
+      if [ ! -f "$src/$file" ]; then
+        echo "skip: canonical $src/$file missing"
+        continue
+      fi
+      if [ ! -d "$dir" ]; then
+        echo "skip: $dir not present yet (run gyst first)"
+        continue
+      fi
+      ln -sf "$src/$file" "$dir/CLAUDE.md"
+      echo "linked $dir/CLAUDE.md -> $src/$file"
+      linked=$((linked + 1))
+    done
   done
   echo "Linked $linked CLAUDE.md file(s)."
 }
