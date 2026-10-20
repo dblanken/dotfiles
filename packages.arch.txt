@@ -1,0 +1,71 @@
+# Arch Linux Package List (CachyOS)
+# Same tools as packages.linux.txt, with Arch package names.
+# UNVERIFIED: written on macOS, never installed on Arch. Check each name with
+# `pacman -Si <name>` before relying on this list.
+# Install with: sudo pacman -S --needed $(grep -v '^#' packages.arch.txt | tr '\n' ' ')
+
+# Core development tools
+git
+stow
+tmux
+neovim
+zsh
+
+# Shell utilities (Arch ships the normal binary names: fd, bat)
+fzf
+ripgrep
+fd
+bat
+jq
+
+# Clipboard utilities (install at least one)
+xclip
+xsel
+wl-clipboard
+
+# YaleSites-specific dependencies (mysql-client, docker.io, docker-compose on apt)
+mariadb-clients
+docker
+docker-compose
+
+# Build dependencies for PHP/Ruby/Python development (Arch ships headers with the library)
+base-devel
+openssl
+libxml2
+gmp
+libpng
+libtiff
+ncurses
+mpfr
+libyaml
+icu
+readline
+libwebp
+unixodbc
+libjpeg-turbo
+postgresql-libs
+imagemagick
+
+# System tools
+curl
+wget
+ca-certificates
+gnupg
+lsb-release
+
+# Fonts
+fontconfig
+
+# Optional: Development tools (venv is part of the python package)
+python-pip
+
+# In the Arch repos (manual installs on apt):
+eza
+mise
+alacritty
+ttf-cascadia-code-nerd
+
+# Needed by the Claude Code hooks in the private claude-config repo
+perl
+gnu-netcat
+github-cli

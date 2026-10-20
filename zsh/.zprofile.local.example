@@ -22,6 +22,11 @@
 # Environment variables
 # ==============================================================================
 
+# Prefer loading credentials with a function you call when needed, not exporting them here.
+# Every shell-launched Claude inherits exported vars, so a key exported at shell start is always exposed.
+# load-work-creds() { export WORK_API_KEY="..."; export WORK_API_URL="..."; }
+# Then run `load-work-creds` in the shell that needs them (new shells start without them).
+
 # API keys and secrets (NEVER commit these!)
 # export OPENAI_API_KEY="sk-..."
 # export AWS_ACCESS_KEY_ID="..."

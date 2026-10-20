@@ -8,7 +8,7 @@ This is a personal dotfiles repository managed with **GNU Stow** for **macOS** a
 
 **Supported platforms:**
 - macOS 13+ (Ventura and later) - Intel and Apple Silicon
-- Linux (Debian/Ubuntu-based) - Pop!_OS 22.04+, Ubuntu 22.04+
+- Linux - CachyOS (Arch-based; pacman and paru)
 
 The same configuration works seamlessly on both platforms through automatic platform detection and conditional loading.
 
@@ -39,8 +39,7 @@ When stowed, files are symlinked from `~/.dotfiles/<package>/<path>` to `~/<path
 - `scripts-mac/` - macOS-only scripts in `.local/bin/` (lock, killexchange, Lando/Drupal tools)
 - `yalesites/` - YaleSites/Drupal shell functions — **macOS/work only**, stow on macOS
 - `yalesites-worktrees/` - Git worktree helpers for multi-repo YaleSites development — **macOS/work only**
-- `claude-work/` - Claude Code config for the work Mac: rules, memory files, statusline for Drupal/PHP/JS work
-- `claude-personal/` - Claude Code config for the personal Linux machine: shared memory files, no work-specific rules
+- `claude-work/` and `claude-personal/` - Legacy Claude Code config, not stowed. Claude config now lives in the private claude-config repo; `~/.claude/CLAUDE.md` is not a stow symlink and dotfiles no longer carry it.
 - `archive/` - Archived scripts kept for reference, not stowed (old Nobara/Pop!_OS/Arch scripts)
 - `autostart/` - Linux desktop autostart entries (Linux-specific)
 - `mise/` - Runtime version manager configuration
@@ -78,7 +77,7 @@ Platform-specific commands are abstracted behind cross-platform wrapper function
 
 **Package Management:**
 - **macOS**: `Brewfile` for Homebrew packages
-- **Linux**: `packages.linux.txt` for apt packages
+- **Linux**: `packages.linux.txt` is a legacy Debian/Ubuntu apt list; on CachyOS install with pacman or paru
 
 See [README-LINUX.md](README-LINUX.md) for Linux-specific installation details.
 
@@ -86,7 +85,7 @@ See [README-LINUX.md](README-LINUX.md) for Linux-specific installation details.
 
 Sensitive or machine-specific configs use `.local` suffix:
 - `.zprofile.local` - Not in repo, sourced if present (example template: `.zprofile.local.example`)
-- `.zprofile.local.portkey` - Referenced by enable_portkey script
+- `.zprofile.local.portkey` - Sourced by the `enable_portkey` zsh function (functions.zsh)
 - `.lando.local.yml` - YaleSites local environment (generated)
 
 These files are gitignored and should never be committed.
@@ -108,10 +107,10 @@ These files are gitignored and should never be committed.
 - **Packages**: tmux, neovim, zsh, alacritty, fzf, ripgrep, fd, bat, eza, mise
 
 **Linux:**
-- **Package Manager**: apt (Debian/Ubuntu)
-- **Installation**: `sudo apt install -y $(grep -v '^#' packages.linux.txt | tr '\n' ' ')`
-- **Packages**: Equivalent to macOS packages, some with different names (fd-find, batcat)
-- **Additional**: Some tools require manual installation (eza, mise, alacritty, lando, nerd fonts)
+- **Package Manager**: pacman, plus paru for AUR packages (CachyOS, Arch-based)
+- **Installation**: `sudo pacman -S <pkg>` or `paru -S <pkg>`. `packages.linux.txt`, `PACKAGES.md`, `README-LINUX.md` and `install-linux-extras.sh` still describe Debian/Ubuntu apt and are out of date for CachyOS.
+- **Packages**: Equivalent to macOS packages, some with different names
+- **Additional**: Some tools may need manual installation (lando, nerd fonts)
 
 **Cross-Platform:**
 - **Runtime versions**: mise (formerly asdf), conditionally loaded
@@ -244,7 +243,7 @@ Scripts are split across three stow packages that all symlink into `~/.local/bin
 - Runs shellcheck if available
 - Run via `make validate` or directly as `dotfiles-check`
 
-**enable_portkey** - Sources Portkey configuration for Claude Code
+**enable_portkey / enable_claude** - zsh functions in `functions.zsh` (not scripts, so the exports reach your shell) that load or unload the Portkey settings for Claude Code
 
 **`scripts-linux/` — Linux-only** (stow on Linux machines):
 - `fix-hdmi-monitor.sh` - Configures multi-monitor setup with custom resolution (X11/xrandr)
@@ -347,13 +346,11 @@ make restow-<package>   # Restow after editing configs
 - `scripts-mac` - macOS-only scripts (lock, killexchange, Lando/Drupal tools)
 - `yalesites` - YaleSites/Drupal shell functions (llogin, dbget, yspull, etc.)
 - `yalesites-worktrees` - Git worktree helpers for multi-repo YaleSites development
-- `claude-work` - Claude Code configuration for Drupal/PHP/JS work environment
 
 **Linux-specific packages** (stow on personal Linux machine):
 - `autostart` - Desktop autostart entries for display configuration
 - `mise` - Runtime version manager configuration
 - `scripts-linux` - Linux-only scripts (display management, gaming backups)
-- `claude-personal` - Claude Code configuration for personal Linux environment
 
 **Optional packages**:
 - `alacritty` - Terminal emulator
@@ -380,7 +377,7 @@ make restow-<package>   # Restow after editing configs
 - **Version control**: Git with SSH signing (gpgsign enabled, SSH format)
 - **Database**:
   - **macOS**: MySQL 8.4 client via Homebrew (aliased as mysql8 in env.darwin.zsh)
-  - **Linux**: mysql-client via apt (packages.linux.txt)
+  - **Linux**: mysql-client via pacman
 
 ### File Modifications
 

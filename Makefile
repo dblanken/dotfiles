@@ -27,6 +27,15 @@ OPTIONAL_PACKAGES := alacritty lazyvim hammerspoon karabiner
 # All packages
 ALL_PACKAGES := $(CORE_PACKAGES) $(MAC_PACKAGES) $(LINUX_PACKAGES) $(OPTIONAL_PACKAGES) nvim vim asdf kitty
 
+# Packages for this OS only: the *-all targets and status use this, so a Linux
+# box never gets the macOS/YaleSites packages and the Mac never gets the Linux ones.
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+PLATFORM_PACKAGES := $(CORE_PACKAGES) $(MAC_PACKAGES) $(OPTIONAL_PACKAGES)
+else
+PLATFORM_PACKAGES := $(CORE_PACKAGES) $(LINUX_PACKAGES) alacritty lazyvim
+endif
+
 help: ## Show this help message
 	@echo "$(BLUE)Dotfiles Makefile$(NC)"
 	@echo ""
@@ -57,7 +66,7 @@ update: ## Update git submodules (zsh plugins)
 
 stow-all: ## Stow all packages
 	@echo "$(BLUE)==>$(NC) Stowing all packages..."
-	@for package in $(ALL_PACKAGES); do \
+	@for package in $(PLATFORM_PACKAGES); do \
 		if [ -d "$$package" ]; then \
 			echo "  Stowing $$package..."; \
 			stow -d $(DOTFILES) -t $(HOME) $$package 2>/dev/null || \
@@ -68,7 +77,7 @@ stow-all: ## Stow all packages
 
 unstow-all: ## Unstow all packages
 	@echo "$(BLUE)==>$(NC) Unstowing all packages..."
-	@for package in $(ALL_PACKAGES); do \
+	@for package in $(PLATFORM_PACKAGES); do \
 		if [ -d "$$package" ]; then \
 			echo "  Unstowing $$package..."; \
 			stow -D -d $(DOTFILES) -t $(HOME) $$package 2>/dev/null || true; \
@@ -78,7 +87,7 @@ unstow-all: ## Unstow all packages
 
 restow-all: ## Restow all packages (unstow then stow)
 	@echo "$(BLUE)==>$(NC) Restowing all packages..."
-	@for package in $(ALL_PACKAGES); do \
+	@for package in $(PLATFORM_PACKAGES); do \
 		if [ -d "$$package" ]; then \
 			echo "  Restowing $$package..."; \
 			stow -R -d $(DOTFILES) -t $(HOME) $$package 2>/dev/null || \
@@ -176,7 +185,7 @@ clean: ## Remove broken symlinks in home directory
 status: ## Show stow package status
 	@echo "$(BLUE)==>$(NC) Checking package status..."
 	@echo ""
-	@for package in $(ALL_PACKAGES); do \
+	@for package in $(PLATFORM_PACKAGES); do \
 		if [ -d "$$package" ]; then \
 			echo -n "  $$package: "; \
 			if stow -n -d $(DOTFILES) -t $(HOME) $$package 2>&1 | grep -q "already exists"; then \
