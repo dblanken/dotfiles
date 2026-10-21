@@ -35,7 +35,6 @@ return {
       },
       formatters_by_ft = {
         lua = { "stylua" },
-        fish = { "fish_indent" },
         sh = { "shfmt" },
         -- User override: Drupal PHP formatting
         php = { "phpcbf" },
