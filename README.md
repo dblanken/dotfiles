@@ -297,7 +297,7 @@ The zsh configuration includes extensive utilities for YaleSites/Drupal developm
 - `llogin [--copy] [terminus-args]` - Get Drupal login URL
 - `watchdog [terminus-args]` - Tail Drupal logs
 - `yspull` - Update all YaleSites repos (project + atomic + component-library-twig)
-- `gyst` - Git checkout matching branch across all repos
+- `gyst [-s]` - Git checkout matching branch across all repos and refresh composer dependencies (`-s` skips composer)
 - `dbget [multidev]` - Pull database from Pantheon (default: dev)
 - `dbandfiles [multidev]` - Pull database and files
 - `confim` - Config import + cache rebuild

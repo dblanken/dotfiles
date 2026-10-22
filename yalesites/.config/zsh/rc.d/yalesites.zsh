@@ -122,7 +122,9 @@ function gcbcreate() {
   cd "$rootPath"
 }
 
-# Attempts to git-checkout a YaleSite with the current branch
+# Attempts to git-checkout a YaleSite with the current branch. The checkout
+# script also refreshes composer dependencies; extra args pass through, so
+# `gyst -s` skips that step.
 gyst() {
   local branch=$(git symbolic-ref --short HEAD)
 
@@ -131,7 +133,7 @@ gyst() {
     return
   fi
 
-  npm run local:git-checkout -- -b "$branch"
+  npm run local:git-checkout -- -b "$branch" "$@"
 
   # Sub-repo dirs now exist; link their canonical CLAUDE.md context files.
   ys-link-claude-md
