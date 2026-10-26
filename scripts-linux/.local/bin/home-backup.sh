@@ -51,8 +51,25 @@ else
 fi
 
 mkdir -p "$DEST"
-if rsync "${RSYNC_OPTS[@]}" "$SOURCE" "$DEST/" >> "$LOG" 2>&1; then
-    log "Backup SUCCESS: $DEST"
+STATUS=0
+LOG_START=$(wc -l < "$LOG")
+rsync "${RSYNC_OPTS[@]}" "$SOURCE" "$DEST/" >> "$LOG" 2>&1 || STATUS=$?
+
+# A full destination also exits 23 — never treat that as rotatable, or an
+# incomplete snapshot would push out good ones. (11 = rsync's file I/O error.)
+if [ "$STATUS" -eq 23 ] && tail -n +"$((LOG_START + 1))" "$LOG" | grep -q 'No space left on device'; then
+    STATUS=11
+fi
+
+# 23 = some files/attrs not transferred, 24 = source files vanished mid-run.
+# The snapshot is still usable, so rotate anyway — otherwise one unreadable
+# file blocks rotation forever and snapshots pile up until the NTFS MFT fills.
+if [ "$STATUS" -eq 0 ] || [ "$STATUS" -eq 23 ] || [ "$STATUS" -eq 24 ]; then
+    if [ "$STATUS" -eq 0 ]; then
+        log "Backup SUCCESS: $DEST"
+    else
+        log "Backup PARTIAL (rsync status $STATUS, see errors above): $DEST"
+    fi
 
     # Rotate: delete snapshots beyond $KEEP (oldest first)
     mapfile -t OLD < <(ls -1d "$BACKUP_DIR"/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] 2>/dev/null | sort | head -n -"$KEEP" || true)
@@ -61,7 +78,6 @@ if rsync "${RSYNC_OPTS[@]}" "$SOURCE" "$DEST/" >> "$LOG" 2>&1; then
         rm -rf "$dir"
     done
 else
-    STATUS=$?
     log "ERROR: rsync exited with status $STATUS — incomplete snapshot left at $DEST"
     exit $STATUS
 fi
